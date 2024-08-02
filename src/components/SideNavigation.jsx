@@ -1,9 +1,12 @@
-import {AppShell, NavLink} from "@mantine/core";
-import {CreateIcon} from "@/assets/icons/index.js";
 import {useLocation, useNavigate} from "react-router-dom";
+import {AppShell, NavLink} from "@mantine/core";
+import {CreateIcon, LibraryIcon, SearchIcon} from "@/assets/icons/index.js";
+import styles from "@/assets/modules/SideNavigation.module.css";
 
 const NAV_LINKS = [
-  {path: "/", label: "Test", icon: CreateIcon}
+  {path: "/search", icon: <SearchIcon />, title: "Search"},
+  {path: "/create", icon: <CreateIcon />, title: "Create"},
+  {path: "/library", icon: <LibraryIcon />, title: "My Library"},
 ];
 
 const SideNavigation = () => {
@@ -11,16 +14,17 @@ const SideNavigation = () => {
   const location = useLocation();
 
   return (
-    <AppShell.Navbar p="12 0">
+    <AppShell.Navbar p="24 14">
       {
-        NAV_LINKS.map(({path, label, icon}) => (
+        NAV_LINKS.map(({path, icon, title}) => (
           <NavLink
             key={`navigation-link-${path}`}
+            classNames={{section: styles.section}}
             href="#"
             onClick={() => navigate(path)}
-            label={label}
-            leftSection={icon}
             active={path === location.pathname}
+            leftSection={icon}
+            title={title}
           />
         ))
       }
