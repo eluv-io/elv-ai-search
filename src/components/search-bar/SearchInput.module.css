@@ -1,0 +1,13 @@
+.root {
+  flex: 1;
+}
+
+.input {
+  border-radius: 0 50px 50px 0;
+  margin-left: -1px;
+
+  &:focus {
+    border-color: var(--mantine-color-gray-4);
+  }
+}
+

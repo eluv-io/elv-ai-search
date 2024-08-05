@@ -14,8 +14,11 @@
     "lint-scss-fix": "npx stylelint \"src/**/*.{css,scss}\" --fix"
   },
   "dependencies": {
+    "@eluvio/elv-client-js": "^4.0.93",
     "@mantine/core": "^7.11.2",
     "@mantine/hooks": "^7.11.2",
+    "mobx": "^6.13.1",
+    "mobx-react-lite": "^4.0.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.0",
