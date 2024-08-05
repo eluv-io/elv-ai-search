@@ -1,6 +1,6 @@
 import {Box, Title} from "@mantine/core";
-import styles from "@/assets/modules/PageContainer.module.css";
-import SearchBar from "@/components/SearchBar.jsx";
+import styles from "@/components/page-container/PageContainer.module.css";
+import SearchBar from "@/components/search-bar/SearchBar.jsx";
 
 const PageContainer = ({title, showSearchBar=false, children}) => {
   return (

@@ -1,7 +1,7 @@
 import {AppShell, MantineProvider} from "@mantine/core";
 import MantineTheme from "@/assets/MantineTheme.js";
 import {BrowserRouter} from "react-router-dom";
-import SideNavigation from "@/components/SideNavigation.jsx";
+import SideNavigation from "@/components/side-navigation/SideNavigation.jsx";
 import AppRoutes from "./Routes.jsx";
 
 const App = () => {

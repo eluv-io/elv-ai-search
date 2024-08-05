@@ -1,7 +1,7 @@
 import {useLocation, useNavigate} from "react-router-dom";
 import {AppShell, NavLink} from "@mantine/core";
 import {CreateIcon, LibraryIcon, SearchIcon} from "@/assets/icons/index.js";
-import styles from "@/assets/modules/SideNavigation.module.css";
+import styles from "@/components/side-navigation/SideNavigation.module.css";
 
 const NAV_LINKS = [
   {path: "/search", icon: <SearchIcon />, title: "Search"},

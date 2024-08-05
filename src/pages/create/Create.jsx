@@ -1,4 +1,4 @@
-import PageContainer from "@/components/PageContainer.jsx";
+import PageContainer from "@/components/page-container/PageContainer.jsx";
 
 const Create = () => {
   return (
