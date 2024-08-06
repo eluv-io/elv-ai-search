@@ -1,6 +1,6 @@
-// Store for retrieving/caching tenant-level metadata
 import {makeAutoObservable} from "mobx";
 
+// Store for retrieving/caching tenant-level metadata
 class TenantStore {
   rootStore;
 
@@ -18,7 +18,7 @@ class TenantStore {
     return this.rootStore.tenantId;
   }
 
-  LoadTenantData = () => {
+  GetTenantData = () => {
     try {
       return this.client.userProfileClient.TenantContractId();
     } catch(error) {
@@ -28,7 +28,7 @@ class TenantStore {
     }
   };
 
-  LoadTenantIndexes = () => {
+  GetTenantIndexes = () => {
     if(!this.tenantId) {
       return [];
     }

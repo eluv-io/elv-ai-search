@@ -1,7 +1,9 @@
 import {flow, makeAutoObservable} from "mobx";
 import {FrameClient} from "@eluvio/elv-client-js/src/FrameClient.js";
 import TenantStore from "@/stores/TenantStore.js";
+import SearchStore from "@/stores/SearchStore.js";
 
+// Store for loading data on app load
 class RootStore {
   client;
   loaded = false;
@@ -11,6 +13,7 @@ class RootStore {
     makeAutoObservable(this);
 
     this.tenantStore = new TenantStore(this);
+    this.searchStore = new SearchStore(this);
     this.Initialize();
   }
 
@@ -23,7 +26,7 @@ class RootStore {
 
       window.client = this.client;
 
-      this.tenantId = yield this.tenantStore.LoadTenantData();
+      this.tenantId = yield this.tenantStore.GetTenantData();
     } catch(error) {
       /* eslint-disable no-console */
       console.error("Failed to initialize application");
@@ -36,5 +39,6 @@ class RootStore {
 
 export const rootStore = new RootStore();
 export const tenantStore = rootStore.tenantStore;
+export const searchStore = rootStore.searchStore;
 
 window.rootStore = rootStore;

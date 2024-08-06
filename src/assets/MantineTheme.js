@@ -25,7 +25,7 @@ const theme = createTheme({
       "#f5f5f5",
       "#eee",
       "#cdcdcd",
-      "#b2b2b2",
+      "#bdbdbd", // eluvio color
       "#9a9a9a",
       "#8b8b8b",
       "#848484",
@@ -45,6 +45,15 @@ const theme = createTheme({
       "#665972",
       "#594c66"
     ]
+  },
+  components: {
+    Tabs: {
+      styles: () => ({
+        list: {
+          "--tabs-list-border-size": "1px"
+        }
+      })
+    }
   }
 });
 

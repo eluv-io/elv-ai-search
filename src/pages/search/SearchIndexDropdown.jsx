@@ -24,11 +24,10 @@ const DropdownOption = observer(({id, name, direction="COLUMN"}) => {
   );
 });
 
-const SearchIndexDropdown = observer(({indexes=[]}) => {
+const SearchIndexDropdown = observer(({indexes, selectedIndex, setSelectedIndex}) => {
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption()
   });
-  const [index, setIndex] = useState("");
 
   const options = indexes.map(item => (
     <Combobox.Option value={item.id} key={item.id}>
@@ -41,7 +40,7 @@ const SearchIndexDropdown = observer(({indexes=[]}) => {
       store={combobox}
       withinPortal={false}
       onOptionSubmit={value => {
-        setIndex(value);
+        setSelectedIndex(value);
         combobox.closeDropdown();
       }}
     >
@@ -63,19 +62,19 @@ const SearchIndexDropdown = observer(({indexes=[]}) => {
       >
         <TextInput
           placeholder={indexes.length > 0 ? "Select or enter a search index object ID" : "Enter a search index object ID"}
-          value={index}
+          value={selectedIndex}
           onChange={(event) => {
-            setIndex(event.currentTarget.value);
+            setSelectedIndex(event.currentTarget.value);
             combobox.toggleDropdown();
           }}
           onClick={() => combobox.openDropdown()}
           onFocus={() => combobox.openDropdown()}
           rightSection={
-            index !== "" ? (
+            selectedIndex !== "" ? (
                 <CloseButton
                   size="sm"
                   onMouseDown={event => event.preventDefault()}
-                  onClick={() => setIndex("")}
+                  onClick={() => setSelectedIndex("")}
                   aria-label="Clear Value"
                 />
               ) :
@@ -84,7 +83,7 @@ const SearchIndexDropdown = observer(({indexes=[]}) => {
                   <Combobox.Chevron />
                 ) : null
           }
-          rightSectionPointerEvents={index === "" ? "none" : "all"}
+          rightSectionPointerEvents={selectedIndex === "" ? "none" : "all"}
         >
         </TextInput>
       </Combobox.Target>
