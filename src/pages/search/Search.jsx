@@ -6,6 +6,8 @@ import ClipsPanel from "@/pages/search/tab-panels/ClipsPanel.jsx";
 import FullVideosPanel from "@/pages/search/tab-panels/FullVideosPanel.jsx";
 import ImagesPanel from "@/pages/search/tab-panels/ImagesPanel.jsx";
 import ReelsPanel from "@/pages/search/tab-panels/ReelsPanel.jsx";
+import SearchBar from "@/components/search-bar/SearchBar.jsx";
+import {useState} from "react";
 
 const SEARCH_TABS = [
   {value: "full-length-vid", label: "Full Length Videos", Component: FullVideosPanel},
@@ -15,8 +17,17 @@ const SEARCH_TABS = [
 ];
 
 const Search = observer(() => {
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [results, setResults] = useState([]);
+
   return (
-    <PageContainer title="AI Clip Search" showSearchBar>
+    <PageContainer title="AI Clip Search">
+      <SearchBar
+        loadingSearch={loadingSearch}
+        setLoadingSearch={setLoadingSearch}
+        results={results}
+        setResults={setResults}
+      />
       <Tabs defaultValue={SEARCH_TABS[1].value}>
         <Tabs.List justify="center" mb={24}>
           {
@@ -35,7 +46,7 @@ const Search = observer(() => {
         {
           SEARCH_TABS.map(tab => (
             <Tabs.Panel value={tab.value} key={tab.value}>
-              <tab.Component />
+              <tab.Component results={results.contents} />
             </Tabs.Panel>
           ))
         }

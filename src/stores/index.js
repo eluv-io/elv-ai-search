@@ -8,6 +8,8 @@ class RootStore {
   client;
   loaded = false;
   tenantId;
+  networkInfo;
+  signedToken;
 
   constructor() {
     makeAutoObservable(this);
@@ -27,6 +29,8 @@ class RootStore {
       window.client = this.client;
 
       this.tenantId = yield this.tenantStore.GetTenantData();
+      this.networkInfo = yield this.client.NetworkInfo();
+      this.signedToken = yield this.client.CreateFabricToken();
     } catch(error) {
       /* eslint-disable no-console */
       console.error("Failed to initialize application");

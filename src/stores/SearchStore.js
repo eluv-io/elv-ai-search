@@ -1,4 +1,5 @@
 import {makeAutoObservable, flow} from "mobx";
+import {ALL_SEARCH_FIELDS, ASSETS_SEARCH_FIELDS} from "@/utils/constants.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -18,17 +19,16 @@ class SearchStore {
   CreateSearchUrl = flow(function * ({
     objectId,
     versionHash,
-    libraryId,
     searchVersion,
-    search,
-    fuzzySearchPhrase,
+    fuzzySearchValue,
     fuzzySearchField,
     searchAssets,
   }) {
     try {
+      const libraryId = yield this.client.ContentObjectLibraryId({objectId, versionHash});
+
       if(searchVersion === "v1") {
-        console.log("doing V1 search");
-        // searchV1
+        // search v1
         const url = yield this.client.Rep({
           libraryId,
           objectId,
@@ -37,7 +37,7 @@ class SearchStore {
           service: "search",
           makeAccessRequest: true,
           queryParams: {
-            terms: `(${search})`,
+            terms: fuzzySearchValue,
             select: "...,text,/public/asset_metadata/title",
             start: 0,
             limit: 160,
@@ -49,14 +49,8 @@ class SearchStore {
         return { url, status: 0 };
       } else {
         // search v2
-        console.log("doing V2 search");
         const queryParams = {
-          terms:
-            fuzzySearchPhrase === ""
-              ? `(${search})`
-              : search === ""
-                ? fuzzySearchPhrase
-                : `((${fuzzySearchPhrase}) AND ${search})`,
+          terms: fuzzySearchValue,
           select: "/public/asset_metadata/title",
           start: 0,
           limit: 160,
@@ -71,7 +65,7 @@ class SearchStore {
           queryParams.search_fields = fuzzySearchField.join(",");
         }
 
-        if(fuzzySearchPhrase === "") {
+        if(fuzzySearchValue === "") {
           queryParams.sort = "f_start_time@asc";
           queryParams.scored = false;
         } else {
@@ -81,13 +75,13 @@ class SearchStore {
 
         // for the two pass approach,
         // if we do not have the exact match filters, we should enable semantic=true
-        if(search === "") {
-          queryParams.semantic = true;
-        }
-        // for assets index type, disable clip and relevant parms
+        queryParams.semantic = true;
+
+        // for assets index type, disable clip and relevant params
         if(searchAssets === true) {
           queryParams.clips = false;
         }
+
         const url = yield this.client.Rep({
           libraryId,
           objectId,
@@ -102,7 +96,6 @@ class SearchStore {
           const configData = yield this.client.Request({
             url: yield this.client.ConfigUrl()
           });
-          console.log("configData", configData)
           this.searchV2Node = configData?.data?.network?.services?.search_v2?.[0];
         }
 
@@ -122,21 +115,118 @@ class SearchStore {
     }
   });
 
+  CreateVectorSearchUrl = flow(function * ({
+     objectId,
+     searchPhrase,
+     searchFields
+   }) {
+    try {
+      const libraryId = yield this.client.ContentObjectLibraryId({objectId});
+
+      const queryParams = {
+        terms: searchPhrase,
+        search_fields: searchFields.join(","),
+        start: 0,
+        limit: 160,
+        display_fields: "all",
+        clips: true,
+        clips_include_source_tags: true,
+        debug: true,
+        clips_max_duration: 55,
+        max_total: 20,
+        select: "/public/asset_metadata/title"
+      };
+
+      const url = yield this.client.Rep({
+        libraryId,
+        objectId,
+        select: "/public/asset_metadata/title",
+        rep: "search",
+        service: "search",
+        makeAccessRequest: true,
+        queryParams: queryParams
+      });
+
+      const _pos = url.indexOf("/qlibs/");
+      const newUrl = "https://ai-02.contentfabric.io/search".concat(url.slice(_pos));
+      return { url: newUrl, status: 0 };
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      return { url: "", status: 1 };
+    }
+  });
+
+  GetSearchParams = flow(function * ({objectId}) {
+    // TODO: Find a better way to determine searchAssets field
+    let searchAssets = false;
+    let fuzzySearchFields;
+    const indexerMetadata = yield this.client.ContentObjectMetadata({
+      libraryId: yield this.client.ContentObjectLibraryId({objectId}),
+      objectId: objectId,
+      metadataSubtree: "indexer/config/indexer/arguments",
+      select: [
+        "document/prefix",
+        "fields"
+      ]
+    });
+
+    if(indexerMetadata?.document?.prefix?.includes("assets")) {
+      searchAssets = true;
+    }
+
+    const selectedFields = searchAssets ? ASSETS_SEARCH_FIELDS : ALL_SEARCH_FIELDS;
+
+    if(indexerMetadata?.fields) {
+      fuzzySearchFields = Object.keys(indexerMetadata?.fields || {})
+        .filter(field => selectedFields.includes(field))
+        .map(field => `f_${field}`);
+    }
+
+    return {
+      fuzzySearchFields,
+      searchAssets
+    };
+  });
+
   GetSearchResults = flow(function * ({
-    libraryId,
     objectId,
     versionHash,
-    searchVersion
+    fuzzySearchValue,
+    searchVersion=2,
+    vector=true
   }) {
-    const url = yield this.CreateSearchUrl({
-      [objectId.startsWith("iq") ? "objectId" : "versionHash"]: objectId,
-      libraryId,
-      searchVersion: searchVersion.current,
-      search: _search,
-      fuzzySearchPhrase: _fuzzySearchPhrase,
-      fuzzySearchField: _fuzzySearchField,
-      searchAssets: searchAssets.current,
-    });
+    const {fuzzySearchFields, searchAssets} = yield this.GetSearchParams({objectId});
+    let urlResponse;
+
+    if(vector) {
+      urlResponse = yield this.CreateVectorSearchUrl({
+        objectId,
+        searchPhrase: fuzzySearchValue,
+        searchFields: fuzzySearchFields
+      });
+    } else {
+      urlResponse = yield this.CreateSearchUrl({
+        objectId,
+        versionHash,
+        fuzzySearchValue,
+        searchVersion,
+        fuzzySearchFields,
+        searchAssets,
+      });
+    }
+
+    if(urlResponse.status !== 0) {
+      // TODO: Error handling
+      throw Error("Failed to create search query URL");
+    }
+
+    try {
+      return this.client.Request({url: urlResponse.url});
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
   });
 }
 

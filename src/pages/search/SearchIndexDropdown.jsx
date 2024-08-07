@@ -1,7 +1,6 @@
 import {observer} from "mobx-react-lite";
 import {CloseButton, Combobox, Flex, Group, Text, TextInput, useCombobox} from "@mantine/core";
 import styles from "@/components/search-bar/SearchIndexDropdown.module.css";
-import {useState} from "react";
 
 const DropdownOption = observer(({id, name, direction="COLUMN"}) => {
   const flexProps = {

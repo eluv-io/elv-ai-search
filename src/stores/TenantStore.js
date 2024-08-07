@@ -1,8 +1,9 @@
-import {makeAutoObservable} from "mobx";
+import {flow, makeAutoObservable} from "mobx";
 
 // Store for retrieving/caching tenant-level metadata
 class TenantStore {
   rootStore;
+  searchIndexes;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -28,17 +29,28 @@ class TenantStore {
     }
   };
 
-  GetTenantIndexes = () => {
+  GetTenantIndexes = flow(function * () {
     if(!this.tenantId) {
       return [];
     }
 
-    return this.client.ContentObjectMetadata({
+    const indexes = yield this.client.ContentObjectMetadata({
       libraryId: this.tenantId.replace("iten", "ilib"),
       objectId: this.tenantId.replace("iten", "iq__"),
       metadataSubtree: "public/search/indexes"
     });
-  };
+
+    if(!this.searchIndexes) {
+      // Cache search indexes for later reference
+      this.searchIndexes = {};
+
+      (indexes || []).forEach(index => {
+        this.searchIndexes[index.id] = index;
+      });
+    }
+
+    return indexes;
+  });
 }
 
 export default TenantStore;
