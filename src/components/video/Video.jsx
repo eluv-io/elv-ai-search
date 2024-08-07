@@ -2,8 +2,11 @@ import {observer} from "mobx-react-lite";
 import {useEffect, useState} from "react";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
 import {rootStore} from "@/stores/index.js";
+import {Box} from "@mantine/core";
+import "@eluvio/elv-player-js/dist/elv-player-js.css";
 
 const Video = observer(({
+  versionHash,
   objectId,
   clientOptions={},
   sourceOptions={},
@@ -19,16 +22,17 @@ const Video = observer(({
     };
   }, []);
 
-  if(!objectId) {
+  if(!(versionHash || objectId)) {
     // eslint-disable-next-line no-console
     console.warn("Unable to determine playout hash for video");
     return null;
   }
 
   return (
-    <div
+    <Box
+      bg="black"
       ref={element => {
-        if(!element | player) { return; }
+        if(!element || player) { return; }
 
         InitializeEluvioPlayer(
           element,
@@ -42,6 +46,7 @@ const Video = observer(({
               protocols: [EluvioPlayerParameters.protocols.HLS],
               ...sourceOptions,
               playoutParameters: {
+                versionHash,
                 objectId,
                 ...playoutParameters
               }
@@ -53,6 +58,7 @@ const Video = observer(({
               controls: EluvioPlayerParameters.controls.AUTO_HIDE,
               loop: EluvioPlayerParameters.loop.OFF,
               playerProfile: EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+              capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
               ...playerOptions
             }
           },

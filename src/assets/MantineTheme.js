@@ -26,7 +26,7 @@ const theme = createTheme({
       "#eee",
       "#cdcdcd",
       "#bdbdbd", // eluvio color
-      "#9a9a9a",
+      "rgba(0,0,0,0.06)", // eluvio color
       "#8b8b8b",
       "#848484",
       "#717171",
@@ -39,7 +39,7 @@ const theme = createTheme({
       "#cdc8d3",
       "#b2aaba", // eluvio color
       "#a9a0b2", // eluvio color
-      "#8b7f97",
+      "#7b7580", // eluvio color
       "#847791",
       "#71667e",
       "#665972",

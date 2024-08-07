@@ -12,7 +12,10 @@ const App = observer(() => {
   return (
     <MantineProvider withCssVariables theme={MantineTheme}>
       <BrowserRouter>
-        <AppShell padding={0} navbar={{width: 70, breakpoint: "sm"}}>
+        <AppShell
+          padding={0}
+          navbar={{width: 70, breakpoint: "sm"}}
+        >
           <SideNavigation />
           <AppShell.Main>
             {

@@ -46,7 +46,7 @@ const Search = observer(() => {
         {
           SEARCH_TABS.map(tab => (
             <Tabs.Panel value={tab.value} key={tab.value}>
-              <tab.Component results={results.contents} />
+              <tab.Component results={results} />
             </Tabs.Panel>
           ))
         }
