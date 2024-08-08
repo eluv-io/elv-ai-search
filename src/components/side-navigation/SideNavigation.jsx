@@ -1,5 +1,5 @@
 import {useLocation, useNavigate} from "react-router-dom";
-import {AppShell, NavLink} from "@mantine/core";
+import {AppShell, NavLink, Tooltip} from "@mantine/core";
 import {CreateIcon, LibraryIcon, SearchIcon} from "@/assets/icons/index.js";
 import styles from "@/components/side-navigation/SideNavigation.module.css";
 
@@ -17,15 +17,22 @@ const SideNavigation = () => {
     <AppShell.Navbar p="24 14">
       {
         NAV_LINKS.map(({path, icon, title}) => (
-          <NavLink
+          <Tooltip
+            label={title}
             key={`navigation-link-${path}`}
-            classNames={{section: styles.section}}
-            href="#"
-            onClick={() => navigate(path)}
-            active={path === location.pathname}
-            leftSection={icon}
-            title={title}
-          />
+            position="right"
+            withArrow
+          >
+            <NavLink
+              key={`navigation-link-${path}`}
+              classNames={{section: styles.section}}
+              href="#"
+              onClick={() => navigate(path)}
+              active={path === location.pathname}
+              leftSection={icon}
+              title={title}
+            />
+          </Tooltip>
         ))
       }
     </AppShell.Navbar>

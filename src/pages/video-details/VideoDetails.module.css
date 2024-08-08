@@ -12,3 +12,7 @@
     color: var(--mantine-color-elv-gray-8);
   }
 }
+
+.paperClipIcon {
+  rotate: 45deg;
+}

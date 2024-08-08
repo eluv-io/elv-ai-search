@@ -4,17 +4,17 @@ import {
   ActionIcon,
   AspectRatio,
   Box,
-  Button, Flex,
+  Button, CopyButton, Flex,
   Group,
   Paper,
   SimpleGrid,
   Text,
-  Title, Transition
+  Title, Tooltip, Transition,
 } from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 
 import {
-  ArrowLeftIcon,
+  ArrowLeftIcon, PaperClipIcon,
   ShareIcon,
   ThumbDownIcon,
   ThumbUpIcon,
@@ -25,6 +25,7 @@ import VideoDetailsSidebar from "@/pages/video-details/sidebar/VideoDetailsSideb
 import VideoDetailsTopToolbar from "@/pages/video-details/top-toolbar/VideoDetailsTopToolbar.jsx";
 import {searchStore} from "@/stores/index.js";
 import {FormatDuration, FormatTime} from "@/utils/helpers.js";
+import styles from "./VideoDetails.module.css";
 
 const iconStyles = {
   color: "var(--mantine-color-elv-neutral-5)"
@@ -41,10 +42,25 @@ const textStyles = {
   size: "sm"
 };
 
-const TextCard = ({title, text, ...props}) => {
+const TextCard = ({title, text, copyable=false, ...props}) => {
+  const textContent = copyable ? (
+    <CopyButton value={text}>
+      {({copied, copy}) => (
+        <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
+          <ActionIcon onClick={copy} size="xs" variant="transparent">
+            <PaperClipIcon {...iconStyles} className={styles.paperClipIcon} />
+          </ActionIcon>
+        </Tooltip>
+      )}
+    </CopyButton>
+  ) : null;
+
   return (
     <Paper bg="elv-gray.4" p="8 16" {...props}>
-      <Title order={4} c="elv-gray.8" mb={8}>{ title }</Title>
+      <Group align="center" mb={8} gap={8}>
+        <Title order={4} c="elv-gray.8">{ title }</Title>
+        { textContent }
+      </Group>
       <Text size="sm" c="elv-gray.8" fw={400} lineClamp={1}>{ text }</Text>
     </Paper>
   );
@@ -109,7 +125,6 @@ const VideoDetails = observer(() => {
                 }}
               />
             </AspectRatio>
-
           </Box>
 
           <Group mb={24} justify="space-between">
@@ -139,12 +154,12 @@ const VideoDetails = observer(() => {
           <TextCard title="Summary" text="lorem ipsum" mb={24} />
 
           <SimpleGrid cols={3}>
-            <TextCard title="Content ID" text={params.id} />
+            <TextCard title="Content ID" text={params.id} copyable />
             <TextCard
               title="Time Interval"
               text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
             />
-            <TextCard title="Source URL" text={clip.url} />
+            <TextCard title="Source URL" text={clip.url} copyable />
           </SimpleGrid>
         </Box>
 
