@@ -6,11 +6,11 @@ import "@mantine/core/styles.layer.css";
 
 import SideNavigation from "@/components/side-navigation/SideNavigation.jsx";
 import AppRoutes from "./Routes.jsx";
-import {rootStore} from "@/stores";
+import {rootStore, uiStore} from "@/stores";
 
 const App = observer(() => {
   return (
-    <MantineProvider withCssVariables theme={MantineTheme}>
+    <MantineProvider withCssVariables theme={{colorScheme: uiStore.theme, ...MantineTheme}}>
       <BrowserRouter>
         <AppShell
           padding={0}

@@ -2,6 +2,7 @@ import {flow, makeAutoObservable} from "mobx";
 import {FrameClient} from "@eluvio/elv-client-js/src/FrameClient.js";
 import TenantStore from "@/stores/TenantStore.js";
 import SearchStore from "@/stores/SearchStore.js";
+import UiStore from "@/stores/UiStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -16,6 +17,7 @@ class RootStore {
 
     this.tenantStore = new TenantStore(this);
     this.searchStore = new SearchStore(this);
+    this.uiStore = new UiStore(this);
     this.Initialize();
   }
 
@@ -44,5 +46,6 @@ class RootStore {
 export const rootStore = new RootStore();
 export const tenantStore = rootStore.tenantStore;
 export const searchStore = rootStore.searchStore;
+export const uiStore = rootStore.uiStore;
 
 window.rootStore = rootStore;
