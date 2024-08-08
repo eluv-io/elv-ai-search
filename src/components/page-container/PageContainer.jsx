@@ -3,7 +3,7 @@ import styles from "@/components/page-container/PageContainer.module.css";
 
 const PageContainer = ({title, children}) => {
   return (
-    <Box p="24 46">
+    <Box p="24 46 46">
       {
         title &&
         <Title order={3} classNames={{root: styles.root}} mb={24}>

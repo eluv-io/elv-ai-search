@@ -5,6 +5,7 @@ import {ALL_SEARCH_FIELDS, ASSETS_SEARCH_FIELDS} from "@/utils/constants.js";
 class SearchStore {
   searchV1Node;
   searchV2Node;
+  selectedSearchResult;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -15,6 +16,10 @@ class SearchStore {
   get client() {
     return this.rootStore.client;
   }
+
+  SetSelectedSearchResult = ({result}) => {
+    this.selectedSearchResult = result;
+  };
 
   CreateSearchUrl = flow(function * ({
     objectId,

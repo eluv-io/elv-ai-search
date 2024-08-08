@@ -1,17 +1,24 @@
 import {observer} from "mobx-react-lite";
-import {AspectRatio, SimpleGrid} from "@mantine/core";
-import {NavLink} from "react-router-dom";
+import {AspectRatio, SimpleGrid, UnstyledButton} from "@mantine/core";
+import {useNavigate} from "react-router-dom";
 import Video from "@/components/video/Video.jsx";
+import {searchStore} from "@/stores/index.js";
 
 const Clip = observer(({
-  id,
-  versionHash,
-  // imageUrl,
-  startTime,
-  endTime
+  clip
 }) => {
+  const navigate = useNavigate();
+  const {id, hash: versionHash, start_time: startTime, end_time: endTime} = clip;
+
   return (
-    <NavLink to={`${id}`} key={`grid-item-${id}`}>
+    <UnstyledButton
+      href="#"
+      onClick={() => {
+        searchStore.SetSelectedSearchResult({result: clip});
+        navigate(id);
+      }}
+      key={`grid-item-${id}`}
+    >
       {/* TODO: Replace Video with Image when /rep/frame is supported */}
       {/*<AspectRatio ratio={16 / 9}>*/}
       {/*  <Image*/}
@@ -29,7 +36,7 @@ const Clip = observer(({
           }}
         />
       </AspectRatio>
-    </NavLink>
+    </UnstyledButton>
   );
 });
 
@@ -42,11 +49,7 @@ const ClipsPanel = observer(({results}) => {
         clips.map((clip) => (
           <Clip
             key={`clip-result-${clip.id}-${clip.start_time}`}
-            imageUrl={clip.image_url}
-            id={clip.id}
-            versionHash={clip.hash}
-            startTime={clip.start_time}
-            endTime={clip.end_time}
+            clip={clip}
           />
         ))
       }
