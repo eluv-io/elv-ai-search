@@ -12,7 +12,6 @@ const Video = observer(({
   sourceOptions={},
   playoutParameters={},
   playerOptions={}
-
 }) => {
   const [player, setPlayer] = useState();
 

@@ -1,5 +1,6 @@
 import ArrowLeftIcon from "./ArrowLeftIcon.jsx";
 import ArrowRightIcon from "./ArrowRightIcon.jsx";
+import CollapseIcon from "./CollapseIcon.jsx";
 import CreateIcon from "./CreateIcon.jsx";
 import LibraryIcon from "./LibraryIcon.jsx";
 import PaperClipIcon from "./PaperClipIcon.jsx";
@@ -13,6 +14,7 @@ import VideoEditorIcon from "./VideoEditorIcon.jsx";
 export {
   ArrowLeftIcon,
   ArrowRightIcon,
+  CollapseIcon,
   CreateIcon,
   LibraryIcon,
   PaperClipIcon,

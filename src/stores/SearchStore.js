@@ -5,6 +5,11 @@ import {ALL_SEARCH_FIELDS, ASSETS_SEARCH_FIELDS} from "@/utils/constants.js";
 class SearchStore {
   searchV1Node;
   searchV2Node;
+  currentSearch = {
+    results: null,
+    index: "",
+    terms: ""
+  };
   selectedSearchResult;
 
   constructor(rootStore) {
@@ -19,6 +24,12 @@ class SearchStore {
 
   SetSelectedSearchResult = ({result}) => {
     this.selectedSearchResult = result;
+  };
+
+  SetCurrentSearch = ({results, index, terms}) => {
+    this.currentSearch["results"] = results;
+    this.currentSearch["index"] = index;
+    this.currentSearch["terms"] = terms;
   };
 
   CreateSearchUrl = flow(function * ({
@@ -232,6 +243,29 @@ class SearchStore {
       // eslint-disable-next-line no-console
       console.error(error);
     }
+  });
+
+  GetClipTagData = flow(function * ({objectId, versionHash}) {
+    const tagLinkMetadata = yield this.rootStore.client.ContentObjectMetadata({
+      objectId,
+      versionHash,
+      metadataSubtree: "video_tags",
+      resolveLinks: true,
+      resolveIgnoreErrors: true,
+      resolveIncludeSource: true
+    });
+
+    const tagData = yield this.rootStore.client.utils.LimitedMap(
+      5,
+      Object.keys(tagLinkMetadata.metadata_tags),
+      async fileLink => await this.rootStore.client.LinkData({
+        versionHash: versionHash,
+        linkPath: `video_tags/metadata_tags/${fileLink}`,
+        format: "json"
+      })
+    );
+
+    return tagData;
   });
 }
 

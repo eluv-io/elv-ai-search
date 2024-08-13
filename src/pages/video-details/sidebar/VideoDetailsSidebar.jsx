@@ -1,9 +1,9 @@
 import {observer} from "mobx-react-lite";
 import {Box, CloseButton, Group, Tabs, Transition} from "@mantine/core";
-import HighlightsPanel from "@/pages/video-details/sidebar/tab-panels/HighlightsPanel.jsx";
-import TagsPanel from "@/pages/video-details/sidebar/tab-panels/TagsPanel.jsx";
-import SummaryPanel from "@/pages/video-details/sidebar/tab-panels/SummaryPanel.jsx";
+import HighlightsPanel from "@/pages/video-details/sidebar/tab-panels/highlights-panel/HighlightsPanel.jsx";
+import TagsPanel from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsPanel.jsx";
 import styles from "../VideoDetails.module.css";
+import SummaryPanel from "@/pages/video-details/sidebar/tab-panels/summary-panel/SummaryPanel.jsx";
 
 const DETAILS_TABS = [
   {value: "tags", label: "Tags", Component: TagsPanel},
@@ -36,7 +36,7 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
               <CloseButton onClick={close} style={{zIndex: 50}} />
             </Group>
             <Tabs defaultValue="tags">
-              <Tabs.List>
+              <Tabs.List mb={12}>
                 {
                   DETAILS_TABS.map(tab => (
                     <Tabs.Tab
@@ -53,13 +53,23 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
                 }
               </Tabs.List>
 
-              {
-                DETAILS_TABS.map(tab => (
-                  <Tabs.Panel key={tab.value} value={tab.value}>
-                    <tab.Component />
-                  </Tabs.Panel>
-                ))
-              }
+              <Tabs.Panel value="tags">
+                <TagsPanel />
+              </Tabs.Panel>
+              <Tabs.Panel value="summary">
+                <SummaryPanel />
+              </Tabs.Panel>
+              <Tabs.Panel value="highlights">
+                <HighlightsPanel />
+              </Tabs.Panel>
+
+              {/*{*/}
+              {/*  DETAILS_TABS.map(tab => (*/}
+              {/*    <Tabs.Panel key={tab.value} value={tab.value}>*/}
+              {/*      <tab.Component />*/}
+              {/*    </Tabs.Panel>*/}
+              {/*  ))*/}
+              {/*}*/}
             </Tabs>
           </Box>
         )}

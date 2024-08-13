@@ -4,6 +4,7 @@ import {flow, makeAutoObservable} from "mobx";
 class TenantStore {
   rootStore;
   searchIndexes;
+  loadedIndexes = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -48,6 +49,8 @@ class TenantStore {
         this.searchIndexes[index.id] = index;
       });
     }
+
+    this.loadedIndexes = true;
 
     return indexes;
   });

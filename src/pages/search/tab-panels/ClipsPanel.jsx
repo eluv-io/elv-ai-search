@@ -26,7 +26,10 @@ const Clip = observer(({
       {/*    src={image_url}*/}
       {/*  />*/}
       {/*</AspectRatio>*/}
-      <AspectRatio ratio={16 / 9}>
+      <AspectRatio
+        ratio={16 / 9}
+        style={{borderRadius: "14px", overflow: "hidden"}}
+      >
         <Video
           versionHash={versionHash}
           playoutParameters={{
@@ -34,14 +37,15 @@ const Clip = observer(({
             clipEnd: endTime / 1000,
             ignoreTrimming: true
           }}
+          borderRadius="14px"
         />
       </AspectRatio>
     </UnstyledButton>
   );
 });
 
-const ClipsPanel = observer(({results}) => {
-  const clips = results?.contents || [];
+const ClipsPanel = observer(() => {
+  const clips = searchStore.currentSearch?.results?.contents || [];
 
   return (
     <SimpleGrid cols={4} spacing="lg">

@@ -7,11 +7,10 @@ import {SubmitIcon, PaperClipIcon} from "@/assets/icons";
 
 const SearchBar = ({
   loadingSearch,
-  setLoadingSearch,
-  setResults
+  setLoadingSearch
 }) => {
   // Loaders
-  const [loadingIndexes, setLoadingIndexes] = useState(true);
+  const [loadingIndexes, setLoadingIndexes] = useState(false);
 
   // Data
   const [indexes, setIndexes] = useState([]);
@@ -20,13 +19,31 @@ const SearchBar = ({
 
   useEffect(() => {
     const LoadData = async() => {
-      const indexes = await tenantStore.GetTenantIndexes();
-      setIndexes(indexes);
-      setLoadingIndexes(false);
+      try {
+        setLoadingIndexes(true);
+        const indexes = await tenantStore.GetTenantIndexes();
+        setIndexes(indexes);
+        setLoadingIndexes(false);
+      } finally {
+        setLoadingIndexes(false);
+      }
     };
 
-    LoadData();
-  }, []);
+    if(!tenantStore.loadedIndexes) {
+      LoadData();
+    }
+  }, [tenantStore.loadedIndexes]);
+
+  useEffect(() => {
+    const {index, terms} = searchStore.currentSearch;
+    if(terms) {
+      setFuzzySearchValue(terms);
+    }
+
+    if(index) {
+      setSelectedIndex(index);
+    }
+  }, [searchStore.currentSearchParams]);
 
   if(loadingIndexes) { return <Loader />; }
 
@@ -42,7 +59,11 @@ const SearchBar = ({
         searchVersion: tenantStore.searchIndexes[selectedIndex]?.version
       });
 
-      setResults(searchResults);
+      searchStore.SetCurrentSearch({
+        results: searchResults,
+        index: selectedIndex,
+        terms: fuzzySearchValue
+      });
     } finally {
       setLoadingSearch(false);
     }

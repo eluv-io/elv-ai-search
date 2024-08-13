@@ -53,6 +53,40 @@ const theme = createTheme({
           "--tabs-list-border-size": "1px"
         }
       })
+    },
+    Accordion: {
+      styles: () => ({
+        control: {
+          backgroundColor: "var(--mantine-color-elv-gray-4)"
+        },
+        label: {
+          lineHeight: 1,
+          paddingTop: "var(--mantine-spacing-xs)",
+          paddingBottom: "var(--mantine-spacing-xs)",
+          fontWeight: 600,
+          color: "var(--mantine-color-elv-gray-8)"
+        },
+        item: {
+          "--item-border-color": "transparent"
+        },
+        panel: {
+          color: "var(--mantine-color-elv-gray-8)"
+        },
+        content: {
+          padding: 0
+        }
+      })
+    },
+    Table: {
+      vars: (theme, props) => {
+        if(props.size === "xxs") {
+          return {
+            root: {
+              "--text-fz": "0.75rem"
+            }
+          };
+        }
+      }
     }
   }
 });

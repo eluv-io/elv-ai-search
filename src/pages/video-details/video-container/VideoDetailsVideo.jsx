@@ -38,6 +38,7 @@ const TextCard = ({
   text,
   copyable=false,
   iconStyles,
+  lineClamp=1,
   ...props
 }) => {
   const textContent = copyable ? (
@@ -58,12 +59,12 @@ const TextCard = ({
         <Title order={4} c="elv-gray.8">{ title }</Title>
         { textContent }
       </Group>
-      <Text size="sm" c="elv-gray.8" fw={400} lineClamp={1}>{ text }</Text>
+      <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text }</Text>
     </Paper>
   );
 };
 
-const VideoDetailsContainer = observer(({
+const VideoDetailsVideo = observer(({
   clip,
   openedSidebar,
   open,
@@ -131,7 +132,7 @@ const VideoDetailsContainer = observer(({
         </Group>
       </Group>
 
-      <TextCard title="Summary" text="lorem ipsum" mb={24} />
+      <TextCard title="Summary" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam turpis risus, consectetur et iaculis ac, gravida at lorem. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur in malesuada quam, vel pretium est. Nullam scelerisque enim nec leo consequat, vitae efficitur quam consequat. Proin vel rutrum est. Phasellus condimentum sit amet turpis ut mollis. Proin ut malesuada mi. Morbi lorem tellus, interdum tempor diam eget, tempus luctus velit." mb={24} lineClamp={5} />
 
       <SimpleGrid cols={3}>
         <TextCard
@@ -155,4 +156,4 @@ const VideoDetailsContainer = observer(({
   );
 });
 
-export default VideoDetailsContainer;
+export default VideoDetailsVideo;

@@ -1,24 +1,31 @@
 export const FormatTime = ({
   time,
   millisecondsFormat=true,
-  format="hh:mm:ss"
+  format="hh:mm:ss:sss"
 }) => {
-  if(!time) { return ""; }
+  if(time === undefined) { return ""; }
 
   let date = new Date(millisecondsFormat ? time : (time * 1000));
-  let timeString;
+  let timeString, hours, minutes, seconds, milliseconds;
 
-  const hours = date.getUTCHours();
-  const minutes = date.getUTCMinutes();
-  const seconds = date.getUTCSeconds();
-  const milliseconds = (date.getUTCMilliseconds() / 10) | 0;
+  if(time === 0) {
+    hours = 0;
+    minutes = 0;
+    seconds = 0;
+    milliseconds = 0;
+  } else {
+    hours = date.getUTCHours();
+    minutes = date.getUTCMinutes();
+    seconds = date.getUTCSeconds();
+    milliseconds = (date.getUTCMilliseconds() / 10) | 0;
+  }
 
-  if(format === "hh:mm:ss") {
+  if(format === "hh:mm:ss:sss") {
     const arrayValue = [
-      hours.toString().padStart(2, "0"),
-      minutes.toString().padStart(2, "0"),
-      seconds.toString().padStart(2, "0"),
-      milliseconds.toString().padStart(2, "0")
+      (hours).toString().padStart(2, "0"),
+      (minutes).toString().padStart(2, "0"),
+      (seconds).toString().padStart(2, "0"),
+      (milliseconds).toString().padStart(2, "0")
     ];
 
     timeString = arrayValue.join(":");

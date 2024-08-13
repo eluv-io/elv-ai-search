@@ -2,7 +2,7 @@ import {observer} from "mobx-react-lite";
 import {Box, Flex} from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 
-import VideoDetailsContainer from "@/pages/video-details/video-container/VideoDetailsContainer.jsx";
+import VideoDetailsContainer from "@/pages/video-details/video-container/VideoDetailsVideo.jsx";
 import VideoDetailsSidebar from "@/pages/video-details/sidebar/VideoDetailsSidebar.jsx";
 import VideoDetailsTopToolbar from "@/pages/video-details/top-toolbar/VideoDetailsTopToolbar.jsx";
 import {searchStore} from "@/stores/index.js";
@@ -21,6 +21,12 @@ const textStyles = {
   fw: 600,
   size: "sm"
 };
+
+export const sliderValues = [
+  {value: 30000, label: "30:00"},
+  {value: 60000, label: "01:30:00"},
+  {value: 150000, label: "02:30:00"}
+];
 
 const VideoDetails = observer(() => {
   const clip = searchStore.selectedSearchResult;

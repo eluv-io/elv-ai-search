@@ -1,0 +1,7 @@
+.markLabel {
+  font-size: 12px;
+}
+
+.accordionControl {
+  background-color: var(--mantine-color-elv-gray-4);
+}

@@ -9,7 +9,7 @@ const VideoDetailsTopToolbar = ({buttonStyles, iconStyles, textStyles}) => {
     <Group mb={24} ml={24} gap={39}>
       <ActionIcon
         size="lg"
-        onClick={() => navigate(-1)}
+        onClick={() => navigate("/search", {state: {persistSearchResults: true}})}
         {...buttonStyles}
       >
         <ArrowLeftIcon {...iconStyles} />

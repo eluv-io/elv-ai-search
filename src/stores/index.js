@@ -10,7 +10,6 @@ class RootStore {
   loaded = false;
   tenantId;
   networkInfo;
-  signedToken;
 
   constructor() {
     makeAutoObservable(this);
@@ -32,7 +31,6 @@ class RootStore {
 
       this.tenantId = yield this.tenantStore.GetTenantData();
       this.networkInfo = yield this.client.NetworkInfo();
-      this.signedToken = yield this.client.CreateFabricToken();
     } catch(error) {
       /* eslint-disable no-console */
       console.error("Failed to initialize application");
@@ -47,5 +45,22 @@ export const rootStore = new RootStore();
 export const tenantStore = rootStore.tenantStore;
 export const searchStore = rootStore.searchStore;
 export const uiStore = rootStore.uiStore;
+
+
+if(import.meta.hot) {
+  if (import.meta.hot.data.store) {
+    // Restore state
+    searchStore.currentSearch = import.meta.hot.data.store.currentSearch;
+  }
+
+  import.meta.hot.accept();
+
+  import.meta.hot.dispose((data) => {
+    // Save state
+    data.store = {
+      currentSerach: searchStore.currentSearch
+    };
+  });
+}
 
 window.rootStore = rootStore;
