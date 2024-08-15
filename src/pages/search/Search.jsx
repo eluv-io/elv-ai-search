@@ -36,6 +36,8 @@ const FilterToolbar = observer(() => {
     style: {width: "20px", height: "20px", display: "block"}
   };
 
+  const [view, setView] = useState("grid");
+
   return (
     <Group mb={16} justify="space-between">
       <Group>
@@ -73,6 +75,8 @@ const FilterToolbar = observer(() => {
         </Text>
       </Group>
       <SegmentedControl
+        value={view}
+        onChange={setView}
         data={[
           {
             value: "list",
