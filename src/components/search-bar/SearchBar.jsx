@@ -64,6 +64,8 @@ const SearchBar = ({
         index: selectedIndex,
         terms: fuzzySearchValue
       });
+    } catch(error) {
+      console.error(`Unable to retrieve results for index ${selectedIndex}`, error);
     } finally {
       setLoadingSearch(false);
     }

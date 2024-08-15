@@ -7,6 +7,7 @@ const theme = createTheme({
   },
   primaryColor: "elv-violet",
   primaryShade: 3,
+  scale: 1,
   colors: {
     "elv-violet": [
       "#f9e9ff",
@@ -35,7 +36,7 @@ const theme = createTheme({
     ],
     "elv-neutral": [
       "#f8f2fe",
-      "#e8e4ed",
+      "#ecece8", // eluvio color
       "#cdc8d3",
       "#b2aaba", // eluvio color
       "#a9a0b2", // eluvio color
@@ -76,6 +77,14 @@ const theme = createTheme({
           padding: 0
         }
       })
+    },
+    Badge: {
+      styles: () => ({
+        root: {
+          "--badge-height-lg": "calc(37.5px* var(--mantine-scale))"
+        }
+
+})
     },
     Table: {
       vars: (theme, props) => {

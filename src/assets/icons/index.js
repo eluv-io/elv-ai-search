@@ -2,7 +2,10 @@ import ArrowLeftIcon from "./ArrowLeftIcon.jsx";
 import ArrowRightIcon from "./ArrowRightIcon.jsx";
 import CollapseIcon from "./CollapseIcon.jsx";
 import CreateIcon from "./CreateIcon.jsx";
+import EyeIcon from "./EyeIcon.jsx";
+import GridIcon from "./GridIcon.jsx";
 import LibraryIcon from "./LibraryIcon.jsx";
+import ListIcon from "./ListIcon.jsx";
 import PaperClipIcon from "./PaperClipIcon.jsx";
 import SearchIcon from "./SearchIcon.jsx";
 import ShareIcon from "./ShareIcon.jsx";
@@ -16,7 +19,10 @@ export {
   ArrowRightIcon,
   CollapseIcon,
   CreateIcon,
+  EyeIcon,
+  GridIcon,
   LibraryIcon,
+  ListIcon,
   PaperClipIcon,
   SearchIcon,
   ShareIcon,

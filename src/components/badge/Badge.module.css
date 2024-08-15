@@ -1,0 +1,10 @@
+.root {
+  background-color: var(--mantine-color-elv-neutral-1);
+  border-color: transparent;
+}
+
+.label {
+  text-transform: capitalize;
+  color: var(--mantine-color-elv-neutral-5);
+  font-weight: 400;
+}

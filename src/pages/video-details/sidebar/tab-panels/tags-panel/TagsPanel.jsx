@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {observer} from "mobx-react-lite";
-import {Box, Accordion, AccordionControl, Text, Loader} from "@mantine/core";
+import {Box, Accordion, AccordionControl, Text, Loader, Flex} from "@mantine/core";
 import {CollapseIcon} from "@/assets/icons/index.js";
 import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
@@ -80,15 +80,21 @@ const TagsPanel = observer(() => {
 
       {
         loadingTags ?
-          <Loader /> :
-          <Accordion
-            multiple
-            value={value}
-            onChange={setValue}
-            chevron={<CollapseIcon />}
-          >
-            <AccordionItems tagData={tagData} />
-          </Accordion>
+          (
+            <Flex align="center" justify="center">
+              <Loader />
+            </Flex>
+          ) :
+          (
+            <Accordion
+              multiple
+              value={value}
+              onChange={setValue}
+              chevron={<CollapseIcon />}
+            >
+              <AccordionItems tagData={tagData} />
+            </Accordion>
+          )
       }
     </Box>
   );

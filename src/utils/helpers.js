@@ -63,3 +63,15 @@ export const FormatDuration = ({
     return duration;
   }
 };
+
+export const TimeInterval = ({startTime, endTime}) => {
+  const startTimeFormatted = FormatTime({time: startTime});
+  const endTimeFormatted = FormatTime({time: endTime});
+  const duration = FormatDuration({startTime, endTime});
+
+  return `${startTimeFormatted} - ${endTimeFormatted} (${duration})`;
+};
+
+export const Pluralize = ({baseWord, suffix="s", count}) => {
+  return `${count} ${count === 1 ? baseWord : `${baseWord}${suffix}`}`;
+};

@@ -23,15 +23,8 @@ import {
 } from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import styles from "@/pages/video-details/VideoDetails.module.css";
-import {FormatDuration, FormatTime} from "@/utils/helpers.js";
+import {TimeInterval} from "@/utils/helpers.js";
 
-const TimeInterval = ({startTime, endTime}) => {
-  const startTimeFormatted = FormatTime({time: startTime});
-  const endTimeFormatted = FormatTime({time: endTime});
-  const duration = FormatDuration({startTime, endTime});
-
-  return `${startTimeFormatted} - ${endTimeFormatted} (${duration})`;
-};
 
 const TextCard = ({
   title,
