@@ -7,6 +7,7 @@ import GridIcon from "./GridIcon.jsx";
 import LibraryIcon from "./LibraryIcon.jsx";
 import ListIcon from "./ListIcon.jsx";
 import PaperClipIcon from "./PaperClipIcon.jsx";
+import PlayIcon from "./PlayIcon.jsx";
 import SearchIcon from "./SearchIcon.jsx";
 import ShareIcon from "./ShareIcon.jsx";
 import SubmitIcon from "./SubmitIcon.jsx";
@@ -24,6 +25,7 @@ export {
   LibraryIcon,
   ListIcon,
   PaperClipIcon,
+  PlayIcon,
   SearchIcon,
   ShareIcon,
   SubmitIcon,

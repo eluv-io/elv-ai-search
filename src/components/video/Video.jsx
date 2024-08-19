@@ -11,7 +11,8 @@ const Video = observer(({
   clientOptions={},
   sourceOptions={},
   playoutParameters={},
-  playerOptions={}
+  playerOptions={},
+  Callback
 }) => {
   const [player, setPlayer] = useState();
 
@@ -61,7 +62,12 @@ const Video = observer(({
               ...playerOptions
             }
           },
-        ).then(newPlayer => setPlayer(newPlayer));
+        ).then(newPlayer => {
+          setPlayer(newPlayer);
+          if(Callback && typeof Callback === "function") {
+            Callback({video: element, player: newPlayer});
+          }
+        });
       }}
     />
   );

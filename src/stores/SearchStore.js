@@ -245,28 +245,6 @@ class SearchStore {
     }
   });
 
-  GetClipTagData = flow(function * ({objectId, versionHash}) {
-    const tagLinkMetadata = yield this.rootStore.client.ContentObjectMetadata({
-      objectId,
-      versionHash,
-      metadataSubtree: "video_tags",
-      resolveLinks: true,
-      resolveIgnoreErrors: true,
-      resolveIncludeSource: true
-    });
-
-    const tagData = yield this.rootStore.client.utils.LimitedMap(
-      5,
-      Object.keys(tagLinkMetadata.metadata_tags),
-      async fileLink => await this.rootStore.client.LinkData({
-        versionHash: versionHash,
-        linkPath: `video_tags/metadata_tags/${fileLink}`,
-        format: "json"
-      })
-    );
-
-    return tagData;
-  });
 }
 
 export default SearchStore;

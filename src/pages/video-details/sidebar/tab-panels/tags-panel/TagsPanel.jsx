@@ -1,11 +1,11 @@
 import {useEffect, useState} from "react";
 import {observer} from "mobx-react-lite";
-import {Box, Accordion, AccordionControl, Text, Loader, Flex} from "@mantine/core";
-import {CollapseIcon} from "@/assets/icons/index.js";
+import {Box, Accordion, AccordionControl, Text, Loader, Flex, ActionIcon} from "@mantine/core";
+import {CollapseIcon, PlayIcon} from "@/assets/icons/index.js";
 import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
 import {sliderValues} from "@/pages/video-details/VideoDetails.jsx";
-import {searchStore} from "@/stores/index.js";
+import {searchStore, videoStore} from "@/stores/index.js";
 import {FormatTime} from "@/utils/helpers.js";
 
 const AccordionItems = (({tagData={}}) => {
@@ -22,7 +22,19 @@ const AccordionItems = (({tagData={}}) => {
             {
               timestamp: FormatTime({time: tagItem.start_time}),
               tags: tagItem.text.length > 0 ? tagItem.text.join(", ") : "",
-              id: `tag-${tagItem.id || i}-${tagItem.start_time}-${tagItem.end_time}`
+              id: `tag-${tagItem.id || i}-${tagItem.start_time}-${tagItem.end_time}`,
+              action: {
+                icon: (
+                  <ActionIcon
+                    variant="transparent"
+                    aria-label="Play button"
+                    title="Play Segment"
+                    onClick={() => videoStore.PlaySegment({startTime: tagItem.start_time, endTime: tagItem.end_time})}
+                  >
+                    <PlayIcon width={18} height={18} color="var(--mantine-color-elv-neutral-5)" style={{verticalAlign: "middle"}} />
+                  </ActionIcon>
+                )
+              }
             }
           ))}
         />
@@ -61,8 +73,10 @@ const TagsPanel = observer(() => {
     const LoadData = async() => {
       setLoadingTags(true);
       try {
-        const tagResponse = await searchStore.GetClipTagData({
-          versionHash: searchStore.selectedSearchResult?.hash
+        const tagResponse = await videoStore.GetClipTagData({
+          versionHash: searchStore.selectedSearchResult?.hash,
+          startTime: searchStore.selectedSearchResult?.start_time,
+          endTime: searchStore.selectedSearchResult?.end_time
         });
 
         setTagData(tagResponse?.[0]?.metadata_tags);

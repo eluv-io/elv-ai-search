@@ -3,6 +3,7 @@ import {FrameClient} from "@eluvio/elv-client-js/src/FrameClient.js";
 import TenantStore from "@/stores/TenantStore.js";
 import SearchStore from "@/stores/SearchStore.js";
 import UiStore from "@/stores/UiStore.js";
+import VideoStore from "@/stores/VideoStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -17,6 +18,7 @@ class RootStore {
     this.tenantStore = new TenantStore(this);
     this.searchStore = new SearchStore(this);
     this.uiStore = new UiStore(this);
+    this.videoStore = new VideoStore(this);
     this.Initialize();
   }
 
@@ -45,7 +47,7 @@ export const rootStore = new RootStore();
 export const tenantStore = rootStore.tenantStore;
 export const searchStore = rootStore.searchStore;
 export const uiStore = rootStore.uiStore;
-
+export const videoStore = rootStore.videoStore;
 
 if(import.meta.hot) {
   if (import.meta.hot.data.store) {
@@ -58,7 +60,7 @@ if(import.meta.hot) {
   import.meta.hot.dispose((data) => {
     // Save state
     data.store = {
-      currentSerach: searchStore.currentSearch
+      currentSearch: searchStore.currentSearch
     };
   });
 }

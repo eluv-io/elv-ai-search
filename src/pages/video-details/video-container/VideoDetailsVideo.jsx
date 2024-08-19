@@ -24,6 +24,7 @@ import {
 import Video from "@/components/video/Video.jsx";
 import styles from "@/pages/video-details/VideoDetails.module.css";
 import {TimeInterval} from "@/utils/helpers.js";
+import {videoStore} from "@/stores/index.js";
 
 
 const TextCard = ({
@@ -97,6 +98,7 @@ const VideoDetailsVideo = observer(({
               clipEnd: clip.end_time / 1000,
               ignoreTrimming: true
             }}
+            // Callback={({video, player}) => videoStore.SetVideo({video, player, objectId: clip.id, startTime: clip.start_time, endTime: clip.end_time})}
           />
         </AspectRatio>
       </Box>

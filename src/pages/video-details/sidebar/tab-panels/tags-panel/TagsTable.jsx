@@ -12,6 +12,12 @@ const Rows = ({rows=[]}) => {
         <Table.Td>
           <Text size="xs" c="dimmed" lineClamp={1}>{ row.tags }</Text>
         </Table.Td>
+        <Table.Td align="center">
+          {
+            row.action ?
+            row.action.icon : null
+          }
+        </Table.Td>
       </Table.Tr>
     ))
   );

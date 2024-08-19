@@ -1,31 +1,30 @@
+import {videoStore} from "@/stores/index.js";
+
 export const FormatTime = ({
   time,
   millisecondsFormat=true,
-  format="hh:mm:ss:sss"
+  format="hh:mm:ss"
 }) => {
   if(time === undefined) { return ""; }
 
   let date = new Date(millisecondsFormat ? time : (time * 1000));
-  let timeString, hours, minutes, seconds, milliseconds;
+  let timeString, hours, minutes, seconds;
 
   if(time === 0) {
     hours = 0;
     minutes = 0;
     seconds = 0;
-    milliseconds = 0;
   } else {
     hours = date.getUTCHours();
     minutes = date.getUTCMinutes();
     seconds = date.getUTCSeconds();
-    milliseconds = (date.getUTCMilliseconds() / 10) | 0;
   }
 
-  if(format === "hh:mm:ss:sss") {
+  if(format === "hh:mm:ss") {
     const arrayValue = [
       (hours).toString().padStart(2, "0"),
       (minutes).toString().padStart(2, "0"),
       (seconds).toString().padStart(2, "0"),
-      (milliseconds).toString().padStart(2, "0")
     ];
 
     timeString = arrayValue.join(":");
@@ -55,10 +54,12 @@ export const FormatDuration = ({
   const duration = endTime - startTime;
 
   if(formatted) {
-    const minutes = Math.floor((duration % 3600) / 60).toString();
-    // const seconds = Math.floor(duration % 60).toString();
+    const minutes = Math.floor(duration / 60000);
+    const seconds = Math.ceil(duration / 1000);
 
-    return `${minutes} ${minutes > 1 ? "minutes" : "minute"}`;
+    return minutes === 0 ?
+      Pluralize({baseWord: "second", count: seconds}) :
+      Pluralize({baseWord: "minute", count: minutes});
   } else {
     return duration;
   }
