@@ -10,6 +10,7 @@ import ListIcon from "./ListIcon.jsx";
 import MailIcon from "./MailIcon.jsx";
 import PaperClipIcon from "./PaperClipIcon.jsx";
 import PlayIcon from "./PlayIcon.jsx";
+import PlusIcon from "./PlusIcon.jsx";
 import SearchIcon from "./SearchIcon.jsx";
 import ShareIcon from "./ShareIcon.jsx";
 import SubmitIcon from "./SubmitIcon.jsx";
@@ -30,6 +31,7 @@ export {
   MailIcon,
   PaperClipIcon,
   PlayIcon,
+  PlusIcon,
   SearchIcon,
   ShareIcon,
   SubmitIcon,

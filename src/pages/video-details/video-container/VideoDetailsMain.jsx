@@ -107,7 +107,7 @@ const VideoDetailsMain = observer(({
       </Box>
 
       <Group mb={24} justify="space-between">
-        <Title order={2} c="elv-gray.8" lineClamp={1} maw="50%">
+        <Title order={2} c="elv-gray.8" lineClamp={1} maw="50%" style={{wordBreak: "break-all"}}>
           { clip.meta?.public?.asset_metadata?.title || clip.id }
         </Title>
         <Group style={{flexShrink: 0}}>

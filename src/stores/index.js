@@ -4,6 +4,7 @@ import TenantStore from "@/stores/TenantStore.js";
 import SearchStore from "@/stores/SearchStore.js";
 import UiStore from "@/stores/UiStore.js";
 import VideoStore from "@/stores/VideoStore.js";
+import SummaryStore from "@/stores/SummaryStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -19,6 +20,7 @@ class RootStore {
     this.searchStore = new SearchStore(this);
     this.uiStore = new UiStore(this);
     this.videoStore = new VideoStore(this);
+    this.summaryStore = new SummaryStore(this);
     this.Initialize();
   }
 
@@ -48,6 +50,7 @@ export const tenantStore = rootStore.tenantStore;
 export const searchStore = rootStore.searchStore;
 export const uiStore = rootStore.uiStore;
 export const videoStore = rootStore.videoStore;
+export const summaryStore = rootStore.summaryStore;
 
 if(import.meta.hot) {
   if (import.meta.hot.data.store) {

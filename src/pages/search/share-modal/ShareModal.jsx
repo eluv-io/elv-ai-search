@@ -75,7 +75,7 @@ const ShareModal = observer(({
           </Flex>
         </Flex>
         <Box>
-          <Tabs defaultValue={SHARE_TABS[0].value}>
+          <Tabs defaultValue="access">
             <Tabs.List mb={24}>
               {
                 SHARE_TABS.map(item => (
