@@ -1,0 +1,10 @@
+.grid {
+  align-items: baseline;
+  display: grid;
+  gap: 32px;
+  grid-template-columns: 50px 1fr minmax(0, 160px);
+}
+
+.input {
+  border: 1px solid transparent;
+}

@@ -1,5 +1,3 @@
-import {videoStore} from "@/stores/index.js";
-
 export const FormatTime = ({
   time,
   millisecondsFormat=true,

@@ -5,7 +5,9 @@ import CreateIcon from "./CreateIcon.jsx";
 import EyeIcon from "./EyeIcon.jsx";
 import GridIcon from "./GridIcon.jsx";
 import LibraryIcon from "./LibraryIcon.jsx";
+import LinkIcon from "./LinkIcon.jsx";
 import ListIcon from "./ListIcon.jsx";
+import MailIcon from "./MailIcon.jsx";
 import PaperClipIcon from "./PaperClipIcon.jsx";
 import PlayIcon from "./PlayIcon.jsx";
 import SearchIcon from "./SearchIcon.jsx";
@@ -23,7 +25,9 @@ export {
   EyeIcon,
   GridIcon,
   LibraryIcon,
+  LinkIcon,
   ListIcon,
+  MailIcon,
   PaperClipIcon,
   PlayIcon,
   SearchIcon,

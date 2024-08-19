@@ -4,7 +4,7 @@
 }
 
 .label {
-  text-transform: capitalize;
   color: var(--mantine-color-elv-neutral-5);
   font-weight: 400;
+  text-transform: capitalize;
 }

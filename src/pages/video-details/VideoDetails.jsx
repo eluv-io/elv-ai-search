@@ -2,7 +2,7 @@ import {observer} from "mobx-react-lite";
 import {Box, Flex} from "@mantine/core";
 import {useDisclosure} from "@mantine/hooks";
 
-import VideoDetailsContainer from "@/pages/video-details/video-container/VideoDetailsVideo.jsx";
+import VideoDetailsContainer from "@/pages/video-details/video-container/VideoDetailsMain.jsx";
 import VideoDetailsSidebar from "@/pages/video-details/sidebar/VideoDetailsSidebar.jsx";
 import VideoDetailsTopToolbar from "@/pages/video-details/top-toolbar/VideoDetailsTopToolbar.jsx";
 import {searchStore} from "@/stores/index.js";

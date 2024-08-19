@@ -238,13 +238,18 @@ class SearchStore {
     }
 
     try {
-      return this.client.Request({url: urlResponse.url});
+      const results = yield this.client.Request({url: urlResponse.url});
+
+      this.SetCurrentSearch({
+        results,
+        index: objectId,
+        terms: fuzzySearchValue
+      });
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error(error);
     }
   });
-
 }
 
 export default SearchStore;

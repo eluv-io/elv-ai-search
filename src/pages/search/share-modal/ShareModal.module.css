@@ -1,0 +1,14 @@
+.grid {
+  display: grid;
+  gap: 36px;
+  grid-template-columns: minmax(0, 375px) 1fr;
+}
+
+.bottomFlex {
+  border-radius: 0 0 4px 4px;
+}
+
+.video {
+  border-radius: 4px 4px 0 0;
+  overflow: hidden;
+}

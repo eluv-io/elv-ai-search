@@ -55,7 +55,14 @@ class VideoStore {
     }
   };
 
-  SetVideo = flow(function * ({video, player, dropFrame, objectId, startTime, endTime}) {
+  SetVideo = flow(function * ({
+    video,
+    player,
+    dropFrame,
+    objectId,
+    // startTime,
+    // endTime
+  }) {
     this.video = video;
     this.player = player;
 
@@ -81,8 +88,8 @@ class VideoStore {
       callback: this.UpdateVideo
     });
 
-    const start = this.videoHandler.TimeToSMPTE(startTime);
-    const end = this.videoHandler.TimeToSMPTE(endTime);
+    // const start = this.videoHandler.TimeToSMPTE(startTime);
+    // const end = this.videoHandler.TimeToSMPTE(endTime);
 
     // video.load();
   });

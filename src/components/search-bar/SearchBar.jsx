@@ -1,6 +1,6 @@
 import {ActionIcon, Flex, Loader, TextInput} from "@mantine/core";
 import styles from "@/components/search-bar/SearchInput.module.css";
-import SearchIndexDropdown from "@/pages/search/SearchIndexDropdown.jsx";
+import SearchIndexDropdown from "@/pages/search/index-dropdown/SearchIndexDropdown.jsx";
 import {useEffect, useState} from "react";
 import {searchStore, tenantStore} from "@/stores/index.js";
 import {SubmitIcon, PaperClipIcon} from "@/assets/icons";
@@ -53,18 +53,13 @@ const SearchBar = ({
     try {
       setLoadingSearch(true);
 
-      const searchResults = await searchStore.GetSearchResults({
+      await searchStore.GetSearchResults({
         fuzzySearchValue,
         objectId: selectedIndex,
         searchVersion: tenantStore.searchIndexes[selectedIndex]?.version
       });
-
-      searchStore.SetCurrentSearch({
-        results: searchResults,
-        index: selectedIndex,
-        terms: fuzzySearchValue
-      });
     } catch(error) {
+      // eslint-disable-next-line no-console
       console.error(`Unable to retrieve results for index ${selectedIndex}`, error);
     } finally {
       setLoadingSearch(false);

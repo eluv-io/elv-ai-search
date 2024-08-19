@@ -24,7 +24,8 @@ import {
 import Video from "@/components/video/Video.jsx";
 import styles from "@/pages/video-details/VideoDetails.module.css";
 import {TimeInterval} from "@/utils/helpers.js";
-import {videoStore} from "@/stores/index.js";
+import {useDisclosure} from "@mantine/hooks";
+import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
 
 
 const TextCard = ({
@@ -58,7 +59,7 @@ const TextCard = ({
   );
 };
 
-const VideoDetailsVideo = observer(({
+const VideoDetailsMain = observer(({
   clip,
   openedSidebar,
   open,
@@ -66,6 +67,8 @@ const VideoDetailsVideo = observer(({
   textStyles,
   iconStyles
 }) => {
+  const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
+
   return (
     <Box pos="relative" pr={24} pl={24}>
       <Box w="100%" mb={22} pos="relative" >
@@ -119,7 +122,7 @@ const VideoDetailsVideo = observer(({
               Open in Video Editor
             </Text>
           </Button>
-          <Button leftSection={<ShareIcon {...iconStyles} />} {...buttonStyles}>
+          <Button leftSection={<ShareIcon {...iconStyles} />} {...buttonStyles} onClick={openModal}>
             <Text {...textStyles}>
               Share
             </Text>
@@ -147,8 +150,15 @@ const VideoDetailsVideo = observer(({
           iconStyles={iconStyles}
         />
       </SimpleGrid>
+      <ShareModal
+        opened={openedShareModal}
+        onClose={closeModal}
+        objectId={clip.id}
+        startTime={clip.start_time / 1000}
+        endTime={clip.end_time / 1000}
+      />
     </Box>
   );
 });
 
-export default VideoDetailsVideo;
+export default VideoDetailsMain;
