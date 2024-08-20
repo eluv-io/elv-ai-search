@@ -3,61 +3,16 @@ import {
   ActionIcon,
   AspectRatio,
   Box,
-  Button,
-  CopyButton,
-  Group,
-  Paper,
   SimpleGrid,
-  Text,
-  Title,
-  Tooltip,
   Transition
 } from "@mantine/core";
-import {
-  ArrowLeftIcon,
-  PaperClipIcon,
-  ShareIcon,
-  ThumbDownIcon,
-  ThumbUpIcon,
-  VideoEditorIcon
-} from "@/assets/icons/index.js";
+import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
-import styles from "@/pages/video-details/VideoDetails.module.css";
 import {TimeInterval} from "@/utils/helpers.js";
 import {useDisclosure} from "@mantine/hooks";
 import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
-
-
-const TextCard = ({
-  title,
-  text,
-  copyable=false,
-  iconStyles,
-  lineClamp=1,
-  ...props
-}) => {
-  const textContent = copyable ? (
-    <CopyButton value={text}>
-      {({copied, copy}) => (
-        <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
-          <ActionIcon onClick={copy} size="xs" variant="transparent">
-            <PaperClipIcon {...iconStyles} className={styles.paperClipIcon} />
-          </ActionIcon>
-        </Tooltip>
-      )}
-    </CopyButton>
-  ) : null;
-
-  return (
-    <Paper bg="elv-gray.4" p="8 16" {...props}>
-      <Group align="center" mb={8} gap={8}>
-        <Title order={4} c="elv-gray.8">{ title }</Title>
-        { textContent }
-      </Group>
-      <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text }</Text>
-    </Paper>
-  );
-};
+import TextCard from "@/components/text-card/TextCard.jsx";
+import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
 
 const VideoDetailsMain = observer(({
   clip,
@@ -106,29 +61,13 @@ const VideoDetailsMain = observer(({
         </AspectRatio>
       </Box>
 
-      <Group mb={24} justify="space-between">
-        <Title order={2} c="elv-gray.8" lineClamp={1} maw="50%" style={{wordBreak: "break-all"}}>
-          { clip.meta?.public?.asset_metadata?.title || clip.id }
-        </Title>
-        <Group style={{flexShrink: 0}}>
-          <ActionIcon {...buttonStyles}>
-            <ThumbUpIcon {...iconStyles} />
-          </ActionIcon>
-          <ActionIcon {...buttonStyles}>
-            <ThumbDownIcon {...iconStyles} />
-          </ActionIcon>
-          <Button leftSection={<VideoEditorIcon {...iconStyles} />} {...buttonStyles}>
-            <Text {...textStyles}>
-              Open in Video Editor
-            </Text>
-          </Button>
-          <Button leftSection={<ShareIcon {...iconStyles} />} {...buttonStyles} onClick={openModal}>
-            <Text {...textStyles}>
-              Share
-            </Text>
-          </Button>
-        </Group>
-      </Group>
+      <VideoActionsBar
+        title={clip.meta?.public?.asset_metadata?.title || clip.id}
+        buttonStyles={buttonStyles}
+        iconStyles={iconStyles}
+        textStyles={textStyles}
+        openModal={openModal}
+      />
 
       <TextCard title="Summary" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam turpis risus, consectetur et iaculis ac, gravida at lorem. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur in malesuada quam, vel pretium est. Nullam scelerisque enim nec leo consequat, vitae efficitur quam consequat. Proin vel rutrum est. Phasellus condimentum sit amet turpis ut mollis. Proin ut malesuada mi. Morbi lorem tellus, interdum tempor diam eget, tempus luctus velit." mb={24} lineClamp={5} />
 
