@@ -31,6 +31,7 @@ const SecondaryButton = ({
         leftSection={LeftIcon ? <LeftIcon color="var(--mantine-color-elv-neutral-5)" /> : null}
         radius={30}
         color="elv-gray.1"
+        onClick={onClick}
         {...props}
       >
         <Text c="elv-neutral.5" fw={600} size="sm">
