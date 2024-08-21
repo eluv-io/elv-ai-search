@@ -1,6 +1,5 @@
 import {observer} from "mobx-react-lite";
 import {
-  ActionIcon,
   AspectRatio,
   Box,
   SimpleGrid,
@@ -13,14 +12,12 @@ import {useDisclosure} from "@mantine/hooks";
 import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
+import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 
 const VideoDetailsMain = observer(({
   clip,
   openedSidebar,
-  open,
-  buttonStyles,
-  textStyles,
-  iconStyles
+  open
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
 
@@ -31,20 +28,19 @@ const VideoDetailsMain = observer(({
           !openedSidebar &&
           <Transition mounted={!openedSidebar} transition="fade" enterDelay={350} exitDuration={100}>
             {transitionStyle => (
-              <ActionIcon
+              <SecondaryButton
                 pos="absolute"
                 top={10}
                 right={10}
                 onClick={open}
-                {...buttonStyles}
+                iconOnly
+                Icon={ArrowLeftIcon}
                 style={{
                   opacity: openedSidebar ? 0 : 1,
                   zIndex: 10,
                   transitionStyle
                 }}
-              >
-                <ArrowLeftIcon {...iconStyles} />
-              </ActionIcon>
+              />
             )}
           </Transition>
         }
@@ -63,9 +59,6 @@ const VideoDetailsMain = observer(({
 
       <VideoActionsBar
         title={clip.meta?.public?.asset_metadata?.title || clip.id}
-        buttonStyles={buttonStyles}
-        iconStyles={iconStyles}
-        textStyles={textStyles}
         openModal={openModal}
       />
 
@@ -76,7 +69,6 @@ const VideoDetailsMain = observer(({
           title="Content ID"
           text={clip.id}
           copyable
-          iconStyles={iconStyles}
         />
         <TextCard
           title="Time Interval"
@@ -86,7 +78,6 @@ const VideoDetailsMain = observer(({
           title="Source URL"
           text={clip.url}
           copyable
-          iconStyles={iconStyles}
         />
       </SimpleGrid>
       <ShareModal

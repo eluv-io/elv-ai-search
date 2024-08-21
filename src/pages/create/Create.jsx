@@ -2,7 +2,7 @@ import {Box, Button, Flex, Loader, Select, Text, Textarea, Title} from "@mantine
 import styles from "./Create.module.css";
 import {PlusIcon} from "@/assets/icons/index.js";
 import {observer} from "mobx-react-lite";
-import {tenantStore} from "@/stores/index.js";
+import {summaryStore, tenantStore} from "@/stores/index.js";
 import {useEffect, useState} from "react";
 import CreateVideoMain from "@/pages/create/video-container/CreateVideoMain.jsx";
 import {useDisclosure} from "@mantine/hooks";
@@ -60,7 +60,7 @@ const CreateNavBar = observer(() => {
       >
         Add Tags To Prompt
       </Button>
-      <Button fullWidth>Create</Button>
+      <Button fullWidth onClick={() => summaryStore.GetSummaryUrl({objectId: selectedIndex})}>Create</Button>
     </Box>
   );
 });

@@ -7,21 +7,6 @@ import VideoDetailsSidebar from "@/pages/video-details/sidebar/VideoDetailsSideb
 import VideoDetailsTopToolbar from "@/pages/video-details/top-toolbar/VideoDetailsTopToolbar.jsx";
 import {searchStore} from "@/stores/index.js";
 
-const iconStyles = {
-  color: "var(--mantine-color-elv-neutral-5)"
-};
-
-const buttonStyles = {
-  radius: 30,
-  color: "elv-gray.1"
-};
-
-const textStyles = {
-  c: "elv-neutral.5",
-  fw: 600,
-  size: "sm"
-};
-
 export const sliderValues = [
   {value: 30000, label: "30:00"},
   {value: 60000, label: "01:30:00"},
@@ -37,19 +22,12 @@ const VideoDetails = observer(() => {
 
   return (
     <Box p="24 0">
-      <VideoDetailsTopToolbar
-        buttonStyles={buttonStyles}
-        iconStyles={iconStyles}
-        textStyles={textStyles}
-      />
+      <VideoDetailsTopToolbar />
 
       {/* Left panel with video */}
       <Flex direction="row" justify="space-between">
         <VideoDetailsMain
           clip={clip}
-          buttonStyles={buttonStyles}
-          textStyles={textStyles}
-          iconStyles={iconStyles}
           open={open}
           openedSidebar={openedSidebar}
         />

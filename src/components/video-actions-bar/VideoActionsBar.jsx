@@ -1,20 +1,6 @@
-import {ActionIcon, Button, Group, Text, Title} from "@mantine/core";
+import {Group, Text, Title} from "@mantine/core";
 import {ShareIcon, ThumbDownIcon, ThumbUpIcon, VideoEditorIcon} from "@/assets/icons/index.js";
-
-const iconStyles = {
-  color: "var(--mantine-color-elv-neutral-5)"
-};
-
-const buttonStyles = {
-  radius: 30,
-  color: "elv-gray.1"
-};
-
-const textStyles = {
-  c: "elv-neutral.5",
-  fw: 600,
-  size: "sm"
-};
+import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 
 const VideoActionsBar = ({title, subtitle, openModal}) => {
   return (
@@ -30,22 +16,14 @@ const VideoActionsBar = ({title, subtitle, openModal}) => {
           <Text fz="xs">{ subtitle }</Text> : null
       }
       <Group style={{flexShrink: 0}}>
-        <ActionIcon {...buttonStyles}>
-          <ThumbUpIcon {...iconStyles} />
-        </ActionIcon>
-        <ActionIcon {...buttonStyles}>
-          <ThumbDownIcon {...iconStyles} />
-        </ActionIcon>
-        <Button leftSection={<VideoEditorIcon {...iconStyles} />} {...buttonStyles}>
-          <Text {...textStyles}>
-            Open in Video Editor
-          </Text>
-        </Button>
-        <Button leftSection={<ShareIcon {...iconStyles} />} {...buttonStyles} onClick={openModal}>
-          <Text {...textStyles}>
-            Share
-          </Text>
-        </Button>
+        <SecondaryButton iconOnly Icon={ThumbUpIcon} />
+        <SecondaryButton iconOnly Icon={ThumbDownIcon} />
+        <SecondaryButton LeftIcon={VideoEditorIcon}>
+          Open in Video Editor
+        </SecondaryButton>
+        <SecondaryButton LeftIcon={ShareIcon} onClick={openModal}>
+          Share
+        </SecondaryButton>
       </Group>
     </Group>
   );

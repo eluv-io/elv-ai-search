@@ -1,4 +1,4 @@
-import {createTheme} from "@mantine/core";
+import {ActionIcon, createTheme} from "@mantine/core";
 
 const theme = createTheme({
   fontFamily: "Helvetica Neue, Helvetica, sans-serif",
@@ -78,13 +78,24 @@ const theme = createTheme({
         }
       })
     },
+    ActionIcon: {
+      classNames: {
+        root: "elv-secondary-button"
+      },
+      styles: () => ({
+        "elv-secondary-button": {
+          "--ai-radius": 30,
+          borderRadius: 30,
+          backgroundColor: "var(--mantine-elv-gray-1)"
+        }
+      })
+    },
     Badge: {
       styles: () => ({
         root: {
           "--badge-height-lg": "calc(37.5px* var(--mantine-scale))"
         }
-
-})
+      })
     },
     Table: {
       vars: (theme, props) => {

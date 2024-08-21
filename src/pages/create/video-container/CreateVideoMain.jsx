@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, AspectRatio, Box, Group, Title, Transition} from "@mantine/core";
+import {ActionIcon, AspectRatio, Box, Group, SimpleGrid, Title, Transition} from "@mantine/core";
 import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
@@ -61,7 +61,7 @@ const CreateVideoMain = observer(({
         subtitle="Request in progress - Create Summary & Highlights"
       />
 
-      <Group gap={4} mb={19}>
+      <Group gap={4} mb={19} wrap="nowrap">
         <AiIcon />
         <Title
           order={2}
@@ -80,7 +80,7 @@ const CreateVideoMain = observer(({
         titleIcon={<AiIcon />}
       />
 
-      <Group>
+      <SimpleGrid cols={4}>
         <TextCard
           title="Topic"
           text="Strategies and Key Moments in the Rugby Showdown."
@@ -99,7 +99,7 @@ const CreateVideoMain = observer(({
           title="Time Interval"
           text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
         />
-      </Group>
+      </SimpleGrid>
       <ShareModal
         opened={openedShareModal}
         onClose={closeModal}

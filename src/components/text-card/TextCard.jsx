@@ -1,13 +1,13 @@
-import {ActionIcon, CopyButton, Group, Paper, Text, Title, Tooltip} from "@mantine/core";
+import {CopyButton, Group, Paper, Text, Title, Tooltip} from "@mantine/core";
 import {PaperClipIcon} from "@/assets/icons/index.js";
 import styles from "@/pages/video-details/VideoDetails.module.css";
+import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 
 const TextCard = ({
   title,
   titleIcon,
   text,
   copyable=false,
-  iconStyles,
   lineClamp=1,
   ...props
 }) => {
@@ -15,9 +15,14 @@ const TextCard = ({
     <CopyButton value={text}>
       {({copied, copy}) => (
         <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
-          <ActionIcon onClick={copy} size="xs" variant="transparent">
-            <PaperClipIcon {...iconStyles} className={styles.paperClipIcon} />
-          </ActionIcon>
+          <SecondaryButton
+            onClick={copy}
+            size="xs"
+            variant="transparent"
+            iconOnly
+          >
+            <PaperClipIcon color="var(--mantine-color-elv-neutral-5)" className={styles.paperClipIcon} />
+          </SecondaryButton>
         </Tooltip>
       )}
     </CopyButton>
