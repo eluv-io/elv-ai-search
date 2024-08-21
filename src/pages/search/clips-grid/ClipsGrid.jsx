@@ -1,15 +1,15 @@
-import {observer} from "mobx-react-lite";
 import {AspectRatio, Box, Flex, Group, SimpleGrid, Text, Title, UnstyledButton} from "@mantine/core";
+import {observer} from "mobx-react-lite";
+import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import Video from "@/components/video/Video.jsx";
-import {searchStore} from "@/stores/index.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {TimeInterval} from "@/utils/helpers.js";
 import {EyeIcon} from "@/assets/icons/index.js";
 
 const Clip = observer(({
-  clip
-}) => {
+   clip
+ }) => {
   const navigate = useNavigate();
   const {id, hash: versionHash, start_time: startTime, end_time: endTime} = clip;
 
@@ -65,7 +65,7 @@ const Clip = observer(({
   );
 });
 
-const ClipsPanel = observer(() => {
+const ClipsGrid = observer(() => {
   const clips = searchStore.currentSearch?.results?.contents || [];
 
   return (
@@ -82,4 +82,4 @@ const ClipsPanel = observer(() => {
   );
 });
 
-export default ClipsPanel;
+export default ClipsGrid;
