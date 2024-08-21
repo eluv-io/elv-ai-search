@@ -10,7 +10,6 @@ import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 
 const FilterToolbar = observer(() => {
-
   const iconProps = {
     style: {width: "20px", height: "20px", display: "block"}
   };

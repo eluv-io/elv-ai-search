@@ -8,6 +8,10 @@ class SummaryStore {
     this.rootStore = rootStore;
   }
 
+  get client() {
+    return this.rootStore
+  }
+
   GetSummaryUrl = flow(function * ({objectId}) {
     const queryParams = {
       start_time: 100,

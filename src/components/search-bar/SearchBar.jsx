@@ -29,10 +29,8 @@ const SearchBar = ({
       }
     };
 
-    if(!tenantStore.loadedIndexes) {
-      LoadData();
-    }
-  }, [tenantStore.loadedIndexes]);
+    LoadData();
+  }, []);
 
   useEffect(() => {
     const {index, terms} = searchStore.currentSearch;

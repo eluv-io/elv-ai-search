@@ -35,6 +35,10 @@ class TenantStore {
       return [];
     }
 
+    if(this.loadedIndexes) {
+      return Object.values(this.searchIndexes || {});
+    }
+
     const indexes = yield this.client.ContentObjectMetadata({
       libraryId: this.tenantId.replace("iten", "ilib"),
       objectId: this.tenantId.replace("iten", "iq__"),
