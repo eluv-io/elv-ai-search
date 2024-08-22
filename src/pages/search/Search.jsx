@@ -22,14 +22,15 @@ const FilterToolbar = observer(() => {
     <Group mb={16} justify="space-between">
       <Group>
         <Select
-          placeholder="Clip Duration"
-          data={["1", "2"]}
+          placeholder="View By Category"
+          data={["All Content", "Full Length Videos", "Clips", "Images", "Reels"]}
+          defaultValue="All Content"
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
         />
         <Select
-          placeholder="View By Category"
-          data={["Full Length Videos", "Clips", "Images", "Reels"]}
+          placeholder="Clip Duration"
+          data={["1", "2"]}
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
         />
