@@ -41,7 +41,9 @@ const ThumbnailCard = ({path, title, startTime, endTime}) => {
   );
 };
 
-const CreateSidebar = (({opened, close}) => {
+const CreateSidebar = (({opened, close, summaryResults}) => {
+  if(!summaryResults) { return null; }
+
   return (
     <>
       <Transition
@@ -84,7 +86,7 @@ const CreateSidebar = (({opened, close}) => {
 
             <Flex wrap="wrap" direction="row" gap={8}>
               {
-                mock_hashtags.map(hashtag => (
+                (summaryResults?.hashtags || []).map(hashtag => (
                   <Pill key={hashtag}>{ hashtag }</Pill>
                 ))
               }

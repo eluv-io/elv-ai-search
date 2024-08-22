@@ -9,32 +9,53 @@ class SummaryStore {
   }
 
   get client() {
-    return this.rootStore
+    return this.rootStore.client;
   }
 
-  GetSummaryUrl = flow(function * ({objectId}) {
+  GetSummaryUrl = flow(function * ({objectId, startTime, endTime}) {
     const queryParams = {
-      start_time: 100,
-      end_time: 5000
+      start_time: startTime,
+      end_time: endTime
     };
 
     const url = yield this.client.Rep({
       libraryId: yield this.client.ContentObjectLibraryId({objectId}),
       objectId,
-      select: "/public/asset_metadata/title",
-      rep: "search",
+      rep: "summarize",
       service: "search",
       makeAccessRequest: true,
       queryParams: queryParams
     });
 
-    const _pos = url.indexOf("/qlibs/");
-    const newUrl = "https://ai-02.contentfabric.io/summary".concat(url.slice(_pos));
+    const _pos = url.indexOf("/rep/");
+    const newUrl = `https://ai-03.contentfabric.io/summary/q/${objectId}`
+      .concat(url.slice(_pos));
 
-    console.log("url", newUrl)
+    return newUrl;
   });
 
-  GetSummaryResults = flow(function * () {});
+  GetSummaryResults = flow(function * ({objectId, startTime, endTime}) {
+    const url = yield this.GetSummaryUrl({
+      objectId,
+      startTime,
+      endTime
+    });
+
+    try {
+      const results = yield this.client.Request({url});
+
+      if(results) {
+        results["_id"] = objectId;
+        results["_startTime"] = startTime;
+        results["_endTime"] = endTime;
+      }
+
+      return results;
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to get summary results", error);
+    }
+  });
 }
 
 export default SummaryStore;

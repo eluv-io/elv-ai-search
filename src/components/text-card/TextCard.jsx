@@ -35,7 +35,7 @@ const TextCard = ({
         <Title order={4} c="elv-gray.8">{ title }</Title>
         { textContent }
       </Group>
-      <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp} style={{wordBreak: "break-all"}}>{ text }</Text>
+      <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp} style={{wordBreak: "break-all"}}>{ text || "" }</Text>
     </Paper>
   );
 };

@@ -10,19 +10,13 @@ import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
 const CreateVideoMain = observer(({
-  clip,
   openedSidebar,
-  open
+  open,
+  summaryResults
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
 
-  // TODO: Replace hardcoded data
-  clip = {
-    id: "iq__4yVggyxW5upfqaUveumGE4ijrwd",
-    start_time: 4020000,
-    end_time: 4035000,
-    title: "Title: Astonishing Penalty Kick: A Rare Moment of Precision"
-  };
+  if(!summaryResults) { return null; }
 
   return (
     <Box w="100%" pos="relative" p="43 24">
@@ -51,14 +45,19 @@ const CreateVideoMain = observer(({
         }
         <AspectRatio ratio={16 / 9}>
           <Video
-            objectId={clip.id}
+            objectId={summaryResults._id}
+            playoutParameters={{
+              clipStart: summaryResults._startTime / 1000,
+              clipEnd: summaryResults._endTime / 1000,
+              ignoreTrimming: true
+            }}
           />
         </AspectRatio>
       </Box>
 
       <VideoActionsBar
         openModal={openModal}
-        subtitle="Request in progress - Create Summary & Highlights"
+        subtitle="Request completed - Create Summary & Highlights"
       />
 
       <Group gap={4} mb={19} wrap="nowrap">
@@ -68,13 +67,13 @@ const CreateVideoMain = observer(({
           c="elv-gray.8"
           lineClamp={1}
         >
-          { clip.title }
+          Title: { summaryResults.title }
         </Title>
       </Group>
 
       <TextCard
         title="Summary"
-        text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam turpis risus, consectetur et iaculis ac, gravida at lorem. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur in malesuada quam, vel pretium est. Nullam scelerisque enim nec leo consequat, vitae efficitur quam consequat. Proin vel rutrum est. Phasellus condimentum sit amet turpis ut mollis. Proin ut malesuada mi. Morbi lorem tellus, interdum tempor diam eget, tempus luctus velit."
+        text={summaryResults.summary}
         mb={24}
         lineClamp={5}
         titleIcon={<AiIcon />}
@@ -92,20 +91,20 @@ const CreateVideoMain = observer(({
         />
         <TextCard
           title="Content ID"
-          text={clip.id}
+          text={summaryResults._id}
           copyable
         />
         <TextCard
           title="Time Interval"
-          text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
+          text={TimeInterval({startTime: summaryResults._startTime, endTime: summaryResults._endTime})}
         />
       </SimpleGrid>
       <ShareModal
         opened={openedShareModal}
         onClose={closeModal}
-        objectId={clip.id}
-        startTime={clip.start_time / 1000}
-        endTime={clip.end_time / 1000}
+        objectId={summaryResults._id}
+        startTime={summaryResults._startTime / 1000}
+        endTime={summaryResults._endTime / 1000}
       />
     </Box>
   );

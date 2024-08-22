@@ -48,13 +48,6 @@ const theme = createTheme({
     ]
   },
   components: {
-    Tabs: {
-      styles: () => ({
-        list: {
-          "--tabs-list-border-size": "1px"
-        }
-      })
-    },
     Accordion: {
       styles: () => ({
         control: {
@@ -78,18 +71,6 @@ const theme = createTheme({
         }
       })
     },
-    ActionIcon: {
-      classNames: {
-        root: "elv-secondary-button"
-      },
-      styles: () => ({
-        "elv-secondary-button": {
-          "--ai-radius": 30,
-          borderRadius: 30,
-          backgroundColor: "var(--mantine-elv-gray-1)"
-        }
-      })
-    },
     Badge: {
       styles: () => ({
         root: {
@@ -107,6 +88,13 @@ const theme = createTheme({
           };
         }
       }
+    },
+    Tabs: {
+      styles: () => ({
+        list: {
+          "--tabs-list-border-size": "1px"
+        }
+      })
     }
   }
 });
