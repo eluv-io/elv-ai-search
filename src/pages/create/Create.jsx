@@ -10,6 +10,8 @@ import CreateNavBar from "@/pages/create/create-navbar/CreateNavbar.jsx";
 const Create = observer(() => {
   const [openedSidebar, {open, close}] = useDisclosure(true);
   const [summaryResults, setSummaryResults] = useState(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [selectedClip, setSelectedClip] = useState(null);
 
   useEffect(() => {
     const LoadData = async() => {
@@ -22,16 +24,24 @@ const Create = observer(() => {
   return (
     <Box h="100vh">
       <Flex justify="space-between" direction="row" h="100%">
-        <CreateNavBar setSummaryResults={setSummaryResults} />
+        <CreateNavBar
+          setSummaryResults={setSummaryResults}
+          isCreating={isCreating}
+          setIsCreating={setIsCreating}
+          setSelectedClip={setSelectedClip}
+        />
         <CreateVideoMain
           openedSidebar={openedSidebar}
           open={open}
           summaryResults={summaryResults}
+          loading={isCreating}
+          selectedClip={selectedClip}
         />
         <CreateSidebar
           opened={openedSidebar}
           close={close}
           summaryResults={summaryResults}
+          loading={isCreating}
         />
       </Flex>
     </Box>

@@ -22,6 +22,12 @@ const Video = observer(({
     };
   }, []);
 
+  useEffect(() => {
+    // Reload player when id/hash changes
+    player?.Destroy();
+    setPlayer(null);
+  }, [objectId, versionHash]);
+
   if(!(versionHash || objectId)) {
     // eslint-disable-next-line no-console
     console.warn("Unable to determine playout hash for video");

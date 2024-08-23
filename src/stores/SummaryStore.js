@@ -42,15 +42,7 @@ class SummaryStore {
     });
 
     try {
-      const results = yield this.client.Request({url});
-
-      if(results) {
-        results["_id"] = objectId;
-        results["_startTime"] = startTime;
-        results["_endTime"] = endTime;
-      }
-
-      return results;
+      return this.client.Request({url});
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to get summary results", error);

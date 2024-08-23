@@ -5,12 +5,20 @@ import {Box, Button, Loader, Select, Text, Textarea, Title} from "@mantine/core"
 import styles from "@/pages/create/Create.module.css";
 import {PlusIcon} from "@/assets/icons/index.js";
 
-const CreateNavBar = observer(({setSummaryResults}) => {
+const CreateNavBar = observer(({
+  setSummaryResults,
+  isCreating,
+  setIsCreating,
+  setSelectedClip
+}) => {
   const [selectedLibrary, setSelectedLibrary] = useState(null);
   const [selectedObject, setSelectedObject] = useState(null);
   const [objectData, setObjectData] = useState(null);
   const [loadingObjects, setLoadingObjects] = useState(false);
-  const [isCreating, setIsCreating] = useState(false);
+
+  // TODO: Add fields that allow user to select these values
+  const startTime = 8000;
+  const endTime = 19000;
 
   const libraryData = Object.keys(tenantStore.libraries || {})
     .map(id => (
@@ -51,15 +59,23 @@ const CreateNavBar = observer(({setSummaryResults}) => {
 
     try {
       setIsCreating(true);
+      setSelectedClip({
+        objectId: selectedObject.value,
+        startTime,
+        endTime
+      });
 
       const results = await summaryStore.GetSummaryResults({
         objectId: selectedObject.value,
-        // TODO: Get user selected values for start and end time
-        startTime: 100,
-        endTime: 5000
+        startTime,
+        endTime
       });
 
       setSummaryResults(results);
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      setSelectedClip(null);
     } finally {
       setIsCreating(false);
     }
@@ -71,7 +87,7 @@ const CreateNavBar = observer(({setSummaryResults}) => {
         Create Summary & Highlights
       </Title>
 
-      <Text fz="xs" fw={700} c="elv-gray.9">Source</Text>
+      <Text fz="md" fw={700} c="elv-gray.9">Source</Text>
       {
         tenantStore.libraries ?
           <Select
@@ -99,7 +115,7 @@ const CreateNavBar = observer(({setSummaryResults}) => {
       {/*  <Text c="elv-gray.3" mb={16} fz="xs">Browse Library</Text>*/}
       {/*</Button>*/}
 
-      <Text fz="xs" fw={700} c="elv-gray.9" mb={10}>Advanced</Text>
+      <Text fz="md" fw={700} c="elv-gray.9" mb={10}>Advanced</Text>
       <Textarea placeholder="Create a summary for this video" mb={16} />
       <Textarea placeholder="Highlights" mb={16} />
 

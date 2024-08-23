@@ -1,17 +1,19 @@
-import {AspectRatio, Box, CloseButton, Flex, Group, Image, Pill, Stack, Text, Transition} from "@mantine/core";
-import {SparklesIcon} from "@/assets/icons/index.js";
+import {AspectRatio, Box, CloseButton, Flex, Group, Image, Loader, Pill, Stack, Text, Transition} from "@mantine/core";
 import MockHighlights from "@/assets/mock/MockHighlights.js";
 import {TimeInterval} from "@/utils/helpers.js";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
-// TODO: Replace all mock data with real data
-const mock_hashtags = ["#EpicRugby", "#ChampsionsClash", "#RugbyFans", "#RugbyShowdown", "#RugbyVibes", "#RugbyWin", "#RugbyHype", "#RugbyLive", "#ScrumBattle"];
-
-const TitleGroup = ({title}) => {
+const TitleGroup = ({title, loading}) => {
   return (
     <Group gap={4} mb={13}>
       <AiIcon />
-      <Text size="sm" fw={600} c="elv-gray.8">{ title }</Text>
+      <Group>
+        <Text size="sm" fw={600} c="elv-gray.8">{ title }</Text>
+        {
+          loading &&
+          <Loader size="xs" />
+        }
+      </Group>
     </Group>
   );
 };
@@ -41,8 +43,13 @@ const ThumbnailCard = ({path, title, startTime, endTime}) => {
   );
 };
 
-const CreateSidebar = (({opened, close, summaryResults}) => {
-  if(!summaryResults) { return null; }
+const CreateSidebar = (({
+  opened,
+  close,
+  summaryResults,
+  loading
+}) => {
+  if(!summaryResults && !loading) { return null; }
 
   return (
     <>
@@ -69,11 +76,16 @@ const CreateSidebar = (({opened, close, summaryResults}) => {
               <CloseButton onClick={close} style={{zIndex: 50}} />
             </Group>
 
-            <TitleGroup title="AI Suggested Highlights" />
+            <TitleGroup title={loading ? "AI Suggested Highlights in Progress" : "AI Suggested Highlights"} />
             {
-              MockHighlights.results.map(item => (
+              loading ? (
+                <Flex justify="center" mb={8}>
+                  <Loader size="sm" />
+                </Flex>
+              ) :
+              MockHighlights.results.map((item, i) => (
                 <ThumbnailCard
-                  key={`thumbnail-${item.path}`}
+                  key={`thumbnail-${item.path || i}`}
                   path={item.image_src}
                   title={item.title}
                   startTime={item.start_time}
@@ -82,15 +94,24 @@ const CreateSidebar = (({opened, close, summaryResults}) => {
               ))
             }
 
-            <TitleGroup title="Suggested Hashtags" />
-
-            <Flex wrap="wrap" direction="row" gap={8}>
-              {
-                (summaryResults?.hashtags || []).map(hashtag => (
-                  <Pill key={hashtag}>{ hashtag }</Pill>
-                ))
-              }
-            </Flex>
+            <TitleGroup title={loading ? "Suggested Hashtags in Progress" : "Suggested Hashtags"} />
+            {
+              loading ? (
+                <Flex justify="center">
+                  <Loader size="sm" />
+                </Flex>
+                ) :
+                (
+                  summaryResults?.hashtags ?
+                  <Flex wrap="wrap" direction="row" gap={8}>
+                    {
+                      (summaryResults?.hashtags || []).map(hashtag => (
+                        <Pill key={hashtag}>{ hashtag }</Pill>
+                      ))
+                    }
+                  </Flex> : "No results"
+                )
+            }
           </Box>
         )}
       </Transition>

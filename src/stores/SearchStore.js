@@ -164,7 +164,7 @@ class SearchStore {
       });
 
       const _pos = url.indexOf("/qlibs/");
-      const newUrl = "https://ai-02.contentfabric.io/search".concat(url.slice(_pos));
+      const newUrl = "https://ai.contentfabric.io/search".concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console

@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, AspectRatio, Box, Group, SimpleGrid, Title, Transition} from "@mantine/core";
+import {ActionIcon, AspectRatio, Box, Group, Loader, SimpleGrid, Title, Transition} from "@mantine/core";
 import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
@@ -9,14 +9,40 @@ import {useDisclosure} from "@mantine/hooks";
 import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
+const TitleGroup = ({title, loading}) => {
+  if(!title && !loading) { return null; }
+
+  return (
+    <Group gap={4} mb={19} wrap="nowrap">
+      <AiIcon />
+      <Title
+        order={2}
+        c="elv-gray.8"
+        lineClamp={1}
+      >
+        {
+          loading ?
+            <Group w="100%">
+              Title in Progress
+              <Loader size="xs" pr={50} />
+            </Group> :
+            `Title: ${title}`
+        }
+      </Title>
+    </Group>
+  );
+};
+
 const CreateVideoMain = observer(({
   openedSidebar,
   open,
-  summaryResults
+  summaryResults,
+  loading,
+  selectedClip
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
 
-  if(!summaryResults) { return null; }
+  if(!summaryResults && !loading) { return null; }
 
   return (
     <Box w="100%" pos="relative" p="43 24">
@@ -45,10 +71,10 @@ const CreateVideoMain = observer(({
         }
         <AspectRatio ratio={16 / 9}>
           <Video
-            objectId={summaryResults._id}
+            objectId={selectedClip?.objectId}
             playoutParameters={{
-              clipStart: summaryResults._startTime / 1000,
-              clipEnd: summaryResults._endTime / 1000,
+              clipStart: selectedClip?.startTime / 1000,
+              clipEnd: selectedClip?.endTime / 1000,
               ignoreTrimming: true
             }}
           />
@@ -57,33 +83,28 @@ const CreateVideoMain = observer(({
 
       <VideoActionsBar
         openModal={openModal}
-        subtitle="Request completed - Create Summary & Highlights"
+        subtitle={`${loading ? "Request in progress" : "Request completed"} - Create Summary & Highlights`}
       />
 
-      <Group gap={4} mb={19} wrap="nowrap">
-        <AiIcon />
-        <Title
-          order={2}
-          c="elv-gray.8"
-          lineClamp={1}
-        >
-          Title: { summaryResults.title }
-        </Title>
-      </Group>
+      <TitleGroup title={summaryResults?.title} loading={loading} />
 
       <TextCard
         title="Summary"
-        text={summaryResults.summary}
+        id="Summary"
+        text={summaryResults?.summary}
         mb={24}
         lineClamp={5}
         titleIcon={<AiIcon />}
+        loading={loading}
       />
 
       <SimpleGrid cols={4}>
         <TextCard
           title="Topic"
+          id="Topic"
           text="Strategies and Key Moments in the Rugby Showdown."
           titleIcon={<AiIcon />}
+          loading={loading}
         />
         <TextCard
           title="Source Detail"
@@ -91,20 +112,20 @@ const CreateVideoMain = observer(({
         />
         <TextCard
           title="Content ID"
-          text={summaryResults._id}
+          text={selectedClip?.objectId}
           copyable
         />
         <TextCard
           title="Time Interval"
-          text={TimeInterval({startTime: summaryResults._startTime, endTime: summaryResults._endTime})}
+          text={TimeInterval({startTime: selectedClip?.startTime, endTime: selectedClip?.endTime})}
         />
       </SimpleGrid>
       <ShareModal
         opened={openedShareModal}
         onClose={closeModal}
-        objectId={summaryResults._id}
-        startTime={summaryResults._startTime / 1000}
-        endTime={summaryResults._endTime / 1000}
+        objectId={selectedClip?.objectId}
+        startTime={selectedClip?.startTime / 1000}
+        endTime={selectedClip?.endTime / 1000}
       />
     </Box>
   );
