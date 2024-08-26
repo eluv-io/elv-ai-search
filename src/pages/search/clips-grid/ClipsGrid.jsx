@@ -1,17 +1,38 @@
-import {AspectRatio, Box, Flex, Group, SimpleGrid, Text, Title, UnstyledButton} from "@mantine/core";
+import {AspectRatio, Box, Flex, Group, Image, SimpleGrid, Text, Title, UnstyledButton} from "@mantine/core";
 import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
-import Video from "@/components/video/Video.jsx";
-import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import {TimeInterval} from "@/utils/helpers.js";
 import {EyeIcon} from "@/assets/icons/index.js";
+import {useState} from "react";
+
+const ImageContent = observer(({imageSrc, title}) => {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if(imageSrc && !imageFailed) {
+    return (
+      <Image
+        radius="lg"
+        src={imageSrc}
+        onError={() => setImageFailed(true)}
+      />
+    );
+  } else {
+    return (
+      <Flex bg="black" align="center" justify="center" p={16}>
+        <Text c="white" fz="sm">
+          { title }
+        </Text>
+      </Flex>
+    );
+  }
+});
 
 const Clip = observer(({
    clip
  }) => {
   const navigate = useNavigate();
-  const {id, hash: versionHash, start_time: startTime, end_time: endTime} = clip;
+  const {id, start_time: startTime, end_time: endTime} = clip;
 
   return (
     <UnstyledButton
@@ -34,17 +55,9 @@ const Clip = observer(({
           ratio={16 / 9}
           style={{borderRadius: "14px", overflow: "hidden"}}
         >
-          <Video
-            versionHash={versionHash}
-            playoutParameters={{
-              clipStart: startTime / 1000,
-              clipEnd: endTime / 1000,
-              ignoreTrimming: true
-            }}
-            playerOptions={{
-              controls: EluvioPlayerParameters.controls.OFF
-            }}
-            borderRadius="14px"
+          <ImageContent
+            imageSrc={clip._imageSrc}
+            title={clip.meta?.public?.asset_metadata?.title || id}
           />
         </AspectRatio>
         <Title order={4} lineClamp={1} mt={10} lh={1}>

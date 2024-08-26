@@ -27,7 +27,7 @@ class SearchStore {
   };
 
   SetCurrentSearch = ({results, index, terms}) => {
-    this.currentSearch["results"] = results;
+    this.currentSearch["results"] = {...results};
     this.currentSearch["index"] = index;
     this.currentSearch["terms"] = terms;
   };
@@ -205,6 +205,30 @@ class SearchStore {
     };
   });
 
+  GetThumbnail = flow(function * ({
+    objectId,
+    imagePath
+  }) {
+    try {
+      const base = this.rootStore.networkInfo.name === "main" ?
+        "https://main.net955305.contentfabric.io" :
+        "https://demov3.net955210.contentfabric.io";
+      const repPosition = imagePath.indexOf("rep");
+      let revisedImagePath = `/q/${objectId}/${imagePath.slice(repPosition)}`;
+      let url = new URL(revisedImagePath, base);
+
+      const token = yield this.client.GenerateStateChannelToken({objectId});
+
+      url.searchParams.set("resolve", "true");
+      url.searchParams.set("authorization", token);
+
+      return url.toString();
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(`Unable to generate thumbnail url for ${objectId}`, error);
+    }
+  });
+
   GetSearchResults = flow(function * ({
     objectId,
     versionHash,
@@ -238,7 +262,27 @@ class SearchStore {
     }
 
     try {
-      const results = yield this.client.Request({url: urlResponse.url});
+      let results = yield this.client.Request({url: urlResponse.url});
+      let editedContents;
+
+      editedContents = yield Promise.all(
+        results.contents.map(async result => {
+          try {
+            let url = await this.GetThumbnail({
+              objectId: result.id,
+              imagePath: result.image_url
+            });
+            result["_imageSrc"] = url;
+
+            return result;
+          } catch(error) {
+            // eslint-disable-next-line no-console
+            console.error(`Unable to retrieve thumbnail for ${result.id}`);
+          }
+        })
+      );
+
+      results.contents = editedContents;
 
       this.SetCurrentSearch({
         results,

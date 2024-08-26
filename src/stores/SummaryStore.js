@@ -28,7 +28,7 @@ class SummaryStore {
     });
 
     const _pos = url.indexOf("/rep/");
-    const newUrl = `https://ai-03.contentfabric.io/summary/q/${objectId}`
+    const newUrl = `https://ai.contentfabric.io/summary/q/${objectId}`
       .concat(url.slice(_pos));
 
     return newUrl;
