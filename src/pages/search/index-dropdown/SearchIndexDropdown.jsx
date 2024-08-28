@@ -1,91 +1,52 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, Combobox, Flex, Group, Loader, Text, TextInput, useCombobox} from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Combobox,
+  Flex,
+  Loader,
+  Radio,
+  TextInput,
+  Title,
+  useCombobox
+} from "@mantine/core";
 import styles from "@/components/search-bar/SearchIndexDropdown.module.css";
 import {musicStore} from "@/stores/index.js";
 import {SubmitIcon} from "@/assets/icons/index.js";
+import {useState} from "react";
 
-const DropdownOption = observer(({id, name, direction="COLUMN"}) => {
-  const flexProps = {
-    align: direction === "COLUMN" ? "" : "baseline",
-    gap: direction === "ROW" ? "8px" : 0,
-    direction: direction === "COLUMN" ? "column" : "row"
-  };
-
-  return (
-    <Group>
-      <Flex {...flexProps}>
-        <Text fz="sm" fw={500}>
-          { name || id }
-        </Text>
-        <Text fz="xs" opacity={0.6}>
-          { name ? id : "" }
-        </Text>
-      </Flex>
-    </Group>
-  );
-});
-
-const SearchIndexDropdown = observer(({
+const TextInputSection = observer(({
+  loadingSearch,
   indexes,
-  selectedIndex,
-  setSelectedIndex,
+  combobox,
   HandleSearch,
-  loadingSearch
+  selectedIndex,
+  setSelectedIndex
 }) => {
-  const combobox = useCombobox({
-    onDropdownClose: () => combobox.resetSelectedOption()
-  });
-
-  const options = indexes.map(item => (
-    <Combobox.Option value={item.id} key={item.id}>
-      <DropdownOption {...item} />
-    </Combobox.Option>
-  ));
-
   return (
-    <Combobox
-      store={combobox}
-      withinPortal={false}
-      onOptionSubmit={value => {
-        setSelectedIndex(value);
-        combobox.closeDropdown();
-      }}
+    <Combobox.Target
+      size="md"
+      data-single-field={musicStore.musicSettingEnabled}
+      classNames={{input: styles.input, root: styles.root}}
     >
-      {/* Search index options */}
-      {
-        indexes.length > 0 ?
-          (
-            <Combobox.Dropdown>
-              <Combobox.Options>
-                { options }
-              </Combobox.Options>
-            </Combobox.Dropdown>
-          ) : null
-      }
+      <TextInput
+        placeholder={indexes.length > 0 ? "Select or enter a search index object ID" : "Enter a search index object ID"}
+        value={selectedIndex}
+        onChange={(event) => {
+          setSelectedIndex(event.currentTarget.value);
+          combobox.toggleDropdown();
+        }}
+        onClick={() => combobox.openDropdown()}
+        onFocus={() => combobox.openDropdown()}
+        onKeyDown={(event) => {
 
-      {/* Input for index */}
-      <Combobox.Target
-        data-single-field={musicStore.musicSettingEnabled}
-        classNames={{input: styles.input, root: styles.root}}
-      >
-        <TextInput
-          placeholder={indexes.length > 0 ? "Select or enter a search index object ID" : "Enter a search index object ID"}
-          value={selectedIndex}
-          onChange={(event) => {
-            setSelectedIndex(event.currentTarget.value);
-            combobox.toggleDropdown();
-          }}
-          onClick={() => combobox.openDropdown()}
-          onFocus={() => combobox.openDropdown()}
-          onKeyDown={(event) => {
-
-            if (musicStore.musicSettingEnabled && event.key === "Enter") {
-              event.preventDefault();
-              HandleSearch(true);
-            }
-          }}
-          rightSection={
-            (selectedIndex !== "" && musicStore.musicSettingEnabled) ? (
+          if (musicStore.musicSettingEnabled && event.key === "Enter") {
+            event.preventDefault();
+            HandleSearch(true);
+          }
+        }}
+        rightSection={
+          (selectedIndex !== "" && musicStore.musicSettingEnabled) ? (
               loadingSearch ?
                 <Loader size="xs" color="gray.7" /> :
                 (
@@ -99,22 +60,94 @@ const SearchIndexDropdown = observer(({
                     <SubmitIcon />
                   </ActionIcon>
                 )
-                // <CloseButton
-                //   size="sm"
-                //   onMouseDown={event => event.preventDefault()}
-                //   onClick={() => setSelectedIndex("")}
-                //   aria-label="Clear Value"
-                // />
-              ) :
-              indexes.length > 0 ?
-                (
-                  <Combobox.Chevron />
-                ) : null
-          }
-          rightSectionPointerEvents={selectedIndex === "" ? "none" : "all"}
-        >
-        </TextInput>
-      </Combobox.Target>
+            ) :
+            indexes.length > 0 ?
+              (
+                <Combobox.Chevron />
+              ) : null
+        }
+        rightSectionPointerEvents={selectedIndex === "" ? "none" : "all"}
+      >
+      </TextInput>
+    </Combobox.Target>
+  );
+});
+
+const SearchIndexDropdown = observer(({
+  indexes,
+  loadingIndexes,
+  selectedIndex,
+  setSelectedIndex,
+  HandleSearch,
+  loadingSearch
+}) => {
+  const combobox = useCombobox({
+    onDropdownClose: () => combobox.resetSelectedOption()
+  });
+  const [newIndex, setNewIndex] = useState("");
+
+  const options = indexes.map(item => (
+    <Combobox.Option
+      value={item.id}
+      key={item.id}
+      active={newIndex.includes(item)}
+      classNames={{option: styles.comboboxOption}}
+    >
+      <Radio
+        classNames={{body: styles.radioBody}}
+        label={item.name || item.id}
+        description={item.name ? item.id : ""}
+        checked={newIndex.includes(item.id)}
+        value={newIndex}
+        onChange={event => setNewIndex(event.target.value)}
+      />
+    </Combobox.Option>
+  ));
+
+  return (
+    <Combobox
+      store={combobox}
+      withinPortal={false}
+      onOptionSubmit={value => {
+        setNewIndex(value);
+      }}
+    >
+      {/* Dropdown menu for search indexes */}
+      {
+        indexes.length > 0 ?
+          (
+            <Combobox.Dropdown p={24}>
+              <Title size="xs" mb={16}>Index</Title>
+              <Combobox.Options>
+                {
+                  loadingIndexes ?
+                    <Combobox.Empty>Loading...</Combobox.Empty>
+                    : options
+                }
+              </Combobox.Options>
+              <Flex justify="flex-end">
+                <Button
+                  mt={20}
+                  onClick={() => {
+                    setSelectedIndex(newIndex);
+                    combobox.closeDropdown();
+                  }}>
+                  Apply
+                </Button>
+              </Flex>
+            </Combobox.Dropdown>
+          ) : null
+      }
+
+      {/* User-editable text field for index */}
+      <TextInputSection
+        loadingSearch={loadingSearch}
+        indexes={indexes}
+        combobox={combobox}
+        HandleSearch={HandleSearch}
+        selectedIndex={selectedIndex}
+        setSelectedIndex={setSelectedIndex}
+      />
     </Combobox>
   );
 });

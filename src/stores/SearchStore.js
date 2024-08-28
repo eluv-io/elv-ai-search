@@ -244,6 +244,14 @@ class SearchStore {
     }
   });
 
+  ResetSearch = () => {
+    this.SetCurrentSearch({
+      results: null,
+      index: this.currentSearch.index,
+      terms: this.currentSearch.terms
+    });
+  };
+
   GetSearchResults = flow(function * ({
     objectId,
     versionHash,
@@ -252,6 +260,8 @@ class SearchStore {
     vector=true,
     music=false
   }) {
+    this.ResetSearch();
+
     const {fuzzySearchFields, searchAssets} = yield this.GetSearchParams({objectId});
     let urlResponse;
 
@@ -308,7 +318,7 @@ class SearchStore {
       });
     } catch(error) {
       // eslint-disable-next-line no-console
-      console.error(error);
+      console.error("Unable to perform search", error);
     }
   });
 }

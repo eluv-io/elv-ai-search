@@ -10,14 +10,14 @@ import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import SearchDropzone from "@/pages/search/dropzone/SearchDropzone.jsx";
 
-const FilterToolbar = observer(() => {
+const FilterToolbar = observer(({loadingSearch}) => {
   const iconProps = {
     style: {width: "20px", height: "20px", display: "block"}
   };
 
   const [view, setView] = useState("grid");
 
-  if(!searchStore.currentSearch.results) { return null; }
+  if(!searchStore.currentSearch.results || loadingSearch) { return null; }
 
   return (
     <Group mb={16} justify="space-between">
@@ -45,7 +45,7 @@ const FilterToolbar = observer(() => {
           {
             Pluralize({
               baseWord: "Result",
-              count: searchStore.currentSearch?.results?.contents.length
+              count: searchStore.currentSearch?.results?.contents?.length
             })
           }
         </Text>
@@ -88,7 +88,7 @@ const Search = observer(() => {
         setLoadingSearch={setLoadingSearch}
       />
       <SearchDropzone loadingSearch={loadingSearch} />
-      <FilterToolbar />
+      <FilterToolbar loadingSearch={loadingSearch} />
       <ClipsGrid />
     </PageContainer>
   );

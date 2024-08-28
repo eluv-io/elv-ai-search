@@ -87,6 +87,17 @@ const theme = createTheme({
         }
       })
     },
+    Switch: {
+      styles: () => ({
+        root: {
+          "--switch-height-xxl": "calc(2.625rem*var(--mantine-scale))",
+          "--switch-width-xxl": "calc(4.75rem*var(--mantine-scale))",
+          "--switch-thumb-size-xxl": "calc(2rem* var(--mantine-scale))",
+          "--switch-label-font-size-xxl": "calc(0.75rem* var(--mantine-scale))",
+          "--switch-track-label-padding-xxl": "calc(0.25rem* var(--mantine-scale))"
+        }
+      })
+    },
     Table: {
       vars: (theme, props) => {
         if(props.size === "xxs") {

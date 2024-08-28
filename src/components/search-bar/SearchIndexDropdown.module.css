@@ -13,5 +13,13 @@
 }
 
 .root {
-  flex: 3;
+  flex: 2;
+}
+
+.radioBody {
+  align-items: center;
+}
+
+.comboboxOption {
+  padding: 6px 0;
 }

@@ -3,7 +3,7 @@ import styles from "@/components/search-bar/SearchInput.module.css";
 import SearchIndexDropdown from "@/pages/search/index-dropdown/SearchIndexDropdown.jsx";
 import {useEffect, useState} from "react";
 import {musicStore, searchStore, tenantStore} from "@/stores/index.js";
-import {SubmitIcon, PaperClipIcon, MusicIcon} from "@/assets/icons";
+import {PaperClipIcon, MusicIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 
 const SearchBar = observer(({
@@ -44,8 +44,6 @@ const SearchBar = observer(({
     }
   }, [searchStore.currentSearchParams]);
 
-  if(loadingIndexes) { return <Loader />; }
-
   const HandleSearch = async(music=false) => {
     if(!(fuzzySearchValue || selectedIndex)) { return; }
 
@@ -70,6 +68,7 @@ const SearchBar = observer(({
     <Flex direction="row" align="center" mb={24}>
       <SearchIndexDropdown
         indexes={indexes}
+        loadingIndexes={loadingIndexes}
         selectedIndex={selectedIndex}
         setSelectedIndex={setSelectedIndex}
         HandleSearch={HandleSearch}
@@ -80,6 +79,7 @@ const SearchBar = observer(({
       {
         musicStore.musicSettingEnabled ? null :
         <TextInput
+          size="md"
           placeholder="Search by image, video, or audio"
           value={fuzzySearchValue}
           onChange={event => setFuzzySearchValue(event.target.value)}
@@ -88,28 +88,27 @@ const SearchBar = observer(({
               await HandleSearch();
             }
           }}
-          leftSection={<PaperClipIcon />}
+          leftSection={
+            loadingSearch ?
+              <Loader size="xs" color="gray.7" /> :
+              (
+                <ActionIcon
+                  aria-label="Submit search"
+                  variant="transparent"
+                  component="button"
+                  onClick={HandleSearch}
+                  c="gray.7"
+                >
+                  <PaperClipIcon />
+                </ActionIcon>
+              )
+          }
+          leftSectionPointerEvents={loadingSearch ? "none" : "all"}
           classNames={{input: styles.input, root: styles.root}}
-          rightSection={
-          loadingSearch ?
-            <Loader size="xs" color="gray.7" /> :
-            (
-              <ActionIcon
-                aria-label="Submit search"
-                variant="transparent"
-                component="button"
-                onClick={HandleSearch}
-                c="gray.7"
-              >
-                <SubmitIcon />
-              </ActionIcon>
-            )
-        }
-          rightSectionPointerEvents={loadingSearch ? "none" : "all"}
         />
       }
       <Switch
-        size="xl"
+        size="xxl"
         thumbIcon={musicStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
         checked={musicStore.musicSettingEnabled}
         onChange={() => musicStore.ToggleMusicSetting()}
