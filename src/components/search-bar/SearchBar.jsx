@@ -1,11 +1,12 @@
-import {ActionIcon, Flex, Loader, TextInput} from "@mantine/core";
+import {ActionIcon, Flex, Loader, Switch, TextInput} from "@mantine/core";
 import styles from "@/components/search-bar/SearchInput.module.css";
 import SearchIndexDropdown from "@/pages/search/index-dropdown/SearchIndexDropdown.jsx";
 import {useEffect, useState} from "react";
-import {searchStore, tenantStore} from "@/stores/index.js";
-import {SubmitIcon, PaperClipIcon} from "@/assets/icons";
+import {musicStore, searchStore, tenantStore} from "@/stores/index.js";
+import {SubmitIcon, PaperClipIcon, MusicIcon} from "@/assets/icons";
+import {observer} from "mobx-react-lite";
 
-const SearchBar = ({
+const SearchBar = observer(({
   loadingSearch,
   setLoadingSearch
 }) => {
@@ -45,7 +46,7 @@ const SearchBar = ({
 
   if(loadingIndexes) { return <Loader />; }
 
-  const HandleSearch = async() => {
+  const HandleSearch = async(music=false) => {
     if(!(fuzzySearchValue || selectedIndex)) { return; }
 
     try {
@@ -54,7 +55,8 @@ const SearchBar = ({
       await searchStore.GetSearchResults({
         fuzzySearchValue,
         objectId: selectedIndex,
-        searchVersion: tenantStore.searchIndexes[selectedIndex]?.version
+        searchVersion: tenantStore.searchIndexes[selectedIndex]?.version,
+        music
       });
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -70,39 +72,51 @@ const SearchBar = ({
         indexes={indexes}
         selectedIndex={selectedIndex}
         setSelectedIndex={setSelectedIndex}
+        HandleSearch={HandleSearch}
+        loadingSearch={loadingSearch}
       />
 
       {/* Input for search terms */}
-      <TextInput
-        placeholder="Search by image, video, or audio"
-        value={fuzzySearchValue}
-        onChange={event => setFuzzySearchValue(event.target.value)}
-        onKeyDown={async (event) => {
-          if(event.key === "Enter") {
-            await HandleSearch();
-          }
-        }}
-        leftSection={<PaperClipIcon />}
-        classNames={{input: styles.input, root: styles.root}}
-        rightSection={
-        loadingSearch ?
-          <Loader size="xs" color="gray.7" /> :
-          (
-            <ActionIcon
-              aria-label="Submit search"
-              variant="transparent"
-              component="button"
-              onClick={HandleSearch}
-              c="gray.7"
-            >
-              <SubmitIcon />
-            </ActionIcon>
-          )
+      {
+        musicStore.musicSettingEnabled ? null :
+        <TextInput
+          placeholder="Search by image, video, or audio"
+          value={fuzzySearchValue}
+          onChange={event => setFuzzySearchValue(event.target.value)}
+          onKeyDown={async (event) => {
+            if(event.key === "Enter") {
+              await HandleSearch();
+            }
+          }}
+          leftSection={<PaperClipIcon />}
+          classNames={{input: styles.input, root: styles.root}}
+          rightSection={
+          loadingSearch ?
+            <Loader size="xs" color="gray.7" /> :
+            (
+              <ActionIcon
+                aria-label="Submit search"
+                variant="transparent"
+                component="button"
+                onClick={HandleSearch}
+                c="gray.7"
+              >
+                <SubmitIcon />
+              </ActionIcon>
+            )
+        }
+          rightSectionPointerEvents={loadingSearch ? "none" : "all"}
+        />
       }
-        rightSectionPointerEvents={loadingSearch ? "none" : "all"}
+      <Switch
+        size="xl"
+        thumbIcon={musicStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
+        checked={musicStore.musicSettingEnabled}
+        onChange={() => musicStore.ToggleMusicSetting()}
+        ml={24}
       />
     </Flex>
   );
-};
+});
 
 export default SearchBar;

@@ -1,6 +1,8 @@
 import {observer} from "mobx-react-lite";
-import {CloseButton, Combobox, Flex, Group, Text, TextInput, useCombobox} from "@mantine/core";
+import {ActionIcon, Combobox, Flex, Group, Loader, Text, TextInput, useCombobox} from "@mantine/core";
 import styles from "@/components/search-bar/SearchIndexDropdown.module.css";
+import {musicStore} from "@/stores/index.js";
+import {SubmitIcon} from "@/assets/icons/index.js";
 
 const DropdownOption = observer(({id, name, direction="COLUMN"}) => {
   const flexProps = {
@@ -23,7 +25,13 @@ const DropdownOption = observer(({id, name, direction="COLUMN"}) => {
   );
 });
 
-const SearchIndexDropdown = observer(({indexes, selectedIndex, setSelectedIndex}) => {
+const SearchIndexDropdown = observer(({
+  indexes,
+  selectedIndex,
+  setSelectedIndex,
+  HandleSearch,
+  loadingSearch
+}) => {
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption()
   });
@@ -57,6 +65,7 @@ const SearchIndexDropdown = observer(({indexes, selectedIndex, setSelectedIndex}
 
       {/* Input for index */}
       <Combobox.Target
+        data-single-field={musicStore.musicSettingEnabled}
         classNames={{input: styles.input, root: styles.root}}
       >
         <TextInput
@@ -68,14 +77,34 @@ const SearchIndexDropdown = observer(({indexes, selectedIndex, setSelectedIndex}
           }}
           onClick={() => combobox.openDropdown()}
           onFocus={() => combobox.openDropdown()}
+          onKeyDown={(event) => {
+
+            if (musicStore.musicSettingEnabled && event.key === "Enter") {
+              event.preventDefault();
+              HandleSearch(true);
+            }
+          }}
           rightSection={
-            selectedIndex !== "" ? (
-                <CloseButton
-                  size="sm"
-                  onMouseDown={event => event.preventDefault()}
-                  onClick={() => setSelectedIndex("")}
-                  aria-label="Clear Value"
-                />
+            (selectedIndex !== "" && musicStore.musicSettingEnabled) ? (
+              loadingSearch ?
+                <Loader size="xs" color="gray.7" /> :
+                (
+                  <ActionIcon
+                    aria-label="Submit search"
+                    variant="transparent"
+                    component="button"
+                    onClick={HandleSearch}
+                    c="gray.7"
+                  >
+                    <SubmitIcon />
+                  </ActionIcon>
+                )
+                // <CloseButton
+                //   size="sm"
+                //   onMouseDown={event => event.preventDefault()}
+                //   onClick={() => setSelectedIndex("")}
+                //   aria-label="Clear Value"
+                // />
               ) :
               indexes.length > 0 ?
                 (

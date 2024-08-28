@@ -8,6 +8,7 @@ import {Pluralize} from "@/utils/helpers.js";
 import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
+import SearchDropzone from "@/pages/search/dropzone/SearchDropzone.jsx";
 
 const FilterToolbar = observer(() => {
   const iconProps = {
@@ -86,6 +87,7 @@ const Search = observer(() => {
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}
       />
+      <SearchDropzone loadingSearch={loadingSearch} />
       <FilterToolbar />
       <ClipsGrid />
     </PageContainer>

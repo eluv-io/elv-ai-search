@@ -28,18 +28,24 @@ class SummaryStore {
     });
 
     const _pos = url.indexOf("/rep/");
-    const newUrl = `https://ai.contentfabric.io/summary/q/${objectId}`
+    const newUrl = `https://ai-03.contentfabric.io/summary/q/${objectId}`
       .concat(url.slice(_pos));
 
     return newUrl;
   });
 
   GetSummaryResults = flow(function * ({objectId, startTime, endTime}) {
-    const url = yield this.GetSummaryUrl({
-      objectId,
-      startTime,
-      endTime
-    });
+    let url;
+    try {
+      url = yield this.GetSummaryUrl({
+        objectId,
+        startTime,
+        endTime
+      });
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to get summary URL", error);
+    }
 
     try {
       return this.client.Request({url});

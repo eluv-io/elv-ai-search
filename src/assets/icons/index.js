@@ -8,6 +8,7 @@ import LibraryIcon from "./LibraryIcon.jsx";
 import LinkIcon from "./LinkIcon.jsx";
 import ListIcon from "./ListIcon.jsx";
 import MailIcon from "./MailIcon.jsx";
+import MusicIcon from "./MusicIcon.jsx";
 import PaperClipIcon from "./PaperClipIcon.jsx";
 import PlayIcon from "./PlayIcon.jsx";
 import PlusIcon from "./PlusIcon.jsx";
@@ -17,6 +18,7 @@ import SparklesIcon from "./SparklesIcon.jsx";
 import SubmitIcon from "./SubmitIcon.jsx";
 import ThumbDownIcon from "./ThumbDownIcon.jsx";
 import ThumbUpIcon from "./ThumbUpIcon.jsx";
+import UploadIcon from "./UploadIcon.jsx";
 import VideoEditorIcon from "./VideoEditorIcon.jsx";
 
 export {
@@ -30,6 +32,7 @@ export {
   LinkIcon,
   ListIcon,
   MailIcon,
+  MusicIcon,
   PaperClipIcon,
   PlayIcon,
   PlusIcon,
@@ -39,5 +42,6 @@ export {
   SubmitIcon,
   ThumbDownIcon,
   ThumbUpIcon,
+  UploadIcon,
   VideoEditorIcon
 };

@@ -132,30 +132,45 @@ class SearchStore {
   });
 
   CreateVectorSearchUrl = flow(function * ({
-     objectId,
-     searchPhrase,
-     searchFields
-   }) {
+    objectId,
+    searchPhrase,
+    searchFields,
+    music=false
+  }) {
     try {
       const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
-      const queryParams = {
-        terms: searchPhrase,
-        search_fields: searchFields.join(","),
-        start: 0,
-        limit: 160,
-        display_fields: "all",
-        clips: true,
-        clips_include_source_tags: true,
-        debug: true,
-        clips_max_duration: 55,
-        max_total: 20,
-        select: "/public/asset_metadata/title"
-      };
+      let queryParams;
+
+      if(music) {
+        queryParams = {
+          terms: searchPhrase,
+          start: 0,
+          limit: 0,
+          max_total: -1,
+          stats: "f_music_as_string",
+          search_fields: "f_music"
+        };
+      } else {
+        queryParams = {
+          terms: searchPhrase,
+          search_fields: searchFields.join(","),
+          start: 0,
+          limit: 160,
+          display_fields: "all",
+          clips: true,
+          clips_include_source_tags: true,
+          debug: true,
+          clips_max_duration: 55,
+          max_total: 20,
+          select: "/public/asset_metadata/title"
+        };
+      }
 
       const url = yield this.client.Rep({
         libraryId,
         objectId,
+        versionHash: undefined,
         select: "/public/asset_metadata/title",
         rep: "search",
         service: "search",
@@ -163,8 +178,8 @@ class SearchStore {
         queryParams: queryParams
       });
 
-      const _pos = url.indexOf("/qlibs/");
-      const newUrl = "https://ai.contentfabric.io/search".concat(url.slice(_pos));
+      const _pos = url.indexOf("/rep/");
+      const newUrl = `https://ai.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -234,7 +249,8 @@ class SearchStore {
     versionHash,
     fuzzySearchValue,
     searchVersion=2,
-    vector=true
+    vector=true,
+    music=false
   }) {
     const {fuzzySearchFields, searchAssets} = yield this.GetSearchParams({objectId});
     let urlResponse;
@@ -243,7 +259,8 @@ class SearchStore {
       urlResponse = yield this.CreateVectorSearchUrl({
         objectId,
         searchPhrase: fuzzySearchValue,
-        searchFields: fuzzySearchFields
+        searchFields: fuzzySearchFields,
+        music
       });
     } else {
       urlResponse = yield this.CreateSearchUrl({
@@ -266,7 +283,7 @@ class SearchStore {
       let editedContents;
 
       editedContents = yield Promise.all(
-        results.contents.map(async result => {
+        (results.contents || results.results).map(async result => {
           try {
             let url = await this.GetThumbnail({
               objectId: result.id,
