@@ -31,7 +31,7 @@ const TitleContent = ({
   return (
     <Group align="center" mb={8} gap={8}>
       { titleIcon ? titleIcon : null }
-      <Title order={4} c="elv-gray.8">
+      <Title order={4} c="elv-gray.8" lh={1}>
         {
           loading ?
           (
@@ -56,22 +56,28 @@ const TextCard = ({
   copyable=false,
   lineClamp=1,
   loading,
+  children,
   ...props
 }) => {
 
   return (
     <Paper bg="elv-gray.4" p="8 16" {...props}>
-      <TitleContent
-        title={title}
-        titleIcon={titleIcon}
-        loading={loading}
-        id={id}
-        copyable={copyable}
-        text={text}
-      />
       {
-        loading ? null :
-        <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text || "" }</Text>
+        title &&
+        <TitleContent
+          title={title}
+          titleIcon={titleIcon}
+          loading={loading}
+          id={id}
+          copyable={copyable}
+          text={text}
+        />
+      }
+      {
+        text ? (
+          loading ? null :
+          <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text || "" }</Text>
+        ) : children
       }
     </Paper>
   );

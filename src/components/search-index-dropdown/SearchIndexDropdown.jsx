@@ -64,7 +64,7 @@ const SearchIndexDropdown = observer(({
         <TextInput
           size="sm"
           placeholder="Enter search phrase or keyword"
-          miw={"400px"}
+          miw={"275px"}
           classNames={{input: styles.textInput}}
           value={fuzzySearchValue}
           onChange={event => setFuzzySearchValue(event.target.value)}

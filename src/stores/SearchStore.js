@@ -321,6 +321,22 @@ class SearchStore {
       console.error("Unable to perform search", error);
     }
   });
+
+  UpdateSearchResult = ({objectId, key, value}) => {
+    if(!this.currentSearch?.results?.contents) { return; }
+
+    let updatedItem;
+    this.currentSearch.results.contents = this.currentSearch.results.contents.map(item => {
+      if(item.id === objectId) {
+        item[key] = value;
+        updatedItem = item;
+      }
+
+      return item;
+    });
+
+    return updatedItem;
+  };
 }
 
 export default SearchStore;

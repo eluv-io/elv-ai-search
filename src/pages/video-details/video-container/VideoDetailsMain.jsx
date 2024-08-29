@@ -2,6 +2,9 @@ import {observer} from "mobx-react-lite";
 import {
   AspectRatio,
   Box,
+  Button,
+  Flex,
+  Loader,
   SimpleGrid,
   Transition
 } from "@mantine/core";
@@ -13,6 +16,8 @@ import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
+import {useState} from "react";
+import {searchStore, summaryStore} from "@/stores/index.js";
 
 const VideoDetailsMain = observer(({
   clip,
@@ -20,6 +25,7 @@ const VideoDetailsMain = observer(({
   open
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
+  const [loadingSummary, setLoadingSummary] = useState(false);
 
   return (
     <Box pos="relative" pr={24} pl={24}>
@@ -62,7 +68,45 @@ const VideoDetailsMain = observer(({
         openModal={openModal}
       />
 
-      <TextCard title="Summary" text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam turpis risus, consectetur et iaculis ac, gravida at lorem. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Curabitur in malesuada quam, vel pretium est. Nullam scelerisque enim nec leo consequat, vitae efficitur quam consequat. Proin vel rutrum est. Phasellus condimentum sit amet turpis ut mollis. Proin ut malesuada mi. Morbi lorem tellus, interdum tempor diam eget, tempus luctus velit." mb={24} lineClamp={5} />
+      <TextCard title={clip["_summary"] ? "Summary" : ""} text={clip["_summary"] || ""} mb={24} lineClamp={5}>
+        {
+          !clip["_summary"] &&
+          (
+            <Flex justify="center" mb={16} mt={12}>
+              {
+                loadingSummary ? <Loader /> :
+                (
+                  <Button
+                    onClick={async() => {
+                      try {
+                        setLoadingSummary(true);
+
+                        const results = await summaryStore.GetSummaryResults({
+                          objectId: clip.id,
+                          startTime: clip.start_time,
+                          endTime: clip.end_time
+                        });
+
+                        const updatedClip = searchStore.UpdateSearchResult({
+                          objectId: clip.id,
+                          key: "_summary",
+                          value: results?.summary
+                        });
+
+                        searchStore.SetSelectedSearchResult({result: updatedClip});
+                      } finally {
+                        setLoadingSummary(false);
+                      }
+                    }}
+                  >
+                    Generate Summary
+                  </Button>
+                )
+              }
+            </Flex>
+          )
+        }
+      </TextCard>
 
       <SimpleGrid cols={3}>
         <TextCard
