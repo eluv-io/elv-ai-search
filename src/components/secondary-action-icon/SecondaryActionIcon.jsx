@@ -1,13 +1,14 @@
 import {ActionIcon, Button, Text} from "@mantine/core";
+import {forwardRef} from "react";
 
-const SecondaryButton = ({
+const SecondaryButton = forwardRef(({
   onClick,
   children,
   Icon,
   LeftIcon,
   iconOnly=false,
   ...props
-}) => {
+}, ref) => {
   if(iconOnly) {
     if(!Icon && !children) { throw Error("Icon must be provided when using iconOnly"); }
 
@@ -17,6 +18,7 @@ const SecondaryButton = ({
         radius={30}
         color="elv-gray.1"
         {...props}
+        ref={ref}
       >
         {
           Icon ?
@@ -40,6 +42,8 @@ const SecondaryButton = ({
       </Button>
     );
   }
-};
+});
+
+SecondaryButton.displayName = "SecondaryButton";
 
 export default SecondaryButton;

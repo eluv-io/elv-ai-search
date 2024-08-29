@@ -1,4 +1,9 @@
-.input {
+.inputFlexbox {
+  border: 1px solid var(--mantine-color-gray-4);
+  box-sizing: border-box;
+  height: 52.5px;
+  padding: 5px;
+
   &[data-single-field] {
     border-radius: 50px;
   }
@@ -6,14 +11,12 @@
   &[data-single-field="false"] {
     border-radius: 50px 0 0 50px;
   }
-
-  &:focus {
-    border-color: var(--mantine-color-gray-4);
-  }
 }
 
-.root {
-  flex: 2;
+.textInput {
+  border: none;
+  border-radius: 50px;
+  margin: 0;
 }
 
 .radioBody {

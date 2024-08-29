@@ -1,10 +1,34 @@
-import {ActionIcon, Flex, Loader, Switch, TextInput} from "@mantine/core";
+import {ActionIcon, Flex, Switch, TextInput} from "@mantine/core";
 import styles from "@/components/search-bar/SearchInput.module.css";
-import SearchIndexDropdown from "@/pages/search/index-dropdown/SearchIndexDropdown.jsx";
+import SearchIndexDropdown from "@/components/search-index-dropdown/SearchIndexDropdown.jsx";
 import {useEffect, useState} from "react";
 import {musicStore, searchStore, tenantStore} from "@/stores/index.js";
 import {PaperClipIcon, MusicIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
+
+const SearchByFile = observer(({hidden=false}) => {
+  if(hidden) { return null; }
+
+  return (
+    <TextInput
+      size="md"
+      placeholder="Search by image, video, or audio"
+      leftSection={
+        <ActionIcon
+          aria-label="Submit search"
+          variant="transparent"
+          component="button"
+          onClick={() => {}}
+          c="gray.7"
+        >
+          <PaperClipIcon />
+        </ActionIcon>
+      }
+      leftSectionPointerEvents={"all"}
+      classNames={{input: styles.input, root: styles.root}}
+    />
+  );
+});
 
 const SearchBar = observer(({
   loadingSearch,
@@ -73,40 +97,12 @@ const SearchBar = observer(({
         setSelectedIndex={setSelectedIndex}
         HandleSearch={HandleSearch}
         loadingSearch={loadingSearch}
+        fuzzySearchValue={fuzzySearchValue}
+        setFuzzySearchValue={setFuzzySearchValue}
       />
 
-      {/* Input for search terms */}
-      {
-        musicStore.musicSettingEnabled ? null :
-        <TextInput
-          size="md"
-          placeholder="Search by image, video, or audio"
-          value={fuzzySearchValue}
-          onChange={event => setFuzzySearchValue(event.target.value)}
-          onKeyDown={async (event) => {
-            if(event.key === "Enter") {
-              await HandleSearch();
-            }
-          }}
-          leftSection={
-            loadingSearch ?
-              <Loader size="xs" color="gray.7" /> :
-              (
-                <ActionIcon
-                  aria-label="Submit search"
-                  variant="transparent"
-                  component="button"
-                  onClick={HandleSearch}
-                  c="gray.7"
-                >
-                  <PaperClipIcon />
-                </ActionIcon>
-              )
-          }
-          leftSectionPointerEvents={loadingSearch ? "none" : "all"}
-          classNames={{input: styles.input, root: styles.root}}
-        />
-      }
+      {/* Button for searching by audio, image, or video */}
+      <SearchByFile hidden={musicStore.musicSettingEnabled} />
       <Switch
         size="xxl"
         thumbIcon={musicStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
