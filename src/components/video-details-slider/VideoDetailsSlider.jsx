@@ -7,10 +7,11 @@ const VideoDetailsSlider = observer(({sliderValues=[]}) => {
     <Group w="100%" justify="space-between" mb={20}>
       <RangeSlider
         defaultValue={[30000, 150000]}
-        minRange={30000}
+        label={null}
+        minRange={0}
         min={0}
         max={150000}
-        step={60000}
+        step={30000}
         marks={sliderValues}
         w="70%"
         size={6}
