@@ -88,7 +88,7 @@ const SearchIndexDropdown = observer(({
               </Text>
             </Button>
           </Menu.Target>
-          <Menu.Dropdown p={24} inert={indexMenuOpen ? "false" : "true"}>
+          <Menu.Dropdown p={24}>
             {
               indexes.length === 0 ? "No search indexes configured for this tenant." :
               loadingIndexes ?
