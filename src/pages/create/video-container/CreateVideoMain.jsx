@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, AspectRatio, Box, Group, Loader, SimpleGrid, Title, Transition} from "@mantine/core";
+import {ActionIcon, AspectRatio, Box, SimpleGrid, Transition} from "@mantine/core";
 import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";

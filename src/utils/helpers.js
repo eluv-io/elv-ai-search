@@ -72,5 +72,24 @@ export const TimeInterval = ({startTime, endTime}) => {
 };
 
 export const Pluralize = ({baseWord, suffix="s", count}) => {
+  if(count === undefined) { return `No ${baseWord}${suffix}`; }
+
   return `${count} ${count === 1 ? baseWord : `${baseWord}${suffix}`}`;
+};
+
+export const HumanReadableTag = ({text}) => {
+  const tags = {
+    "f_characters_tag": "Characters",
+    "f_llava_tag": "LLaVA",
+    "f_music_tag": "Music",
+    "f_object_tag": "Object",
+    "f_speech_to_text_tag": "Speech To Text"
+  };
+
+  if(tags[text]) {
+    return tags[text];
+  } else {
+    const main = text.split("_")[1];
+    return main.charAt(0).toUpperCase() + main.slice(1);
+  }
 };

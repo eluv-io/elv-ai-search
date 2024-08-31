@@ -1,5 +1,5 @@
 import {makeAutoObservable, flow} from "mobx";
-import {ALL_SEARCH_FIELDS, ASSETS_SEARCH_FIELDS} from "@/utils/constants.js";
+import {ASSETS_SEARCH_FIELDS} from "@/utils/constants.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -135,23 +135,43 @@ class SearchStore {
     objectId,
     searchPhrase,
     searchFields,
-    music=false
+    music=false,
+    musicType="all"
   }) {
     try {
       const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
-      let queryParams;
+      let queryParams, server;
 
       if(music) {
-        queryParams = {
-          terms: searchPhrase,
-          start: 0,
-          limit: 0,
-          max_total: -1,
-          stats: "f_music_as_string",
-          search_fields: "f_music"
+        server = "ai";
+        let musicParams = {
+          terms: searchPhrase || "",
+          search_fields: "f_music",
+          max_total: 30
         };
+
+        if(musicType === "histogram") {
+          queryParams = {
+            ...musicParams,
+            stats: "f_music_as_string",
+            limit: 0,
+            max_total: -1
+          };
+        } else if(musicType === "all") {
+          queryParams = {
+            select: "/public/asset_metadata/title",
+            limit: 160,
+            start: 0,
+            text: false,
+            sort: "f_music",
+            clips: true,
+            clips_include_source_tags: true,
+            max_total: 30
+          };
+        }
       } else {
+        server = "ai-02";
         queryParams = {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
@@ -179,7 +199,8 @@ class SearchStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
+      // TODO: change back to ai-02 to get regular search working
+      const newUrl = `https://${server}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -206,7 +227,7 @@ class SearchStore {
       searchAssets = true;
     }
 
-    const selectedFields = searchAssets ? ASSETS_SEARCH_FIELDS : ALL_SEARCH_FIELDS;
+    const selectedFields = ASSETS_SEARCH_FIELDS;
 
     if(indexerMetadata?.fields) {
       fuzzySearchFields = Object.keys(indexerMetadata?.fields || {})
@@ -228,16 +249,22 @@ class SearchStore {
       const base = this.rootStore.networkInfo.name === "main" ?
         "https://main.net955305.contentfabric.io" :
         "https://demov3.net955210.contentfabric.io";
-      const repPosition = imagePath.indexOf("rep");
-      let revisedImagePath = `/q/${objectId}/${imagePath.slice(repPosition)}`;
-      let url = new URL(revisedImagePath, base);
+      const fullUrl = new URL(imagePath, base);
 
-      const token = yield this.client.GenerateStateChannelToken({objectId});
+      const url = yield this.client.Rep({
+        libraryId: yield this.client.ContentObjectLibraryId({objectId}),
+        objectId,
+        rep: "/frame/default/video",
+        channelAuth: true,
+        queryParams: {
+          t: fullUrl?.searchParams?.get("t"),
+          max_offset: 60,
+          ignore_trimming: true,
+          resolve: true
+        }
+      });
 
-      url.searchParams.set("resolve", "true");
-      url.searchParams.set("authorization", token);
-
-      return url.toString();
+      return url;
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error(`Unable to generate thumbnail url for ${objectId}`, error);
@@ -252,16 +279,28 @@ class SearchStore {
     });
   };
 
+  ParseTags = ({tags={}}) => {
+    const parsedTags = {};
+
+    Object.keys(tags).forEach(tagKey => {
+      if(tagKey.includes("_tag")) {
+        parsedTags[tagKey] = tags[tagKey];
+      }
+    });
+
+    return parsedTags;
+  };
+
   GetSearchResults = flow(function * ({
     objectId,
     versionHash,
     fuzzySearchValue,
     searchVersion=2,
     vector=true,
-    music=false
+    music=false,
+    musicType="all",
+    cacheResults=true
   }) {
-    this.ResetSearch();
-
     const {fuzzySearchFields, searchAssets} = yield this.GetSearchParams({objectId});
     let urlResponse;
 
@@ -270,7 +309,8 @@ class SearchStore {
         objectId,
         searchPhrase: fuzzySearchValue,
         searchFields: fuzzySearchFields,
-        music
+        music,
+        musicType
       });
     } else {
       urlResponse = yield this.CreateSearchUrl({
@@ -300,6 +340,7 @@ class SearchStore {
               imagePath: result.image_url
             });
             result["_imageSrc"] = url;
+            result["_tags"] = this.ParseTags({tags: result?.sources?.[0]?.fields});
 
             return result;
           } catch(error) {
@@ -311,11 +352,15 @@ class SearchStore {
 
       results.contents = editedContents;
 
-      this.SetCurrentSearch({
-        results,
-        index: objectId,
-        terms: fuzzySearchValue
-      });
+      if(cacheResults) {
+        this.SetCurrentSearch({
+          results,
+          index: objectId,
+          terms: fuzzySearchValue
+        });
+      }
+
+      return results;
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Unable to perform search", error);

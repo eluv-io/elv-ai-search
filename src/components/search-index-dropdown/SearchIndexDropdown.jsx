@@ -90,25 +90,31 @@ const SearchIndexDropdown = observer(({
           </Menu.Target>
           <Menu.Dropdown p={24}>
             {
-              indexes.length === 0 ? "No search indexes configured for this tenant." :
               loadingIndexes ?
                 <Loader /> :
+                indexes.length === 0 ? "No search indexes configured for this tenant." :
                 <>
                   <Text c="elv-gray.8" size="xl" fw={700}>Index</Text>
-                  {
-                    indexes.map(item => (
-                      <Menu.Item onClick={() => setNewIndex(item.id)} key={item.id} mb={12}>
-                        <Radio
-                          classNames={{body: styles.radioBody}}
-                          label={item.name || item.id}
-                          description={item.name ? item.id : ""}
-                          checked={newIndex.includes(item.id)}
-                          value={newIndex}
-                          onChange={event => setNewIndex(event.target.value)}
-                        />
-                      </Menu.Item>
-                    ))
-                  }
+                  <Radio.Group
+                    value={newIndex}
+                    onChange={setNewIndex}
+                  >
+                    {
+                      indexes.map(item => (
+                        <Menu.Item
+                          key={item.id}
+                          mb={12}
+                        >
+                          <Radio
+                            classNames={{body: styles.radioBody}}
+                            label={item.name || item.id}
+                            description={item.name ? item.id : ""}
+                            value={item.id}
+                          />
+                        </Menu.Item>
+                      ))
+                    }
+                  </Radio.Group>
                   <Flex justify="flex-end">
                     <Button onClick={() => {
                       setSelectedIndex(newIndex);

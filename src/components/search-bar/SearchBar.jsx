@@ -74,6 +74,7 @@ const SearchBar = observer(({
     try {
       setLoadingSearch(true);
 
+      searchStore.ResetSearch();
       await searchStore.GetSearchResults({
         fuzzySearchValue,
         objectId: selectedIndex,
