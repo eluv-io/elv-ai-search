@@ -62,8 +62,12 @@ const MusicPanel = observer(() => {
               key={`histogram-${item.artist}-${item.song}-${i}`}
               direction="column"
             >
-              <Text>{ item.artist }</Text>
-              <Text>{ item.song }</Text>
+              <Text c="elv-gray.8" fz="xs" fw={700}>
+                { item.artist }
+              </Text>
+              <Text c="elv-gray.8" fz="xs" fw={400}>
+                { item.song }
+              </Text>
             </Flex>
           ))
         }

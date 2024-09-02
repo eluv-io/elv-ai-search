@@ -2,7 +2,7 @@ import {ActionIcon, Flex, Switch, TextInput} from "@mantine/core";
 import styles from "@/components/search-bar/SearchInput.module.css";
 import SearchIndexDropdown from "@/components/search-index-dropdown/SearchIndexDropdown.jsx";
 import {useEffect, useState} from "react";
-import {musicStore, searchStore, tenantStore} from "@/stores/index.js";
+import {searchStore, tenantStore} from "@/stores/index.js";
 import {PaperClipIcon, MusicIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 
@@ -103,12 +103,12 @@ const SearchBar = observer(({
       />
 
       {/* Button for searching by audio, image, or video */}
-      <SearchByFile hidden={musicStore.musicSettingEnabled} />
+      <SearchByFile hidden={searchStore.musicSettingEnabled} />
       <Switch
         size="xxl"
-        thumbIcon={musicStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
-        checked={musicStore.musicSettingEnabled}
-        onChange={() => musicStore.ToggleMusicSetting()}
+        thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
+        checked={searchStore.musicSettingEnabled}
+        onChange={() => searchStore.ToggleMusicSetting()}
         ml={24}
       />
     </Flex>

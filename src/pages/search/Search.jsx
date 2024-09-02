@@ -9,6 +9,7 @@ import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import SearchDropzone from "@/pages/search/dropzone/SearchDropzone.jsx";
+import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
 
 const FilterToolbar = observer(({loadingSearch}) => {
   const iconProps = {
@@ -89,7 +90,11 @@ const Search = observer(() => {
       />
       <SearchDropzone loadingSearch={loadingSearch} />
       <FilterToolbar loadingSearch={loadingSearch} />
-      <ClipsGrid />
+      {
+        searchStore.musicSettingEnabled ?
+          <MusicGrid /> :
+          <ClipsGrid />
+      }
     </PageContainer>
   );
 });

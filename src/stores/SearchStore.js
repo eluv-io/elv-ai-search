@@ -7,10 +7,12 @@ class SearchStore {
   searchV2Node;
   currentSearch = {
     results: null,
+    resultsBySong: null,
     index: "",
     terms: ""
   };
   selectedSearchResult;
+  musicSettingEnabled = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -22,12 +24,17 @@ class SearchStore {
     return this.rootStore.client;
   }
 
+  ToggleMusicSetting = () => {
+    this.musicSettingEnabled = !this.musicSettingEnabled;
+  };
+
   SetSelectedSearchResult = ({result}) => {
     this.selectedSearchResult = result;
   };
 
-  SetCurrentSearch = ({results, index, terms}) => {
+  SetCurrentSearch = ({results, resultsBySong, index, terms}) => {
     this.currentSearch["results"] = {...results};
+    this.currentSearch["resultsBySong"] = {...resultsBySong};
     this.currentSearch["index"] = index;
     this.currentSearch["terms"] = terms;
   };
@@ -291,6 +298,26 @@ class SearchStore {
     return parsedTags;
   };
 
+  ParseResultsBySong = ({results}) => {
+    const resultsBySong = {};
+    (results || []).forEach(result => {
+      const songs = result?.sources?.[0]?.fields?.f_music || [];
+      // (result?.sources || []).forEach(source => {
+      //   const songs = source?.fields?.f_music || [];
+
+        songs.forEach(song => {
+          if(Object.hasOwn(resultsBySong, song)) {
+            resultsBySong[song].push(result);
+          } else {
+            resultsBySong[song] = [result];
+          }
+        });
+      // });
+    });
+
+    return resultsBySong;
+  };
+
   GetSearchResults = flow(function * ({
     objectId,
     versionHash,
@@ -310,7 +337,7 @@ class SearchStore {
         searchPhrase: fuzzySearchValue,
         searchFields: fuzzySearchFields,
         music,
-        musicType
+        musicType: music ? musicType : undefined
       });
     } else {
       urlResponse = yield this.CreateSearchUrl({
@@ -350,11 +377,14 @@ class SearchStore {
         })
       );
 
+      const resultsBySong = this.ParseResultsBySong({results: results.contents});
+
       results.contents = editedContents;
 
       if(cacheResults) {
         this.SetCurrentSearch({
           results,
+          resultsBySong,
           index: objectId,
           terms: fuzzySearchValue
         });

@@ -11,7 +11,7 @@ import {
   useCombobox
 } from "@mantine/core";
 import styles from "./SearchIndexDropdown.module.css";
-import {musicStore, tenantStore} from "@/stores/index.js";
+import {searchStore, tenantStore} from "@/stores/index.js";
 import {SubmitIcon} from "@/assets/icons/index.js";
 import {useEffect, useState} from "react";
 
@@ -58,7 +58,7 @@ const SearchIndexDropdown = observer(({
       align="center"
       pr={16}
       justify="space-between"
-      data-single-field={musicStore.musicSettingEnabled}
+      data-single-field={searchStore.musicSettingEnabled}
     >
       <Flex align="center">
         <TextInput

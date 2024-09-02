@@ -3,7 +3,7 @@ import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import {TimeInterval} from "@/utils/helpers.js";
-import {EyeIcon} from "@/assets/icons/index.js";
+import {EyeIcon, MusicIcon} from "@/assets/icons/index.js";
 import {useState} from "react";
 
 const ImageContent = observer(({imageSrc, title}) => {
@@ -29,7 +29,8 @@ const ImageContent = observer(({imageSrc, title}) => {
 });
 
 const Clip = observer(({
-   clip
+  clip,
+  song
  }) => {
   const navigate = useNavigate();
   const {id, start_time: startTime, end_time: endTime} = clip;
@@ -43,13 +44,6 @@ const Clip = observer(({
       }}
       key={`grid-item-${id}`}
     >
-      {/* TODO: Replace Video with Image when /rep/frame is supported */}
-      {/*<AspectRatio ratio={16 / 9}>*/}
-      {/*  <Image*/}
-      {/*    radius="lg"*/}
-      {/*    src={image_url}*/}
-      {/*  />*/}
-      {/*</AspectRatio>*/}
       <Flex direction="column" gap={6}>
         <AspectRatio
           ratio={16 / 9}
@@ -68,26 +62,38 @@ const Clip = observer(({
             { TimeInterval({startTime, endTime}) }
           </Text>
         </Box>
-        <Group gap={4}>
+        <Group gap={4} wrap="nowrap">
           <EyeIcon color="var(--mantine-color-elv-gray-3)" />
           {/* TODO: Replace hardcoded value with api response */}
           <Text c="var(--mantine-color-elv-gray-3)" size="xs">527</Text>
+          {
+            song ?
+            <Flex gap={3} ml={16} align="center" wrap="nowrap">
+              <MusicIcon color="var(--mantine-color-elv-gray-3)" height={18} width={16} />
+              <Text c="var(--mantine-color-elv-gray-3)" size="xs" lineClamp={1}>
+                { song }
+              </Text>
+            </Flex> : null
+          }
         </Group>
       </Flex>
     </UnstyledButton>
   );
 });
 
-const ClipsGrid = observer(() => {
-  const clips = searchStore.currentSearch?.results?.contents || [];
+const ClipsGrid = observer(({clips, song}) => {
+  if(!clips) {
+    clips = searchStore.currentSearch?.results?.contents || [];
+  }
 
   return (
     <SimpleGrid cols={4} spacing="lg">
       {
-        clips.map((clip) => (
+        clips.map((clip, i) => (
           <Clip
-            key={`clip-result-${clip.id}-${clip.start_time}`}
+            key={`clip-result-${clip.id}-${clip.start_time}-${i}`}
             clip={clip}
+            song={song}
           />
         ))
       }
