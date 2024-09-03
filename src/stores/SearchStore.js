@@ -248,36 +248,6 @@ class SearchStore {
     };
   });
 
-  GetThumbnail = flow(function * ({
-    objectId,
-    imagePath
-  }) {
-    try {
-      const base = this.rootStore.networkInfo.name === "main" ?
-        "https://main.net955305.contentfabric.io" :
-        "https://demov3.net955210.contentfabric.io";
-      const fullUrl = new URL(imagePath, base);
-
-      const url = yield this.client.Rep({
-        libraryId: yield this.client.ContentObjectLibraryId({objectId}),
-        objectId,
-        rep: "/frame/default/video",
-        channelAuth: true,
-        queryParams: {
-          t: fullUrl?.searchParams?.get("t"),
-          max_offset: 60,
-          ignore_trimming: true,
-          resolve: true
-        }
-      });
-
-      return url;
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error(`Unable to generate thumbnail url for ${objectId}`, error);
-    }
-  });
-
   ResetSearch = () => {
     this.SetCurrentSearch({
       results: null,
@@ -362,9 +332,15 @@ class SearchStore {
       editedContents = yield Promise.all(
         (results.contents || results.results).map(async result => {
           try {
-            let url = await this.GetThumbnail({
+            const base = this.rootStore.networkInfo.name === "main" ?
+              "https://main.net955305.contentfabric.io" :
+              "https://demov3.net955210.contentfabric.io";
+            const fullUrl = new URL(result.image_url, base);
+
+            let url = await this.rootStore.GetThumbnail({
               objectId: result.id,
-              imagePath: result.image_url
+              imagePath: result.image_url,
+              timeSecs: fullUrl?.searchParams?.get("t")
             });
             result["_imageSrc"] = url;
             result["_tags"] = this.ParseTags({tags: result?.sources?.[0]?.fields});
@@ -397,14 +373,16 @@ class SearchStore {
     }
   });
 
-  UpdateSearchResult = ({objectId, key, value}) => {
+  UpdateSearchResult = ({objectId, keyValues=[]}) => {
     if(!this.currentSearch?.results?.contents) { return; }
 
     let updatedItem;
     this.currentSearch.results.contents = this.currentSearch.results.contents.map(item => {
       if(item.id === objectId) {
-        item[key] = value;
-        updatedItem = item;
+        keyValues.forEach(({key, value}) => {
+          item[key] = value;
+          updatedItem = item;
+        });
       }
 
       return item;

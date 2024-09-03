@@ -1,7 +1,5 @@
 import {observer} from "mobx-react-lite";
 import {Box, Flex, Loader, SimpleGrid, Text} from "@mantine/core";
-import {sliderValues} from "@/pages/video-details/VideoDetails.jsx";
-import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
 import {searchStore} from "@/stores/index.js";
 import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import {useEffect, useState} from "react";
@@ -46,14 +44,22 @@ const MusicPanel = observer(() => {
     LoadData();
   }, []);
 
-  if(loading) { return <Loader />; }
+  if(loading) {
+    return (
+      <Box align="center" mt={8}>
+        <Loader />
+      </Box>
+    );
+  }
 
   return (
     <Box>
-      <VideoDetailsSlider sliderValues={sliderValues} />
-      <TagsTable
-        tags={tags}
-      />
+      {
+        tags &&
+        <TagsTable
+          tags={tags}
+        />
+      }
       <Text fz="md" c="elv-gray.8" fw={600}>Explore</Text>
       <SimpleGrid cols={2}>
         {

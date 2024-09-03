@@ -1,7 +1,7 @@
-import {AspectRatio, Box, CloseButton, Flex, Group, Image, Loader, Pill, Stack, Text, Transition} from "@mantine/core";
+import {Box, CloseButton, Flex, Group, Loader, Pill, Text, Transition} from "@mantine/core";
 import MockHighlights from "@/assets/mock/MockHighlights.js";
-import {TimeInterval} from "@/utils/helpers.js";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
+import ThumbnailCard from "@/components/thumbnail-card/ThumbnailCard.jsx";
 
 const TitleGroup = ({title, loading}) => {
   return (
@@ -14,31 +14,6 @@ const TitleGroup = ({title, loading}) => {
           <Loader size="xs" />
         }
       </Group>
-    </Group>
-  );
-};
-
-const ThumbnailCard = ({path, title, startTime, endTime}) => {
-  return (
-    <Group gap={8} mb={8} wrap="nowrap">
-      <Box flex="0 0 125px">
-        <AspectRatio ratio={16 / 9}>
-          <Image src={path} key={`thumbnail-${path}`} />
-        </AspectRatio>
-      </Box>
-      <Stack gap={2}>
-        <Text
-          fz="xs"
-          lineClamp={2}
-          style={{lineHeight: "1"}}
-          fw={700}
-        >
-          { title }
-        </Text>
-        <Text fz="xs">
-          { TimeInterval({startTime, endTime}) }
-        </Text>
-      </Stack>
     </Group>
   );
 };

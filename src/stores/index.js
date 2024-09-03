@@ -5,6 +5,7 @@ import SearchStore from "@/stores/SearchStore.js";
 import UiStore from "@/stores/UiStore.js";
 import VideoStore from "@/stores/VideoStore.js";
 import SummaryStore from "@/stores/SummaryStore.js";
+import HighlightsStore from "@/stores/HighlightsStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -21,6 +22,7 @@ class RootStore {
     this.uiStore = new UiStore(this);
     this.videoStore = new VideoStore(this);
     this.summaryStore = new SummaryStore(this);
+    this.highlightsStore = new HighlightsStore(this);
     this.Initialize();
   }
 
@@ -43,6 +45,31 @@ class RootStore {
       this.loaded = true;
     }
   });
+
+  GetThumbnail = flow(function * ({
+    objectId,
+    timeSecs=0
+  }) {
+    try {
+      const url = yield this.client.Rep({
+        libraryId: yield this.client.ContentObjectLibraryId({objectId}),
+        objectId,
+        rep: "frame/default/video",
+        channelAuth: true,
+        queryParams: {
+          t: timeSecs,
+          max_offset: 60,
+          ignore_trimming: true,
+          resolve: true
+        }
+      });
+
+      return url;
+    } catch(error) {
+       
+      console.error(`Unable to generate thumbnail url for ${objectId}`, error);
+    }
+  });
 }
 
 export const rootStore = new RootStore();
@@ -51,6 +78,7 @@ export const searchStore = rootStore.searchStore;
 export const uiStore = rootStore.uiStore;
 export const videoStore = rootStore.videoStore;
 export const summaryStore = rootStore.summaryStore;
+export const highlightsStore = rootStore.highlightsStore;
 
 // if(import.meta.hot) {
 //   if (import.meta.hot.data.store) {

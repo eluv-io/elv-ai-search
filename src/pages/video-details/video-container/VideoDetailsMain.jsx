@@ -17,7 +17,7 @@ import TextCard from "@/components/text-card/TextCard.jsx";
 import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {useState} from "react";
-import {searchStore, summaryStore} from "@/stores/index.js";
+import {summaryStore} from "@/stores/index.js";
 
 const VideoDetailsMain = observer(({
   clip,
@@ -68,9 +68,9 @@ const VideoDetailsMain = observer(({
         openModal={openModal}
       />
 
-      <TextCard title={clip["_summary"] ? "Summary" : ""} text={clip["_summary"] || ""} mb={24} lineClamp={5}>
+      <TextCard title={clip["_aiSummary"] ? "Summary" : ""} text={clip["_aiSummary"] || ""} mb={24} lineClamp={5}>
         {
-          !clip["_summary"] &&
+          !clip["_aiSummary"] &&
           (
             <Flex justify="center" mb={16} mt={12}>
               {
@@ -81,19 +81,11 @@ const VideoDetailsMain = observer(({
                       try {
                         setLoadingSummary(true);
 
-                        const results = await summaryStore.GetSummaryResults({
+                        await summaryStore.GetSummaryResults({
                           objectId: clip.id,
                           startTime: clip.start_time,
                           endTime: clip.end_time
                         });
-
-                        const updatedClip = searchStore.UpdateSearchResult({
-                          objectId: clip.id,
-                          key: "_summary",
-                          value: results?.summary
-                        });
-
-                        searchStore.SetSelectedSearchResult({result: updatedClip});
                       } finally {
                         setLoadingSummary(false);
                       }

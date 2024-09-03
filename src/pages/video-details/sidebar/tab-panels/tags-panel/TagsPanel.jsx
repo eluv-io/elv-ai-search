@@ -3,8 +3,6 @@ import {observer} from "mobx-react-lite";
 import {Box, Accordion, AccordionControl, Text} from "@mantine/core";
 import {CollapseIcon} from "@/assets/icons/index.js";
 import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
-import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
-import {sliderValues} from "@/pages/video-details/VideoDetails.jsx";
 import {searchStore} from "@/stores/index.js";
 import {HumanReadableTag} from "@/utils/helpers.js";
 
@@ -49,7 +47,6 @@ const TagsPanel = observer(() => {
 
   return (
     <Box>
-      <VideoDetailsSlider sliderValues={sliderValues} />
       <Accordion
         multiple
         value={value}
