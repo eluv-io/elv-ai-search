@@ -1,5 +1,6 @@
 import {flow, makeAutoObservable} from "mobx";
 import FrameAccurateVideo from "@/utils/FrameAccurateVideo.js";
+import {searchStore} from "@/stores/index.js";
 
 // Store for handling video state
 class VideoStore {
@@ -124,12 +125,13 @@ class VideoStore {
   });
 
   PlaySegment = ({startTime, endTime}) => {
+    const clipStartTime = searchStore.selectedSearchResult?.start_time || 0;
     const startFrame = this.videoHandler.TimeToFrame(startTime);
     const endFrame = this.videoHandler.TimeToFrame(endTime);
     this.Seek({frame: startFrame});
     this.segmentEnd = endFrame;
     // TODO: Get Seek working
-    this.player.controls.Seek({time: (startTime - 21188) / 1000});
+    this.player.controls.Seek({time: (startTime - clipStartTime) / 1000});
   };
 
   EndSegment() {

@@ -12,7 +12,7 @@ class HighlightsStore {
     return this.rootStore.client;
   }
 
-  GetHighlightsUrl = flow(function * ({objectId, startTime, endTime}) {
+  GetHighlightsUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
     try {
       const queryParams = {
         start_time: startTime,
@@ -29,7 +29,7 @@ class HighlightsStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-03.contentfabric.io/highlight/q/${objectId}`
+      const newUrl = `https://ai-03.contentfabric.io/${cache ? "mlcache/" : ""}highlight/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;
@@ -39,13 +39,14 @@ class HighlightsStore {
     }
   });
 
-  GetHighlightsResults = flow(function * ({objectId, startTime, endTime}) {
+  GetHighlightsResults = flow(function * ({objectId, startTime, endTime, cache=true}) {
     let url;
     try {
       url = yield this.GetHighlightsUrl({
         objectId,
         startTime,
-        endTime
+        endTime,
+        cache
       });
     } catch(error) {
       // eslint-disable-next-line no-console

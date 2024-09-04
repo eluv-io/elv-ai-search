@@ -17,7 +17,7 @@ import TextCard from "@/components/text-card/TextCard.jsx";
 import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {useState} from "react";
-import {summaryStore} from "@/stores/index.js";
+import {summaryStore, videoStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
@@ -66,7 +66,15 @@ const VideoDetailsMain = observer(({
               ignoreTrimming: true,
               permanentPoster: PlayerParameters.permanentPoster.ON
             }}
-            // Callback={({video, player}) => videoStore.SetVideo({video, player, objectId: clip.id, startTime: clip.start_time, endTime: clip.end_time})}
+            Callback={({video, player}) => {
+              videoStore.SetVideo({
+                video,
+                player,
+                objectId: clip.id,
+                startTime: clip.start_time,
+                endTime: clip.end_time
+              });
+            }}
           />
         </AspectRatio>
       </Box>
