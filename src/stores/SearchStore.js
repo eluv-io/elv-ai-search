@@ -158,7 +158,6 @@ class SearchStore {
         let musicParams = {
           terms: searchPhrase || "",
           search_fields: "f_music",
-          max_total: 30
         };
 
         if(musicType === "histogram") {
@@ -170,6 +169,7 @@ class SearchStore {
           };
         } else if(musicType === "all") {
           queryParams = {
+            ...musicParams,
             select: "/public/asset_metadata/title",
             limit: 160,
             start: 0,
