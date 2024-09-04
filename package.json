@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@eluvio/elv-client-js": "^4.0.93",
-    "@eluvio/elv-player-js": "^2.0.13",
+    "@eluvio/elv-player-js": "^2.0.17",
     "@mantine/core": "^7.11.2",
     "@mantine/dropzone": "^7.12.1",
     "@mantine/hooks": "^7.11.2",

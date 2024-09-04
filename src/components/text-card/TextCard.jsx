@@ -1,4 +1,4 @@
-import {CopyButton, Group, Loader, Paper, Text, Title, Tooltip} from "@mantine/core";
+import {Button, CopyButton, Flex, Group, Loader, Paper, Text, Title, Tooltip} from "@mantine/core";
 import {PaperClipIcon} from "@/assets/icons/index.js";
 import styles from "@/pages/video-details/VideoDetails.module.css";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
@@ -56,6 +56,7 @@ const TextCard = ({
   copyable=false,
   lineClamp=1,
   loading,
+  topActions=[],
   children,
   ...props
 }) => {
@@ -64,14 +65,23 @@ const TextCard = ({
     <Paper bg="elv-gray.4" p="8 16" {...props}>
       {
         title &&
-        <TitleContent
-          title={title}
-          titleIcon={titleIcon}
-          loading={loading}
-          id={id}
-          copyable={copyable}
-          text={text}
-        />
+        <Flex justify="space-between" mb={8}>
+          <TitleContent
+            title={title}
+            titleIcon={titleIcon}
+            loading={loading}
+            id={id}
+            copyable={copyable}
+            text={text}
+          />
+          {
+            topActions.map(action => (
+              <Button key={action.text} onClick={action.onClick} size="xs">
+                { action.text }
+              </Button>
+            ))
+          }
+        </Flex>
       }
       {
         text ? (

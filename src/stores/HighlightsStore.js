@@ -1,5 +1,4 @@
 import {flow, makeAutoObservable} from "mobx";
-import {searchStore} from "@/stores/index.js";
 
 // Store for managing clip generated highlights
 class HighlightsStore {
@@ -55,7 +54,6 @@ class HighlightsStore {
 
     try {
       const response = yield this.client.Request({url});
-      // let results = [];
 
       const results = yield Promise.all(
         (response?.highlight || []).map(async (item) => {
@@ -68,18 +66,6 @@ class HighlightsStore {
           return item;
         })
       );
-
-      const updatedClip = searchStore.UpdateSearchResult({
-        objectId,
-        keyValues: [
-          {key: "_aiHighlights", value: results},
-          {key: "_aiLoadedHighlights", value: true}
-        ]
-      });
-
-      searchStore.SetSelectedSearchResult({
-        result: updatedClip
-      });
 
       return results;
     } catch(error) {

@@ -14,8 +14,10 @@ import styles from "./SearchIndexDropdown.module.css";
 import {searchStore, tenantStore} from "@/stores/index.js";
 import {SubmitIcon} from "@/assets/icons/index.js";
 import {useEffect, useState} from "react";
+import search from "@/pages/search/Search.jsx";
 
 const SearchIndexDropdown = observer(({
+  selectedIndex,
   setSelectedIndex,
   HandleSearch,
   loadingSearch,
@@ -38,10 +40,12 @@ const SearchIndexDropdown = observer(({
         setIndexes(indexes);
         setLoadingIndexes(false);
 
-        if(indexes) {
+        if(indexes && !selectedIndex) {
           const firstIndex = indexes?.[0]?.id;
           setSelectedIndex(firstIndex);
           setNewIndex(firstIndex);
+        } else if(selectedIndex) {
+          setNewIndex(selectedIndex);
         }
       } finally {
         setLoadingIndexes(false);
@@ -99,6 +103,14 @@ const SearchIndexDropdown = observer(({
                     value={newIndex}
                     onChange={setNewIndex}
                   >
+                    {/*{*/}
+                    {/*  searchStore.musicSettingEnabled &&*/}
+                    {/*    <Menu.Item mb={12}>*/}
+                    {/*      <Radio*/}
+                    {/*        label="All music"*/}
+                    {/*      />*/}
+                    {/*    </Menu.Item>*/}
+                    {/*}*/}
                     {
                       indexes.map(item => (
                         <Menu.Item

@@ -8,7 +8,6 @@ import {Pluralize} from "@/utils/helpers.js";
 import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
-import SearchDropzone from "@/pages/search/dropzone/SearchDropzone.jsx";
 import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
 
 const FilterToolbar = observer(({loadingSearch}) => {
@@ -88,7 +87,7 @@ const Search = observer(() => {
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}
       />
-      <SearchDropzone loadingSearch={loadingSearch} />
+      {/*<SearchDropzone loadingSearch={loadingSearch} />*/}
       <FilterToolbar loadingSearch={loadingSearch} />
       {
         searchStore.musicSettingEnabled ?

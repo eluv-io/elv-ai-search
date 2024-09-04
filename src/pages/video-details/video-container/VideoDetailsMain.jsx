@@ -18,6 +18,7 @@ import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx"
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {useState} from "react";
 import {summaryStore} from "@/stores/index.js";
+import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 
 const VideoDetailsMain = observer(({
   clip,
@@ -26,6 +27,7 @@ const VideoDetailsMain = observer(({
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
   const [loadingSummary, setLoadingSummary] = useState(false);
+  const [summary, setSummary] = useState(null);
 
   return (
     <Box pos="relative" pr={24} pl={24}>
@@ -53,10 +55,14 @@ const VideoDetailsMain = observer(({
         <AspectRatio ratio={16 / 9}>
           <Video
             objectId={clip.id}
+            playerOptions={{
+              posterUrl: clip._imageSrc
+            }}
             playoutParameters={{
               clipStart: clip.start_time / 1000,
               clipEnd: clip.end_time / 1000,
-              ignoreTrimming: true
+              ignoreTrimming: true,
+              permanentPoster: PlayerParameters.permanentPoster.ON
             }}
             // Callback={({video, player}) => videoStore.SetVideo({video, player, objectId: clip.id, startTime: clip.start_time, endTime: clip.end_time})}
           />
@@ -68,9 +74,52 @@ const VideoDetailsMain = observer(({
         openModal={openModal}
       />
 
-      <TextCard title={clip["_aiSummary"] ? "Summary" : ""} text={clip["_aiSummary"] || ""} mb={24} lineClamp={5}>
+      <SimpleGrid cols={3} mb={24}>
+        <TextCard
+          title="Time Interval"
+          text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
+        />
+        <TextCard
+          title="Content ID"
+          text={clip.id}
+          copyable
+        />
+        <TextCard
+          title="Source URL"
+          text={clip.url}
+          copyable
+        />
+      </SimpleGrid>
+
+      <TextCard
+        title={summary ? "Summary" : ""}
+        text={summary || ""}
+        lineClamp={8}
+        topActions={[
+          {
+            text: "Regenerate",
+            onClick: async () => {
+              try {
+                setLoadingSummary(true);
+                setSummary(null);
+
+                const results = await summaryStore.GetSummaryResults({
+                  objectId: clip.id,
+                  startTime: clip.start_time,
+                  endTime: clip.end_time,
+                  cache: false
+                });
+
+                setSummary(results.summary);
+              } finally {
+                setLoadingSummary(false);
+              }
+            }
+          }
+        ]}
+      >
         {
-          !clip["_aiSummary"] &&
+          !summary &&
           (
             <Flex justify="center" mb={16} mt={12}>
               {
@@ -81,11 +130,13 @@ const VideoDetailsMain = observer(({
                       try {
                         setLoadingSummary(true);
 
-                        await summaryStore.GetSummaryResults({
+                        const results = await summaryStore.GetSummaryResults({
                           objectId: clip.id,
                           startTime: clip.start_time,
                           endTime: clip.end_time
                         });
+
+                        setSummary(results.summary);
                       } finally {
                         setLoadingSummary(false);
                       }
@@ -100,22 +151,6 @@ const VideoDetailsMain = observer(({
         }
       </TextCard>
 
-      <SimpleGrid cols={3}>
-        <TextCard
-          title="Content ID"
-          text={clip.id}
-          copyable
-        />
-        <TextCard
-          title="Time Interval"
-          text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
-        />
-        <TextCard
-          title="Source URL"
-          text={clip.url}
-          copyable
-        />
-      </SimpleGrid>
       <ShareModal
         opened={openedShareModal}
         onClose={closeModal}

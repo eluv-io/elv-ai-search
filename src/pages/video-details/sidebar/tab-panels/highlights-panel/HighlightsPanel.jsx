@@ -1,6 +1,6 @@
 import {observer} from "mobx-react-lite";
-import {Box, Flex, Group, Loader, Pill, Text} from "@mantine/core";
-import {useEffect, useState} from "react";
+import {Box, Button, Flex, Group, Loader, Pill, Text} from "@mantine/core";
+import {useState} from "react";
 import {highlightsStore, searchStore, summaryStore} from "@/stores/index.js";
 import ThumbnailCard from "@/components/thumbnail-card/ThumbnailCard.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
@@ -22,35 +22,33 @@ const TitleGroup = ({title, loading}) => {
 
 const HighlightsPanel = observer(() => {
   const [loading, setLoading] = useState(false);
+  const [highlights, setHighlights] = useState(null);
+  const [hashtags, setHashtags] = useState(null);
   const clip = searchStore.selectedSearchResult;
 
-  useEffect(() => {
-    const LoadData = async() => {
-      try {
-        setLoading(true);
+  const HandleGenerate = async() => {
+    try {
+      setLoading(true);
 
-        if(!clip._aiLoadedHighlights) {
-          await highlightsStore.GetHighlightsResults({
-            objectId: clip.id,
-            startTime: clip.start_time,
-            endTime: clip.end_time
-          });
-        }
+      const highlightsRes = await highlightsStore.GetHighlightsResults({
+        objectId: clip.id,
+        startTime: clip.start_time,
+        endTime: clip.end_time
+      });
 
-        if(!clip._aiLoadedSummary) {
-          await summaryStore.GetSummaryResults({
-            objectId: clip.id,
-            startTime: clip.start_time,
-            endTime: clip.end_time
-          });
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
+      setHighlights(highlightsRes);
 
-    LoadData();
-  }, []);
+      const summaryResults = await summaryStore.GetSummaryResults({
+        objectId: clip.id,
+        startTime: clip.start_time,
+        endTime: clip.end_time
+      });
+
+      setHashtags(summaryResults.hashtags);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if(loading) {
     return (
@@ -62,32 +60,44 @@ const HighlightsPanel = observer(() => {
 
   return (
     <Box>
-      {/* Highlights */}
-      <Box mb={16}>
-        {
-          (clip._aiHighlights || []).map((item, i) => (
-            <ThumbnailCard
-              key={`thumbnail-${item.path || i}`}
-              path={item._imageSrc}
-              title={item.caption}
-              startTime={item.start_time}
-              endTime={item.end_time}
-            />
-          ))
-        }
-      </Box>
-
-      {/* Hashtags */}
-      <TitleGroup title={loading ? "Suggested Hashtags in Progress" : "Suggested Hashtags"} />
       {
-        clip._aiHashtags ?
-          <Flex wrap="wrap" direction="row" gap={8}>
-            {
-              (clip._aiHashtags || []).map(hashtag => (
-                <Pill key={hashtag}>{ hashtag }</Pill>
-              ))
-            }
-          </Flex> : "No results"
+        !highlights ?
+          (
+            <Box align="center" mt={8}>
+              <Button onClick={HandleGenerate}>Generate Highlights</Button>
+            </Box>
+          ) :
+          (
+            <>
+              {/* Highlights */}
+              <Box mb={16}>
+                {
+                  (highlights || []).map((item, i) => (
+                    <ThumbnailCard
+                      key={`thumbnail-${item.path || i}`}
+                      path={item._imageSrc}
+                      title={item.caption}
+                      startTime={item.start_time}
+                      endTime={item.end_time}
+                    />
+                  ))
+                }
+              </Box>
+
+              {/* Hashtags */}
+              <TitleGroup title={loading ? "Suggested Hashtags in Progress" : "Suggested Hashtags"} />
+              {
+                hashtags ?
+                  <Flex wrap="wrap" direction="row" gap={8}>
+                    {
+                      (hashtags || []).map(hashtag => (
+                        <Pill key={hashtag}>{ hashtag }</Pill>
+                      ))
+                    }
+                  </Flex> : "No results"
+              }
+            </>
+          )
       }
     </Box>
   );

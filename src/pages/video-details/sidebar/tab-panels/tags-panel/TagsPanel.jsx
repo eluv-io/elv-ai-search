@@ -43,7 +43,11 @@ const AccordionItems = (({tagData={}}) => {
 
 const TagsPanel = observer(() => {
   const [value, setValue] = useState([]);
-  const tags = searchStore.selectedSearchResult?._tags;
+
+  const tags = Object.fromEntries(
+    Object.entries(searchStore.selectedSearchResult?._tags)
+      .filter(([key]) => !key.includes("llava"))
+  );
 
   return (
     <Box>

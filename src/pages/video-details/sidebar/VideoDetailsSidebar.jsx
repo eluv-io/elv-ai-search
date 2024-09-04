@@ -4,17 +4,15 @@ import HighlightsPanel from "@/pages/video-details/sidebar/tab-panels/highlights
 import TagsPanel from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsPanel.jsx";
 import styles from "../VideoDetails.module.css";
 import SummaryPanel from "@/pages/video-details/sidebar/tab-panels/summary-panel/SummaryPanel.jsx";
-import MusicPanel from "@/pages/video-details/sidebar/tab-panels/music-panel/MusicPanel.jsx";
 import {useRef} from "react";
-import {searchStore} from "@/stores/index.js";
 import {sliderValues} from "@/pages/video-details/VideoDetails.jsx";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
 
 const DETAILS_TABS = [
-  {value: "tags", label: "Tags", Component: TagsPanel},
-  {value: "summary", label: "Summary", Component: SummaryPanel},
+  {value: "summary", label: "Description", Component: SummaryPanel},
   {value: "highlights", label: "Highlights", Component: HighlightsPanel},
-  {value: "music", label: "Music", Component: MusicPanel, hidden: !searchStore.musicSettingEnabled}
+  {value: "tags", label: "Tags", Component: TagsPanel}
+  // {value: "music", label: "Music", Component: MusicPanel, hidden: !searchStore.musicSettingEnabled},
 ];
 
 const VideoDetailsSidebar = observer(({opened, close}) => {

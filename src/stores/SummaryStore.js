@@ -1,5 +1,4 @@
 import {flow, makeAutoObservable} from "mobx";
-import {searchStore} from "@/stores/index.js";
 
 // Store for managing clip generated summaries
 class SummaryStore {
@@ -13,7 +12,7 @@ class SummaryStore {
     return this.rootStore.client;
   }
 
-  GetSummaryUrl = flow(function * ({objectId, startTime, endTime}) {
+  GetSummaryUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
     try {
       const queryParams = {
         start_time: startTime,
@@ -31,7 +30,7 @@ class SummaryStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-03.contentfabric.io/summary/q/${objectId}`
+      const newUrl = `https://ai-03.contentfabric.io/${cache ? "mlcache/" : ""}summary/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;
@@ -41,13 +40,14 @@ class SummaryStore {
     }
   });
 
-  GetSummaryResults = flow(function * ({objectId, startTime, endTime}) {
+  GetSummaryResults = flow(function * ({objectId, startTime, endTime, cache=true}) {
     let url;
     try {
       url = yield this.GetSummaryUrl({
         objectId,
         startTime,
-        endTime
+        endTime,
+        cache
       });
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -55,21 +55,7 @@ class SummaryStore {
     }
 
     try {
-      const results = yield this.client.Request({url});
-
-      const updatedClip = searchStore.UpdateSearchResult({
-        objectId,
-        keyValues: [
-          {key: "_aiSummary", value: results?.summary},
-          {key: "_aiHashtags", value: results?.hashtags},
-          {key: "_aiTitle", value: results?._title},
-          {key: "_aiLoadedSummary", value: true}
-        ]
-      });
-
-      searchStore.SetSelectedSearchResult({
-        result: updatedClip
-      });
+      return this.client.Request({url});
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to get summary results", error);
