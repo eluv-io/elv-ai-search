@@ -19,6 +19,7 @@ import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionI
 import {useState} from "react";
 import {summaryStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
+import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
 const VideoDetailsMain = observer(({
   clip,
@@ -56,7 +57,8 @@ const VideoDetailsMain = observer(({
           <Video
             objectId={clip.id}
             playerOptions={{
-              posterUrl: clip._imageSrc
+              posterUrl: clip._imageSrc,
+              autoplay: EluvioPlayerParameters.autoplay.OFF
             }}
             playoutParameters={{
               clipStart: clip.start_time / 1000,

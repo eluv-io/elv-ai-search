@@ -14,11 +14,8 @@ import styles from "./SearchIndexDropdown.module.css";
 import {searchStore, tenantStore} from "@/stores/index.js";
 import {SubmitIcon} from "@/assets/icons/index.js";
 import {useEffect, useState} from "react";
-import search from "@/pages/search/Search.jsx";
 
 const SearchIndexDropdown = observer(({
-  selectedIndex,
-  setSelectedIndex,
   HandleSearch,
   loadingSearch,
   fuzzySearchValue,
@@ -40,12 +37,12 @@ const SearchIndexDropdown = observer(({
         setIndexes(indexes);
         setLoadingIndexes(false);
 
-        if(indexes && !selectedIndex) {
+        if(indexes && !searchStore.currentSearch.index) {
           const firstIndex = indexes?.[0]?.id;
-          setSelectedIndex(firstIndex);
+          searchStore.SetSearchIndex({index: firstIndex});
           setNewIndex(firstIndex);
-        } else if(selectedIndex) {
-          setNewIndex(selectedIndex);
+        } else if(searchStore.currentSearch.index) {
+          setNewIndex(searchStore.currentSearch.index);
         }
       } finally {
         setLoadingIndexes(false);
@@ -129,7 +126,7 @@ const SearchIndexDropdown = observer(({
                   </Radio.Group>
                   <Flex justify="flex-end">
                     <Button onClick={() => {
-                      setSelectedIndex(newIndex);
+                      searchStore.SetSearchIndex({index: newIndex});
                       setIndexMenuOpen(false);
                     }}>
                       Apply

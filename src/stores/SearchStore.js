@@ -33,10 +33,14 @@ class SearchStore {
   };
 
   SetCurrentSearch = ({results, resultsBySong, index, terms}) => {
-    this.currentSearch["results"] = {...results};
-    this.currentSearch["resultsBySong"] = {...resultsBySong};
-    this.currentSearch["index"] = index;
-    this.currentSearch["terms"] = terms;
+    this.currentSearch.results = {...results};
+    this.currentSearch.resultsBySong = {...resultsBySong};
+    this.currentSearch.index = index;
+    this.currentSearch.terms = terms;
+  };
+
+  SetSearchIndex = ({index}) => {
+    this.currentSearch.index = index;
   };
 
   CreateSearchUrl = flow(function * ({
@@ -142,15 +146,14 @@ class SearchStore {
     objectId,
     searchPhrase,
     searchFields,
-    music=false,
-    musicType="all"
+    musicType
   }) {
     try {
       const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
       let queryParams, server;
 
-      if(music) {
+      if(this.musicSettingEnabled) {
         server = "ai";
         let musicParams = {
           terms: searchPhrase || "",
@@ -294,8 +297,7 @@ class SearchStore {
     fuzzySearchValue,
     searchVersion=2,
     vector=true,
-    music=false,
-    musicType="all",
+    musicType,
     cacheResults=true
   }) {
     const {fuzzySearchFields, searchAssets} = yield this.GetSearchParams({objectId});
@@ -306,8 +308,7 @@ class SearchStore {
         objectId,
         searchPhrase: fuzzySearchValue,
         searchFields: fuzzySearchFields,
-        music,
-        musicType: music ? musicType : undefined
+        musicType: musicType
       });
     } else {
       urlResponse = yield this.CreateSearchUrl({

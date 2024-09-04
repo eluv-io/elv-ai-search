@@ -39,7 +39,6 @@ const SearchBar = observer(({
 
   // Data
   const [indexes, setIndexes] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState("");
   const [fuzzySearchValue, setFuzzySearchValue] = useState("");
 
   useEffect(() => {
@@ -58,18 +57,14 @@ const SearchBar = observer(({
   }, []);
 
   useEffect(() => {
-    const {index, terms} = searchStore.currentSearch;
+    const {terms} = searchStore.currentSearch;
     if(terms) {
       setFuzzySearchValue(terms);
     }
-
-    if(index) {
-      setSelectedIndex(index);
-    }
   }, [searchStore.currentSearchParams]);
 
-  const HandleSearch = async(music=false) => {
-    if(!(fuzzySearchValue || selectedIndex)) { return; }
+  const HandleSearch = async() => {
+    if(!(fuzzySearchValue || searchStore.currentSearch.index)) { return; }
 
     try {
       setLoadingSearch(true);
@@ -77,13 +72,13 @@ const SearchBar = observer(({
       searchStore.ResetSearch();
       await searchStore.GetSearchResults({
         fuzzySearchValue,
-        objectId: selectedIndex,
-        searchVersion: tenantStore.searchIndexes[selectedIndex]?.version,
-        music
+        objectId: searchStore.currentSearch.index,
+        searchVersion: tenantStore.searchIndexes[searchStore.currentSearch.index]?.version,
+        musicType: "all"
       });
     } catch(error) {
       // eslint-disable-next-line no-console
-      console.error(`Unable to retrieve results for index ${selectedIndex}`, error);
+      console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
     } finally {
       setLoadingSearch(false);
     }
@@ -94,8 +89,6 @@ const SearchBar = observer(({
       <SearchIndexDropdown
         indexes={indexes}
         loadingIndexes={loadingIndexes}
-        selectedIndex={selectedIndex}
-        setSelectedIndex={setSelectedIndex}
         HandleSearch={HandleSearch}
         loadingSearch={loadingSearch}
         fuzzySearchValue={fuzzySearchValue}

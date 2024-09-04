@@ -16,7 +16,6 @@ const MusicPanel = observer(() => {
         const response = await searchStore.GetSearchResults({
           objectId: searchStore.currentSearch.index,
           fuzzySearchValue: "",
-          music: true,
           musicType: "histogram",
           cacheResults: false
         });
