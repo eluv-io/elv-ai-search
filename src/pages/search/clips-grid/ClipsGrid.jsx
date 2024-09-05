@@ -91,7 +91,7 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song, view="ALL"}) => {
+const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
   if(!clips) {
     clips = searchStore.currentSearch?.results?.contents || [];
   }

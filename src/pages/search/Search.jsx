@@ -60,7 +60,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
         {/*    })*/}
         {/*  }*/}
         {/*</Text>*/}
-        <UnstyledButton onClick={ToggleResultType}>
+        <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
           <Text size="sm" c="elv-neutral.5">
             {
               resultType === "ALL" ?
@@ -101,7 +101,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
 const Search = observer(() => {
   const [loadingSearch, setLoadingSearch] = useState(false);
   // Show all results vs top results that have a high score
-  const [resultType, setResultType] = useState("ALL");
+  const [resultType, setResultType] = useState("HIGH_SCORE");
 
   return (
     <PageContainer title="AI Clip Search">

@@ -5,3 +5,9 @@
 .selectInput {
   border-radius: 42px;
 }
+
+.textButton {
+  &:hover {
+    text-decoration: underline;
+  }
+}
