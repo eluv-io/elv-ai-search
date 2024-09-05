@@ -32,13 +32,14 @@ const VideoDetailsMain = observer(({
   const [currentThumb, setCurrentThumb] = useState(null);
 
   const searchTerm = searchStore.currentSearch.terms;
+  const indexId = "iq__idx_unknown"; // XXX
 
   const submitThumb = async (upOrDown) => {
     await ratingStore.SetRatingResults({
       objectId: clip.id,
       startTime: clip.start_time,
       endTime: clip.end_time,
-      indexId: "iq__1111", // XXX
+      indexId: indexId,
       query: searchTerm,
       rating: upOrDown,
     });
@@ -52,7 +53,7 @@ const VideoDetailsMain = observer(({
           objectId: clip.id,
           startTime: clip.start_time,
           endTime: clip.end_time,
-          indexId: "iq__1111", // XXX
+          indexId: indexId,
           query: searchTerm,
         });
         setCurrentThumb(thumb?.feedback_item?.rating);
