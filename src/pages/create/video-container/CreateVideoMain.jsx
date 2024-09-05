@@ -44,6 +44,10 @@ const CreateVideoMain = observer(({
 
   if(!summaryResults && !loading) { return null; }
 
+  const submitThumb = (upOrDown) => {
+    window.console.log("Thumb submitted", upOrDown);
+  };
+
   return (
     <Box w="100%" pos="relative" p="43 24">
       <Box w="100%" mb={22} pos="relative" >
@@ -84,6 +88,8 @@ const CreateVideoMain = observer(({
       <VideoActionsBar
         openModal={openModal}
         subtitle={`${loading ? "Request in progress" : "Request completed"} - Create Summary & Highlights`}
+        onClick={submitThumb}
+        currentThumb="THUMBS_UP"
       />
 
       <TitleGroup title={summaryResults?.title} loading={loading} />

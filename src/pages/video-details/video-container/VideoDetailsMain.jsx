@@ -16,10 +16,11 @@ import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
-import {useState} from "react";
-import {summaryStore, videoStore} from "@/stores/index.js";
+import {useEffect, useState} from "react";
+import {ratingStore, summaryStore, videoStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import {runInAction} from "mobx";
 
 const VideoDetailsMain = observer(({
   clip,
@@ -29,6 +30,42 @@ const VideoDetailsMain = observer(({
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [summary, setSummary] = useState(null);
+  const [currentThumb, setCurrentThumb] = useState(null);
+
+  const submitThumb = async (upOrDown) => {
+    window.console.log("Thumb submit", upOrDown, "clip", clip);
+
+    const results = await ratingStore.SetRatingResults({
+      objectId: clip.id,
+      startTime: clip.start_time,
+      endTime: clip.end_time,
+      indexId: "iq__1111", // XXX
+      query: "sample query", // XXX
+      rating: upOrDown,
+    });
+    window.console.log("results", results);
+    setCurrentThumb(upOrDown);
+  };
+
+  useEffect(() => {
+    const fetchThumb = async () => {
+      try {
+        const thumb = await ratingStore.GetRatingResults({
+          objectId: clip.id,
+          startTime: clip.start_time,
+          endTime: clip.end_time,
+          indexId: "iq__1111", // XXX
+          query: "sample query", // XXX
+        });
+        setCurrentThumb(thumb?.feedback_item?.rating);
+        console.log("set thumb:", thumb?.feedback_item?.rating);
+      } catch (error) {
+        console.error("Error fetching thumb:", error);
+      }
+    };
+
+    fetchThumb();
+  }, [clip.id, clip.start_time, clip.end_time]);
 
   return (
     <Box pos="relative" pr={24} pl={24}>
@@ -82,6 +119,8 @@ const VideoDetailsMain = observer(({
       <VideoActionsBar
         title={clip.meta?.public?.asset_metadata?.title || clip.id}
         openModal={openModal}
+        onClick={submitThumb}
+        currentThumb={currentThumb}
       />
 
       <SimpleGrid cols={3} mb={24}>
