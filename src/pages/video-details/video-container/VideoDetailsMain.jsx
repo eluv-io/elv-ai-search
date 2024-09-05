@@ -58,8 +58,8 @@ const VideoDetailsMain = observer(({
           query: "sample query", // XXX
         });
         setCurrentThumb(thumb?.feedback_item?.rating);
-        console.log("set thumb:", thumb?.feedback_item?.rating);
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.error("Error fetching thumb:", error);
       }
     };
