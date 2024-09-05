@@ -20,7 +20,6 @@ import {useEffect, useState} from "react";
 import {ratingStore, summaryStore, videoStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
-import {runInAction} from "mobx";
 
 const VideoDetailsMain = observer(({
   clip,
@@ -33,9 +32,7 @@ const VideoDetailsMain = observer(({
   const [currentThumb, setCurrentThumb] = useState(null);
 
   const submitThumb = async (upOrDown) => {
-    window.console.log("Thumb submit", upOrDown, "clip", clip);
-
-    const results = await ratingStore.SetRatingResults({
+    await ratingStore.SetRatingResults({
       objectId: clip.id,
       startTime: clip.start_time,
       endTime: clip.end_time,
@@ -43,7 +40,6 @@ const VideoDetailsMain = observer(({
       query: "sample query", // XXX
       rating: upOrDown,
     });
-    window.console.log("results", results);
     setCurrentThumb(upOrDown);
   };
 

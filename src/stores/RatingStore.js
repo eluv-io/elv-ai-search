@@ -33,8 +33,6 @@ class RatingStore {
     const body = JSON.stringify(itemBody);
 
     try {
-      // eslint-disable-next-line no-console
-      console.log("url", url, "body", body);
       return this.client.Request({url, body, method: "POST"});
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -62,8 +60,6 @@ class RatingStore {
     const body = JSON.stringify(itemBody);
 
     try {
-      // eslint-disable-next-line no-console
-      console.log("url", url, "body", body);
       return this.client.Request({url, body, method: "POST"});
     } catch(error) {
       // eslint-disable-next-line no-console
