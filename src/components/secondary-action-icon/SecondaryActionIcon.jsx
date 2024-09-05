@@ -7,8 +7,14 @@ const SecondaryButton = forwardRef(({
   Icon,
   LeftIcon,
   iconOnly=false,
+  iconColor,
   ...props
 }, ref) => {
+  let iColor="var(--mantine-color-elv-neutral-5)";
+  if (iconColor) {
+    iColor = iconColor;
+  }
+
   if(iconOnly) {
     if(!Icon && !children) { throw Error("Icon must be provided when using iconOnly"); }
 
@@ -22,7 +28,7 @@ const SecondaryButton = forwardRef(({
       >
         {
           Icon ?
-            <Icon color="var(--mantine-color-elv-neutral-5)" /> :
+            <Icon color={iColor} /> :
             children
         }
       </ActionIcon>
@@ -30,7 +36,7 @@ const SecondaryButton = forwardRef(({
   } else {
     return (
       <Button
-        leftSection={LeftIcon ? <LeftIcon color="var(--mantine-color-elv-neutral-5)" /> : null}
+        leftSection={LeftIcon ? <LeftIcon color={iColor} /> : null}
         radius={30}
         color="elv-gray.1"
         onClick={onClick}
