@@ -1,5 +1,6 @@
 import ArrowLeftIcon from "./ArrowLeftIcon.jsx";
 import ArrowRightIcon from "./ArrowRightIcon.jsx";
+import CameraIcon from "./CameraIcon.jsx";
 import CollapseIcon from "./CollapseIcon.jsx";
 import CreateIcon from "./CreateIcon.jsx";
 import EyeIcon from "./EyeIcon.jsx";
@@ -25,6 +26,7 @@ import VideoEditorIcon from "./VideoEditorIcon.jsx";
 export {
   ArrowLeftIcon,
   ArrowRightIcon,
+  CameraIcon,
   CollapseIcon,
   CreateIcon,
   EyeIcon,

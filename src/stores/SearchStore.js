@@ -323,20 +323,24 @@ class SearchStore {
     const resultsBySong = {};
     (results || []).forEach(result => {
       const songs = result?.sources?.[0]?.fields?.f_music || [];
-      // (result?.sources || []).forEach(source => {
-      //   const songs = source?.fields?.f_music || [];
 
-        songs.forEach(song => {
-          if(Object.hasOwn(resultsBySong, song)) {
-            resultsBySong[song].push(result);
-          } else {
-            resultsBySong[song] = [result];
-          }
-        });
-      // });
+      songs.forEach(song => {
+        if(Object.hasOwn(resultsBySong, song)) {
+          resultsBySong[song].push(result);
+        } else {
+          resultsBySong[song] = [result];
+        }
+      });
     });
 
     return resultsBySong;
+  };
+
+  GetSearchScore = ({clip}) => {
+    const scores = clip?.sources?.map(source => source.score);
+    const highScore = Math.max(...scores);
+
+    return highScore ? (highScore * 100).toFixed(1) : "";
   };
 
   GetSearchResults = flow(function * ({
@@ -393,6 +397,7 @@ class SearchStore {
             });
             result["_imageSrc"] = url;
             result["_tags"] = await this.ParseTags({tags: result?.sources?.[0]?.fields});
+            result["_score"] = this.GetSearchScore({clip: result});
 
             return result;
           } catch(error) {
@@ -421,25 +426,6 @@ class SearchStore {
       console.error("Unable to perform search", error);
     }
   });
-
-  UpdateSearchResult = ({objectId, keyValues=[]}) => {
-    if(!this.currentSearch?.results?.contents) { return; }
-
-    let updatedItem;
-    this.currentSearch.results.contents = this.currentSearch.results.contents.map(item => {
-      if(item.id === objectId) {
-        keyValues.forEach(({key, value}) => {
-          item[key] = value;
-          updatedItem = item;
-        });
-      }
-
-      return item;
-    });
-
-    return updatedItem;
-  };
-
 
   GetDownloadUrlWithMaxResolution = flow (function * () {
     const {id: objectId, start_time, end_time, qlib_id: libraryId} = this.selectedSearchResult;

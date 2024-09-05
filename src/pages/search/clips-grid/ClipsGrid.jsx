@@ -54,9 +54,19 @@ const Clip = observer(({
             title={clip.meta?.public?.asset_metadata?.title || id}
           />
         </AspectRatio>
-        <Title order={4} lineClamp={1} mt={10} lh={1}>
-          { clip.meta?.public?.asset_metadata?.title || id }
-        </Title>
+        <Flex wrap="nowrap" mt={10} align="center">
+          <Title order={4} lineClamp={1} lh={1}>
+            { clip.meta?.public?.asset_metadata?.title || id }
+          </Title>
+          {
+            clip._score &&
+            <Box bg="elv-gray.4" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
+              <Text fz="xs" c="elv-neutral.5">
+                Score: { clip._score }
+              </Text>
+            </Box>
+          }
+        </Flex>
         <Box>
           <Text size="sm">
             { TimeInterval({startTime, endTime}) }
@@ -81,15 +91,17 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song}) => {
+const ClipsGrid = observer(({clips, song, view="ALL"}) => {
   if(!clips) {
     clips = searchStore.currentSearch?.results?.contents || [];
   }
 
+  const filteredClips = clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 70);
+
   return (
     <SimpleGrid cols={4} spacing="lg">
       {
-        clips.map((clip, i) => (
+        filteredClips.map((clip, i) => (
           <Clip
             key={`clip-result-${clip.id}-${clip.start_time}-${i}`}
             clip={clip}

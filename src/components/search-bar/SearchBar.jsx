@@ -10,6 +10,15 @@ const SearchByFile = observer(({hidden=false}) => {
   if(hidden) { return null; }
 
   return (
+    // <ActionIcon
+    //   aria-label="Submit search"
+    //   variant="transparent"
+    //   component="button"
+    //   onClick={() => {}}
+    //   c="gray.7"
+    // >
+    //   <CameraIcon />
+    // </ActionIcon>
     <TextInput
       size="md"
       placeholder="Search by image, video, or audio"
