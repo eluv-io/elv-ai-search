@@ -181,7 +181,7 @@ class SearchStore {
           };
         }
       } else {
-        server = "ai-02";
+        server = "ai";
         queryParams = {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
@@ -259,17 +259,65 @@ class SearchStore {
     });
   };
 
-  ParseTags = ({tags={}}) => {
+  GetCoverImage = flow(function * ({song, queryParams}) {
+    try {
+      const libraryId = "ilib4HSA426GHsGHpVAagjhsDkZhgdCz";
+      const objectId = "iq__3MmY78ZgtY4wXxMQMtqUWqnxy2kR";
+
+      const Sha1 = async (string) => {
+        const digest = await (crypto.subtle || crypto.webcrypto.subtle).digest("SHA-1", new TextEncoder().encode(string));
+        const res = [...new Uint8Array(digest)];
+        return res.map(x => x.toString(16).padStart(2, "0")).join("");
+      };
+
+      const hashname = yield Sha1(song);
+
+      const url = yield this.client.Rep({
+        libraryId,
+        objectId,
+        rep: `image/default/files/covers/${hashname}.png`,
+        queryParams
+      });
+
+      return url;
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(`Unable to get cover for ${song}`, error);
+    }
+  });
+
+  ParseTags = flow(function * ({tags={}}){
     const parsedTags = {};
 
-    Object.keys(tags).forEach(tagKey => {
+    for(let i = 0; i < Object.keys(tags).length; i++) {
+      const tagKey = Object.keys(tags)[i];
+
       if(tagKey.includes("_tag")) {
-        parsedTags[tagKey] = tags[tagKey];
+        if(tagKey.includes("music")) {
+          const tagsArray = yield Promise.all(
+            (tags[tagKey] || []).map(async (tag) => {
+              const coverUrl = await this.GetCoverImage({
+                song: tag.text?.[0],
+                queryParams: {
+                  width: 50,
+                  height: 50
+                }
+              });
+
+              tag["_coverImage"] = coverUrl;
+
+              return tag;
+            })
+          );
+          parsedTags[tagKey] = tagsArray;
+        } else {
+          parsedTags[tagKey] = tags[tagKey];
+        }
       }
-    });
+    }
 
     return parsedTags;
-  };
+  });
 
   ParseResultsBySong = ({results}) => {
     const resultsBySong = {};
@@ -344,7 +392,7 @@ class SearchStore {
               timeSecs: fullUrl?.searchParams?.get("t")
             });
             result["_imageSrc"] = url;
-            result["_tags"] = this.ParseTags({tags: result?.sources?.[0]?.fields});
+            result["_tags"] = await this.ParseTags({tags: result?.sources?.[0]?.fields});
 
             return result;
           } catch(error) {
