@@ -32,7 +32,7 @@ const VideoDetailsMain = observer(({
   const [currentThumb, setCurrentThumb] = useState(null);
 
   const searchTerm = searchStore.currentSearch.terms;
-  const indexId = "iq__idx_unknown"; // XXX
+  const indexId = searchStore.currentSearch.index;
 
   const submitThumb = async (upOrDown) => {
     await ratingStore.SetRatingResults({
