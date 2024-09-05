@@ -391,6 +391,89 @@ class SearchStore {
 
     return updatedItem;
   };
+
+
+  GetDownloadUrlWithMaxResolution = flow (function * () {
+    const {id: objectId, start_time, end_time, qlib_id: libraryId} = this.selectedSearchResult;
+    const clip_start = start_time / 1000;
+    const clip_end = end_time / 1000;
+
+    const offerings = yield this.client.ContentObjectMetadata({
+      objectId,
+      libraryId,
+      metadataSubtree: "offerings",
+    });
+    const offering = offerings["default"];
+    const representations = offering.playout.streams.video.representations;
+    let playoutKey = null;
+    let _max_height = 0;
+    let _max_width;
+    for (let key in representations) {
+      const playout = offering.playout.streams.video.representations[key];
+      if (playout.height > _max_height) {
+        playoutKey = key;
+        _max_height = playout.height;
+        _max_width = playout.width;
+      }
+    }
+    const title_name = yield this.client.ContentObjectMetadata({
+      objectId,
+      libraryId,
+      metadataSubtree: "public/name",
+    });
+
+    const token = yield this.client.CreateSignedToken({
+      objectId,
+      duration: 24 * 60 * 60 * 1000,
+    });
+    function formatTime(seconds) {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secondsLeft = Math.floor(seconds % 60);
+
+      const paddedHours = String(hours).padStart(2, "0");
+      const paddedMinutes = String(minutes).padStart(2, "0");
+      const paddedSeconds = String(secondsLeft).padStart(2, "0");
+
+      return `${paddedHours}-${paddedMinutes}-${paddedSeconds}`;
+    }
+    let _clip_start = formatTime(clip_start);
+    let _clip_end = formatTime(clip_end);
+
+    const filename = `Title - ${title_name} (${_max_width}x${_max_height}) (${_clip_start} - ${_clip_end}).mp4`;
+
+    const url = yield this.client.Rep({
+      objectId,
+      libraryId,
+      rep: `media_download/default/${playoutKey}`,
+      noAuth: true,
+      queryParams: {
+        clip_start,
+        clip_end,
+        authorization: token,
+        "header-x_set_content_disposition": `attachment;filename=${filename}`,
+      },
+    });
+
+    return url;
+  });
+
+  GetShareUrls = flow(function * () {
+    const embedUrl = yield this.client.EmbedUrl({
+      objectId: this.selectedSearchResult.id,
+      options: {
+        clipStart: this.selectedSearchResult.start_time / 1000,
+        clipEnd: this.selectedSearchResult.end_time / 1000
+      }
+    });
+
+    const downloadUrl = yield this.GetDownloadUrlWithMaxResolution();
+
+    return {
+      embedUrl,
+      downloadUrl
+    };
+  });
 }
 
 export default SearchStore;

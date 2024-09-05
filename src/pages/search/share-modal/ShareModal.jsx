@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {AspectRatio, Box, Flex, Modal, Stack, Tabs, Text} from "@mantine/core";
+import {AspectRatio, Box, CopyButton, Flex, Modal, Stack, Tabs, Text, Tooltip} from "@mantine/core";
 import styles from "./ShareModal.module.css";
 import {LinkIcon, MailIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
@@ -8,6 +8,9 @@ import SharePlaybackPanel from "@/pages/search/share-modal/tab-panels/SharePlayb
 import ShareFormatPanel from "@/pages/search/share-modal/tab-panels/ShareFormatPanel.jsx";
 import ShareAccessPanel from "@/pages/search/share-modal/tab-panels/ShareAccessPanel.jsx";
 import ShareSocialPanel from "@/pages/search/share-modal/tab-panels/ShareSocialPanel.jsx";
+import {useEffect, useState} from "react";
+import {searchStore} from "@/stores/index.js";
+import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 
 const SHARE_TABS = [
   {value: "details", label: "Details", Component: ShareDetailsPanel},
@@ -24,6 +27,20 @@ const ShareModal = observer(({
   opened,
   onClose
 }) => {
+  const [embedUrl, setEmbedUrl] = useState("");
+  const [downloadUrl, setDownloadUrl] = useState("");
+
+  useEffect(() => {
+    const LoadData = async () => {
+      const {embedUrl, downloadUrl} = await searchStore.GetShareUrls();
+
+      setEmbedUrl(embedUrl || "");
+      setDownloadUrl(downloadUrl || "");
+    };
+
+    LoadData();
+  }, []);
+
   return (
     <Modal
       opened={opened}
@@ -44,7 +61,6 @@ const ShareModal = observer(({
                   clipEnd: endTime,
                   ignoreTrimming: true
                 }}
-                // Callback={({video, player}) => videoStore.SetVideo({video, player, objectId: clip.id, startTime: clip.start_time, endTime: clip.end_time})}
               />
             </AspectRatio>
 
@@ -62,16 +78,48 @@ const ShareModal = observer(({
             </Box>
           </Box>
           <Text fw={600} c="elv-gray.8" fz="md">Streaming URL</Text>
-          <Flex direction="row" gap={10} mb={24}>
-            <Text fz="xs" c="elv-neutral.5" truncate="end">https://core.v3.contentfabric.io/apps/Video%20Editor#/ilib4FtcGxjMK3rhTedA8MFb9KZoeTsyiq__3kZwtGLhgfUuFXAyupR1TGufHb1</Text>
-            <LinkIcon width={50} />
-            <MailIcon width={50} />
+          <Flex direction="row" gap={10} mb={24} w="100%">
+            <Text fz="xs" c="elv-neutral.5" truncate="end" style={{flexGrow: 0}}>
+              { embedUrl }
+            </Text>
+            <CopyButton value={embedUrl}>
+              {({copied, copy}) => (
+                <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
+                  <SecondaryButton
+                    onClick={copy}
+                    size="xs"
+                    variant="transparent"
+                    iconOnly
+                    style={{flexBasis: "20px", flexShrink: 0}}
+                  >
+                    <LinkIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
+                  </SecondaryButton>
+                </Tooltip>
+              )}
+            </CopyButton>
+            <MailIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
           </Flex>
           <Text fw={600} c="elv-gray.8" fz="md">Download URL</Text>
-          <Flex direction="row" gap={10}>
-            <Text fz="xs" c="elv-neutral.5" truncate="end">https://core.v3.contentfabric.io/apps/Video%20Editor#/ilib4FtcGxjMK3rhTedA8MFb9KZoeTsyiq__3kZwtGLhgfUuFXAyupR1TGufHb1</Text>
-            <LinkIcon width={50} />
-            <MailIcon width={50} />
+          <Flex direction="row" gap={10} w="100%">
+            <Text fz="xs" c="elv-neutral.5" truncate="end" style={{flexGrow: 0}}>
+              { downloadUrl }
+            </Text>
+            <CopyButton value={downloadUrl}>
+              {({copied, copy}) => (
+                <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
+                  <SecondaryButton
+                    onClick={copy}
+                    size="xs"
+                    variant="transparent"
+                    iconOnly
+                    style={{flexBasis: "20px", flexShrink: 0}}
+                  >
+                    <LinkIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
+                  </SecondaryButton>
+                </Tooltip>
+              )}
+            </CopyButton>
+            <MailIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
           </Flex>
         </Flex>
         <Box>
