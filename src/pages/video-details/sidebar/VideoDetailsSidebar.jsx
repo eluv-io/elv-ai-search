@@ -16,6 +16,7 @@ const DETAILS_TABS = [
 ];
 
 const VideoDetailsSidebar = observer(({opened, close}) => {
+  const tabRef = useRef(null);
   const HandleTabClick = (tabRef) => {
     tabRef.current.scrollIntoView();
   };
@@ -58,7 +59,6 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
                 >
                   {
                     DETAILS_TABS.map(tab => {
-                      const tabRef = useRef(null);
 
                       return (
                         <Tabs.Tab
