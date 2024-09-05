@@ -3,7 +3,6 @@ import {ShareIcon, ThumbDownIcon, ThumbUpIcon, VideoEditorIcon} from "@/assets/i
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 
 const VideoActionsBar = ({title, subtitle, openModal, onClick, currentThumb}) => {
-  // XXX
   let upColor = "var(--mantine-color-elv-neutral-5)";
   let downColor = "var(--mantine-color-elv-neutral-5)";
   if (currentThumb === "THUMBS_UP") {
