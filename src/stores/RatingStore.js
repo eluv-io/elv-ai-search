@@ -1,6 +1,6 @@
 import {flow, makeAutoObservable} from "mobx";
 
-// Store for managing rankings of (search) results
+// Store for managing ratings of (search) results
 class RatingStore {
   constructor(rootStore) {
     makeAutoObservable(this);
