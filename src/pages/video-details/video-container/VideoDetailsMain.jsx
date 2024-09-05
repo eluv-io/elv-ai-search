@@ -17,7 +17,7 @@ import TextCard from "@/components/text-card/TextCard.jsx";
 import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {useEffect, useState} from "react";
-import {ratingStore, summaryStore, videoStore} from "@/stores/index.js";
+import {ratingStore, searchStore, summaryStore, videoStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
@@ -31,13 +31,15 @@ const VideoDetailsMain = observer(({
   const [summary, setSummary] = useState(null);
   const [currentThumb, setCurrentThumb] = useState(null);
 
+  const searchTerm = searchStore.currentSearch.terms;
+
   const submitThumb = async (upOrDown) => {
     await ratingStore.SetRatingResults({
       objectId: clip.id,
       startTime: clip.start_time,
       endTime: clip.end_time,
       indexId: "iq__1111", // XXX
-      query: "sample query", // XXX
+      query: searchTerm,
       rating: upOrDown,
     });
     setCurrentThumb(upOrDown);
@@ -51,7 +53,7 @@ const VideoDetailsMain = observer(({
           startTime: clip.start_time,
           endTime: clip.end_time,
           indexId: "iq__1111", // XXX
-          query: "sample query", // XXX
+          query: searchTerm,
         });
         setCurrentThumb(thumb?.feedback_item?.rating);
       } catch (error) {
