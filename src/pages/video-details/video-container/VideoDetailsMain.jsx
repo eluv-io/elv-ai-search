@@ -30,6 +30,8 @@ const VideoDetailsMain = observer(({
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [summary, setSummary] = useState(null);
   const [currentThumb, setCurrentThumb] = useState(null);
+  const [embedUrl, setEmbedUrl] = useState(null);
+  const [downloadUrl, setDownloadUrl] = useState(null);
 
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
@@ -65,6 +67,17 @@ const VideoDetailsMain = observer(({
 
     fetchThumb();
   }, [clip.id, clip.start_time, clip.end_time]);
+
+  useEffect(() => {
+    const LoadData = async () => {
+      const {embedUrl: embed, downloadUrl: download} = await searchStore.GetShareUrls();
+
+      setEmbedUrl(embed || "");
+      setDownloadUrl(download || "");
+    };
+
+    LoadData();
+  }, []);
 
   return (
     <Box pos="relative" pr={24} pl={24}>
@@ -122,21 +135,25 @@ const VideoDetailsMain = observer(({
         currentThumb={currentThumb}
       />
 
-      <SimpleGrid cols={3} mb={24}>
+      <SimpleGrid cols={3} mb={24} gap={8}>
         <TextCard
-          title="Time Interval"
           text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
         />
         <TextCard
-          title="Content ID"
           text={clip.id}
+          lineClamp={1}
           copyable
         />
-        <TextCard
-          title="Source URL"
-          text={clip.url}
-          copyable
-        />
+        <Flex gap={16}>
+          <TextCard
+            text="Streaming"
+            copyText={embedUrl}
+          />
+          <TextCard
+            text="Download"
+            copyText={downloadUrl}
+          />
+        </Flex>
       </SimpleGrid>
 
       <TextCard

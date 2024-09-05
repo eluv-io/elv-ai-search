@@ -158,6 +158,7 @@ class SearchStore {
         let musicParams = {
           terms: searchPhrase || "",
           search_fields: "f_music",
+          threshold: 0
         };
 
         if(musicType === "histogram") {

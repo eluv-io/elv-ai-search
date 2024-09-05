@@ -1,6 +1,5 @@
 import {Button, CopyButton, Flex, Group, Loader, Paper, Text, Title, Tooltip} from "@mantine/core";
-import {PaperClipIcon} from "@/assets/icons/index.js";
-import styles from "@/pages/video-details/VideoDetails.module.css";
+import {LinkIcon} from "@/assets/icons/index.js";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 
 const TitleContent = ({
@@ -21,7 +20,7 @@ const TitleContent = ({
               variant="transparent"
               iconOnly
             >
-              <PaperClipIcon color="var(--mantine-color-elv-neutral-5)" className={styles.paperClipIcon} />
+              <LinkIcon color="var(--mantine-color-elv-neutral-5)" />
             </SecondaryButton>
           </Tooltip>
         )}
@@ -48,12 +47,50 @@ const TitleContent = ({
   );
 };
 
+const TextContent = ({
+  text,
+  loading,
+  copyText,
+  lineClamp,
+  children
+}) => {
+  if(loading) { return <Loader size="xs" />; }
+
+  if(text) {
+    return (
+      <Group wrap="nowrap" gap={8}>
+        <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text || "" }</Text>
+        {
+          !!copyText &&
+          <CopyButton value={copyText}>
+            {({copied, copy}) => (
+              <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
+                <SecondaryButton
+                  onClick={copy}
+                  size="xs"
+                  variant="transparent"
+                  iconOnly
+                >
+                  <LinkIcon color="var(--mantine-color-elv-neutral-5)" />
+                </SecondaryButton>
+              </Tooltip>
+            )}
+          </CopyButton>
+        }
+      </Group>
+    );
+  } else {
+    return children;
+  }
+};
+
 const TextCard = ({
   title,
   titleIcon,
   text,
   id,
   copyable=false,
+  copyText,
   lineClamp=1,
   loading,
   topActions=[],
@@ -62,7 +99,7 @@ const TextCard = ({
 }) => {
 
   return (
-    <Paper bg="elv-gray.4" p="8 16" {...props}>
+    <Paper bg="elv-gray.4" p="16 12" {...props}>
       {
         title &&
         <Flex justify="space-between" mb={8}>
@@ -83,12 +120,14 @@ const TextCard = ({
           }
         </Flex>
       }
-      {
-        text ? (
-          loading ? null :
-          <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text || "" }</Text>
-        ) : children
-      }
+      <TextContent
+        loading={loading}
+        text={text}
+        copyText={copyText}
+        lineClamp={lineClamp}
+      >
+        { children }
+      </TextContent>
     </Paper>
   );
 };
