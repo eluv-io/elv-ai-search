@@ -83,20 +83,20 @@ export const summaryStore = rootStore.summaryStore;
 export const highlightsStore = rootStore.highlightsStore;
 export const ratingStore = rootStore.ratingStore;
 
-// if(import.meta.hot) {
-//   if (import.meta.hot.data.store) {
-//     // Restore state
-//     searchStore.currentSearch = import.meta.hot.data.store.currentSearch;
-//   }
-//
-//   import.meta.hot.accept();
-//
-//   import.meta.hot.dispose((data) => {
-//     // Save state
-//     data.store = {
-//       currentSearch: searchStore.currentSearch
-//     };
-//   });
-// }
+if(import.meta.hot) {
+  if (import.meta.hot.data.store) {
+    // Restore state
+    searchStore.currentSearch = import.meta.hot.data.store.currentSearch;
+  }
+
+  import.meta.hot.accept();
+
+  import.meta.hot.dispose((data) => {
+    // Save state
+    data.store = {
+      currentSearch: searchStore.currentSearch
+    };
+  });
+}
 
 window.rootStore = rootStore;

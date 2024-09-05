@@ -1,19 +1,18 @@
 import {Dropzone, IMAGE_MIME_TYPE} from "@mantine/dropzone";
-import {useState} from "react";
 import {Button, Flex, Stack, Text} from "@mantine/core";
 import {UploadIcon} from "@/assets/icons/index.js";
 import {searchStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 
 const SearchDropzone = observer(({loadingSearch}) => {
-  const [files, setFiles] = useState([]);
+  // const [files, setFiles] = useState([]);
 
   if(loadingSearch || searchStore.currentSearch.results) { return null; }
 
   return (
     <Flex justify="center">
       <Dropzone
-        onDrop={setFiles}
+        // onDrop={setFiles}
         accept={IMAGE_MIME_TYPE}
         w={400}
       >

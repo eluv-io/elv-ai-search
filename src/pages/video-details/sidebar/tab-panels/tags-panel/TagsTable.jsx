@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, Box, Button, Table, Text} from "@mantine/core";
+import {ActionIcon, AspectRatio, Box, Button, Image, Table, Text} from "@mantine/core";
 import {useState} from "react";
 import {FormatTime} from "@/utils/helpers.js";
 import {videoStore} from "@/stores/index.js";
@@ -9,6 +9,15 @@ const Rows = ({rows=[]}) => {
   return (
     rows.map(row => (
       <Table.Tr key={row.id}>
+        <Table.Td>
+        <AspectRatio ratio={1}>
+          <Image
+            src={row.image}
+            fit="contain"
+            w="auto"
+          />
+        </AspectRatio>
+        </Table.Td>
         <Table.Td>
           <Text size="xs">{ row.timestamp }</Text>
           </Table.Td>
@@ -29,6 +38,7 @@ const Rows = ({rows=[]}) => {
 const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
   const rows = tags.map((tagItem, i) => (
     {
+      image: tagItem._coverImage,
       timestamp: FormatTime({time: tagItem.start_time}),
       tags: tagItem.text.length > 0 ? tagItem.text.join(", ") : "",
       id: `tag-${tagItem.id || i}-${tagItem.start_time}-${tagItem.end_time}`,
@@ -54,7 +64,7 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
   });
 
   const [paginatedRows, setPaginatedRows] = useState(rows.slice(0, (resultsPerPage + 1) * pagination.currentPage));
-  const headers = ["Timestamps", "Tags"];
+  const headers = ["", "Timestamps", "Tags"];
 
   const HandleNextPage = () => {
     const newCurrentPage = pagination.currentPage + 1;
