@@ -26,14 +26,15 @@ const HighlightsPanel = observer(() => {
   const [hashtags, setHashtags] = useState(null);
   const clip = searchStore.selectedSearchResult;
 
-  const HandleGenerate = async() => {
+  const HandleGenerate = async(cache=true) => {
     try {
       setLoading(true);
 
       const highlightsRes = await highlightsStore.GetHighlightsResults({
         objectId: clip.id,
         startTime: clip.start_time,
-        endTime: clip.end_time
+        endTime: clip.end_time,
+        cache
       });
 
       setHighlights(highlightsRes);
@@ -41,7 +42,8 @@ const HighlightsPanel = observer(() => {
       const summaryResults = await summaryStore.GetSummaryResults({
         objectId: clip.id,
         startTime: clip.start_time,
-        endTime: clip.end_time
+        endTime: clip.end_time,
+        cache
       });
 
       setHashtags(summaryResults.hashtags);
@@ -96,6 +98,18 @@ const HighlightsPanel = observer(() => {
                     }
                   </Flex> : "No results"
               }
+              <Flex mt={16} justify="center">
+                <Button
+                  onClick={async () => {
+                    setHighlights(null);
+
+                    await HandleGenerate(false);
+                  }}
+                  size="xs"
+                >
+                  Regenerate
+                </Button>
+              </Flex>
             </>
           )
       }
