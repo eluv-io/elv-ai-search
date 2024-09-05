@@ -4,12 +4,12 @@ import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionI
 
 const VideoActionsBar = ({title, subtitle, openModal, onClick, currentThumb}) => {
   // XXX
-  let upColor = "elv-gray.1";
-  let downColor = "elv-gray.1";
+  let upColor = "var(--mantine-color-elv-neutral-5)";
+  let downColor = "var(--mantine-color-elv-neutral-5)";
   if (currentThumb === "THUMBS_UP") {
-    upColor = "elv-neutral.5";
+    upColor = "var(--mantine-color-elv-violet-3)";
   } else if (currentThumb === "THUMBS_DOWN") {
-    downColor = "elv-neutral.5";
+    downColor = "var(--mantine-color-elv-violet-3)";
   }
 
   return (
@@ -25,8 +25,8 @@ const VideoActionsBar = ({title, subtitle, openModal, onClick, currentThumb}) =>
           <Text fz="xs">{ subtitle }</Text> : null
       }
       <Group style={{flexShrink: 0}}>
-        <SecondaryButton color={upColor} iconOnly Icon={ThumbUpIcon} onClick={() => onClick("THUMBS_UP")} />
-        <SecondaryButton color={downColor} iconOnly Icon={ThumbDownIcon} onClick={() => onClick("THUMBS_DOWN")} />
+        <SecondaryButton iconColor={upColor} iconOnly Icon={ThumbUpIcon} onClick={() => onClick("THUMBS_UP")} />
+        <SecondaryButton iconColor={downColor} iconOnly Icon={ThumbDownIcon} onClick={() => onClick("THUMBS_DOWN")} />
         <SecondaryButton LeftIcon={VideoEditorIcon}>
           Open in Video Editor
         </SecondaryButton>
