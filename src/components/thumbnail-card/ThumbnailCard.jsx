@@ -1,8 +1,10 @@
-import {AspectRatio, Box, Flex, Group, Image, Stack, Text} from "@mantine/core";
+import {ActionIcon, AspectRatio, Box, Flex, Group, Image, Stack, Text} from "@mantine/core";
 import {TimeInterval} from "@/utils/helpers.js";
 import {useState} from "react";
+import {videoStore} from "@/stores/index.js";
+import {PlayIcon} from "@/assets/icons/index.js";
 
-const ThumbnailCard = ({path, title, startTime, endTime}) => {
+const ThumbnailCard = ({path, title, startTime, endTime, playable}) => {
   const [imageFailed, setImageFailed] = useState(false);
 
   return (
@@ -39,6 +41,17 @@ const ThumbnailCard = ({path, title, startTime, endTime}) => {
           { TimeInterval({startTime, endTime}) }
         </Text>
       </Stack>
+      {
+        playable &&
+        <ActionIcon
+          variant="transparent"
+          aria-label="Play button"
+          title="Play Segment"
+          onClick={() => videoStore.PlaySegment({startTime, endTime})}
+        >
+          <PlayIcon width={18} height={18} color="var(--mantine-color-elv-neutral-5)" style={{verticalAlign: "middle"}} />
+        </ActionIcon>
+      }
     </Group>
   );
 };

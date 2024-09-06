@@ -98,6 +98,8 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
 
   const filteredClips = clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 70);
 
+  if(searchStore.currentSearch.terms && filteredClips.length === 0) { return "No results"; }
+
   return (
     <SimpleGrid cols={4} spacing="lg">
       {

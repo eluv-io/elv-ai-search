@@ -50,7 +50,8 @@ class RootStore {
 
   GetThumbnail = flow(function * ({
     objectId,
-    timeSecs=0
+    timeSecs=0,
+    queryParams={}
   }) {
     try {
       const url = yield this.client.Rep({
@@ -62,7 +63,8 @@ class RootStore {
           t: timeSecs,
           max_offset: 60,
           ignore_trimming: true,
-          resolve: true
+          resolve: true,
+          ...queryParams
         }
       });
 

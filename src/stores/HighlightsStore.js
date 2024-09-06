@@ -68,7 +68,27 @@ class HighlightsStore {
         })
       );
 
-      return results;
+      const keyframes = yield Promise.all(
+        (Array.isArray(response?.keyframe) ? response.keyframe : [response?.keyframe])
+          .map(async (item) => {
+          const imageUrl = await this.rootStore.GetThumbnail({
+            objectId,
+            timeSecs: item.start_time / 1000,
+            queryParams: {
+              width: 100
+            }
+          });
+
+          item["_imageSrc"] = imageUrl;
+
+          return item;
+        })
+      );
+
+      return {
+        results,
+        keyframes
+      };
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to get highlights results", error);

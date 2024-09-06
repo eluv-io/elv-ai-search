@@ -104,7 +104,7 @@ const Search = observer(() => {
   const [resultType, setResultType] = useState("HIGH_SCORE");
 
   return (
-    <PageContainer title="AI Clip Search">
+    <PageContainer title="AI Clip Search" centerTitle>
       <SearchBar
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}

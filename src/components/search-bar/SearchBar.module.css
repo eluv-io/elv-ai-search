@@ -1,0 +1,13 @@
+.textInput {
+  border-radius: 50px;
+  margin: 0;
+}
+
+.radioBody {
+  align-items: center;
+}
+
+.cameraIcon {
+  right: 42px;
+  z-index: 5;
+}

@@ -3,6 +3,7 @@ import ArrowRightIcon from "./ArrowRightIcon.jsx";
 import CameraIcon from "./CameraIcon.jsx";
 import CollapseIcon from "./CollapseIcon.jsx";
 import CreateIcon from "./CreateIcon.jsx";
+import DownArrowIcon from "./DownArrowIcon.jsx";
 import EyeIcon from "./EyeIcon.jsx";
 import GridIcon from "./GridIcon.jsx";
 import LibraryIcon from "./LibraryIcon.jsx";
@@ -29,6 +30,7 @@ export {
   CameraIcon,
   CollapseIcon,
   CreateIcon,
+  DownArrowIcon,
   EyeIcon,
   GridIcon,
   LibraryIcon,

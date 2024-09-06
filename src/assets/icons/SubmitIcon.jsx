@@ -5,7 +5,6 @@ const SubmitIcon = (props) => {
             fill="currentColor"/>
       <path d="M9.41699 20.5H11.5819V2.0222H9.41699V20.5Z" fill="currentColor"/>
     </svg>
-
   );
 };
 
