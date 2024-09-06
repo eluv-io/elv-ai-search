@@ -141,19 +141,21 @@ const VideoDetailsMain = observer(({
         />
         <TextCard
           text={clip.id}
+          copyText={clip.id}
           lineClamp={1}
-          copyable
         />
-        <Flex gap={16}>
+        <SimpleGrid cols={2} gap={16}>
           <TextCard
             text="Streaming"
+            centerText
             copyText={embedUrl}
           />
           <TextCard
             text="Download"
+            centerText
             copyText={downloadUrl}
           />
-        </Flex>
+        </SimpleGrid>
       </SimpleGrid>
 
       <TextCard

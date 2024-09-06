@@ -96,7 +96,7 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
     clips = searchStore.currentSearch?.results?.contents || [];
   }
 
-  const filteredClips = clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 70);
+  const filteredClips = clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
 
   if(searchStore.currentSearch.terms && filteredClips.length === 0) { return "No results"; }
 

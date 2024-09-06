@@ -384,7 +384,7 @@ class SearchStore {
       let editedContents;
 
       editedContents = yield Promise.all(
-        (results.contents || results.results).map(async result => {
+        (results.contents || results.results).map(async (result, i) => {
           try {
             const base = this.rootStore.networkInfo.name === "main" ?
               "https://main.net955305.contentfabric.io" :
@@ -399,6 +399,7 @@ class SearchStore {
             result["_imageSrc"] = url;
             result["_tags"] = await this.ParseTags({tags: result?.sources?.[0]?.fields});
             result["_score"] = this.GetSearchScore({clip: result});
+            result["_index"] = i;
 
             return result;
           } catch(error) {

@@ -52,13 +52,14 @@ const TextContent = ({
   loading,
   copyText,
   lineClamp,
+  centerText=false,
   children
 }) => {
   if(loading) { return <Loader size="xs" />; }
 
   if(text) {
     return (
-      <Group wrap="nowrap" gap={8}>
+      <Group wrap="nowrap" gap={8} justify={centerText ? "center" : "flex-start"}>
         <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text || "" }</Text>
         {
           !!copyText &&
@@ -88,6 +89,7 @@ const TextCard = ({
   title,
   titleIcon,
   text,
+  centerText=false,
   id,
   copyable=false,
   copyText,
@@ -124,6 +126,7 @@ const TextCard = ({
         loading={loading}
         text={text}
         copyText={copyText}
+        centerText={centerText}
         lineClamp={lineClamp}
       >
         { children }
