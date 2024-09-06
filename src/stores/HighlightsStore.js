@@ -60,7 +60,7 @@ class HighlightsStore {
         (response?.highlight || []).map(async (item) => {
           const imageUrl = await this.rootStore.GetThumbnail({
             objectId,
-            timeSecs: startTime / 1000
+            timeSecs: item.start_time / 1000
           });
 
           item["_imageSrc"] = imageUrl;
