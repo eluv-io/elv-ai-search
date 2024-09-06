@@ -23,8 +23,8 @@ class RatingStore {
     const itemBody = {
       item: {
         content: objectId,
-        clip_start: startTime,
-        clip_end: endTime,
+        clip_start: parseInt(startTime),
+        clip_end: parseInt(endTime),
         index: indexId,
         query: query,
       },
@@ -51,8 +51,8 @@ class RatingStore {
     const itemBody = {
       item: {
         content: objectId,
-        clip_start: startTime,
-        clip_end: endTime,
+        clip_start: parseInt(startTime),
+        clip_end: parseInt(endTime),
         index: indexId,
         query: query,
       }
