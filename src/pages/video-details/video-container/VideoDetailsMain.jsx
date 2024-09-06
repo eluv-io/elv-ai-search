@@ -159,11 +159,10 @@ const VideoDetailsMain = observer(({
       </SimpleGrid>
 
       <TextCard
-        title={searchStore.selectedSearchResult?._summary?.summary ? "Summary" : ""}
-        textTitle={searchStore.selectedSearchResult?._summary?.title || ""}
+        title={searchStore.selectedSearchResult?._summary?.title ? searchStore.selectedSearchResult?._summary?.title : "Summary"}
         text={searchStore.selectedSearchResult?._summary?.summary || ""}
         lineClamp={15}
-        topActions={[
+        topActions={searchStore.selectedSearchResult?._summary ? [
           {
             text: "Regenerate Summary",
             onClick: async () => {
@@ -182,7 +181,7 @@ const VideoDetailsMain = observer(({
               }
             }
           }
-        ]}
+        ] : []}
       >
         {
           !searchStore.selectedSearchResult?._summary &&
