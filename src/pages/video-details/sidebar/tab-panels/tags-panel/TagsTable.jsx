@@ -22,7 +22,7 @@ const Rows = ({rows=[]}) => {
           <Text size="xs">{ row.timestamp }</Text>
           </Table.Td>
         <Table.Td>
-          <Text size="xs" c="dimmed" lineClamp={2}>{ row.tags }</Text>
+          <Text size="xs" c="dimmed">{ row.tags }</Text>
         </Table.Td>
         <Table.Td align="center">
           {
