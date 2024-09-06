@@ -49,6 +49,7 @@ const TitleContent = ({
 
 const TextContent = ({
   text,
+  textTitle,
   loading,
   copyText,
   lineClamp,
@@ -59,6 +60,11 @@ const TextContent = ({
 
   if(text) {
     return (
+      <Flex direction="column">
+      {
+        textTitle &&
+        <Text size="sm" c="elv-gray.8" fw={400} mb={8}>{ textTitle }</Text>
+      }
       <Group wrap="nowrap" gap={8} justify={centerText ? "center" : "flex-start"}>
         <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text || "" }</Text>
         {
@@ -79,6 +85,7 @@ const TextContent = ({
           </CopyButton>
         }
       </Group>
+    </Flex>
     );
   } else {
     return children;
@@ -89,6 +96,7 @@ const TextCard = ({
   title,
   titleIcon,
   text,
+  textTitle,
   centerText=false,
   id,
   copyable=false,
@@ -125,6 +133,7 @@ const TextCard = ({
       <TextContent
         loading={loading}
         text={text}
+        textTitle={textTitle}
         copyText={copyText}
         centerText={centerText}
         lineClamp={lineClamp}
