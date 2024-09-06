@@ -80,7 +80,7 @@ const VideoDetailsMain = observer(({
   }, []);
 
   return (
-    <Box pos="relative" pr={24} pl={24}>
+    <Box pos="relative" pr={24} pl={24} style={{flexGrow: 1}}>
       <Box w="100%" mb={22} pos="relative" >
         {
           !openedSidebar &&
@@ -195,13 +195,11 @@ const VideoDetailsMain = observer(({
                       try {
                         setLoadingSummary(true);
 
-                        const results = await summaryStore.GetSummaryResults({
+                        await summaryStore.GetSummaryResults({
                           objectId: clip.id,
                           startTime: clip.start_time,
                           endTime: clip.end_time
                         });
-
-                        setSummary(results.summary);
                       } finally {
                         setLoadingSummary(false);
                       }

@@ -31,7 +31,7 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
         >
         {transitionStyle => (
           <Box
-            // flex="0 0 385px"
+            flex="0 0 385px"
             miw="385px"
             maw="385px"
             h="calc(100dvh - 150px)"
