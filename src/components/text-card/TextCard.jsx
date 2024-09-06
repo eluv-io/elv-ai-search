@@ -28,7 +28,7 @@ const TitleContent = ({
     ) : null;
 
   return (
-    <Group align="center" mb={8} gap={8}>
+    <Group align="center" gap={8}>
       { titleIcon ? titleIcon : null }
       <Title order={4} c="elv-gray.8" lh={1}>
         {
@@ -102,7 +102,7 @@ const TextCard = ({
     <Paper bg="elv-gray.4" p="16 12" {...props}>
       {
         title &&
-        <Flex justify="space-between" mb={8}>
+        <Flex align="center" gap={16} mb={8}>
           <TitleContent
             title={title}
             titleIcon={titleIcon}

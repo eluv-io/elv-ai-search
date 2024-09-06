@@ -46,7 +46,7 @@ const IndexMenu = observer(() => {
           <DownArrowIcon color="var(--mantine-color-elv-gray-5)" />
         </ActionIcon>
       </Menu.Target>
-      <Menu.Dropdown p={24} style={{left: "130px"}}>
+      <Menu.Dropdown p={24} style={{left: "350px"}}>
         {
           loadingIndexes ?
             <Loader /> :

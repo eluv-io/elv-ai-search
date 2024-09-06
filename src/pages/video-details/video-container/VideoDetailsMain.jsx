@@ -162,7 +162,7 @@ const VideoDetailsMain = observer(({
         lineClamp={8}
         topActions={[
           {
-            text: "Regenerate",
+            text: "Regenerate Summary",
             onClick: async () => {
               try {
                 setLoadingSummary(true);

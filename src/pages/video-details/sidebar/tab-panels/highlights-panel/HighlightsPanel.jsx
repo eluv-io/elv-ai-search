@@ -123,7 +123,7 @@ const HighlightsPanel = observer(() => {
                   }}
                   size="xs"
                 >
-                  Regenerate
+                  Regenerate Highlights
                 </Button>
               </Flex>
             </>
