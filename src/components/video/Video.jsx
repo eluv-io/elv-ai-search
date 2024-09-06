@@ -26,7 +26,7 @@ const Video = observer(({
     // Reload player when id/hash changes
     player?.Destroy();
     setPlayer(null);
-  }, [objectId, versionHash]);
+  }, [objectId, versionHash, playoutParameters]);
 
   if(!(versionHash || objectId)) {
     // eslint-disable-next-line no-console

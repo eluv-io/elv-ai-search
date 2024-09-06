@@ -28,7 +28,6 @@ const VideoDetailsMain = observer(({
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
   const [loadingSummary, setLoadingSummary] = useState(false);
-  const [summary, setSummary] = useState(null);
   const [currentThumb, setCurrentThumb] = useState(null);
   const [embedUrl, setEmbedUrl] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);

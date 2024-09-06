@@ -8,25 +8,16 @@ import {searchStore} from "@/stores/index.js";
 const VideoDetailsTopToolbar = observer(() => {
   const navigate = useNavigate();
 
-  const HandlePrevious = () => {
+  const HandleNavClip = (prev) => {
+    // searchStore.SetSelectedSearchResult({result: null});
+
     const currentClip = searchStore.selectedSearchResult;
-    const prevIndex = currentClip._index - 1;
-    const prevClip = searchStore.currentSearch?.results?.contents?.[prevIndex];
+    const newIndex = prev ? (currentClip._index - 1) : (currentClip._index + 1);
+    const newClip = searchStore.currentSearch?.results?.contents?.[newIndex];
 
-    if(prevClip) {
-      searchStore.SetSelectedSearchResult({result: prevClip});
-      navigate(`/search/${prevClip.id}`);
-    }
-  };
-
-  const HandleNext = () => {
-    const currentClip = searchStore.selectedSearchResult;
-    const nextIndex = currentClip._index + 1;
-    const nextClip = searchStore.currentSearch?.results?.contents?.[nextIndex];
-
-    if(nextClip) {
-      searchStore.SetSelectedSearchResult({result: nextClip});
-      navigate(`/search/${nextClip.id}`);
+    if(newClip) {
+      searchStore.SetSelectedSearchResult({result: newClip});
+      navigate(`/search/${newClip.id}`);
     }
   };
 
@@ -40,10 +31,10 @@ const VideoDetailsTopToolbar = observer(() => {
       />
 
       <Group gap={12}>
-        <SecondaryButton LeftIcon={ArrowLeftIcon} onClick={HandlePrevious}>
+        <SecondaryButton LeftIcon={ArrowLeftIcon} onClick={() => HandleNavClip(true)}>
           Previous
         </SecondaryButton>
-        <SecondaryButton LeftIcon={ArrowRightIcon} onClick={HandleNext}>
+        <SecondaryButton LeftIcon={ArrowRightIcon} onClick={() => HandleNavClip(false)}>
           Next
         </SecondaryButton>
       </Group>
