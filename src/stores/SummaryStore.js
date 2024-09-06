@@ -1,7 +1,10 @@
 import {flow, makeAutoObservable} from "mobx";
+import {searchStore} from "@/stores/index.js";
 
 // Store for managing clip generated summaries
 class SummaryStore {
+  loadingSummary = false;
+
   constructor(rootStore) {
     makeAutoObservable(this);
 
@@ -11,6 +14,10 @@ class SummaryStore {
   get client() {
     return this.rootStore.client;
   }
+
+  ToggleLoading = () => {
+    this.loadingSummary = !this.loadingSummary;
+  };
 
   GetSummaryUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
     try {
@@ -43,6 +50,7 @@ class SummaryStore {
   GetSummaryResults = flow(function * ({objectId, startTime, endTime, cache=true}) {
     let url;
     try {
+      this.ToggleLoading();
       url = yield this.GetSummaryUrl({
         objectId,
         startTime,
@@ -52,13 +60,24 @@ class SummaryStore {
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to get summary URL", error);
+      this.ToggleLoading();
     }
 
     try {
-      return this.client.Request({url});
+      const results = yield this.client.Request({url});
+
+      searchStore.UpdateSelectedSearchResult({
+        key: "_summary",
+        value: results
+      });
+
+      this.ToggleLoading();
+
+      return results;
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to get summary results", error);
+      this.ToggleLoading();
     }
   });
 }

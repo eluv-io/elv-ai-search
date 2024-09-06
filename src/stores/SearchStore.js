@@ -32,6 +32,10 @@ class SearchStore {
     this.selectedSearchResult = result;
   };
 
+  UpdateSelectedSearchResult = ({key, value}) => {
+    this.selectedSearchResult[key] = value;
+  };
+
   SetCurrentSearch = ({results, resultsBySong, index, terms}) => {
     this.currentSearch.results = {...results};
     this.currentSearch.resultsBySong = {...resultsBySong};

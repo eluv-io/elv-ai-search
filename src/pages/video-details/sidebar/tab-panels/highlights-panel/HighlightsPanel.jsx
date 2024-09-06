@@ -22,33 +22,25 @@ const TitleGroup = ({title, loading, ...props}) => {
 
 const HighlightsPanel = observer(() => {
   const [loading, setLoading] = useState(false);
-  const [highlights, setHighlights] = useState(null);
-  const [keyFrames, setKeyFrames] = useState(null);
-  const [hashtags, setHashtags] = useState(null);
   const clip = searchStore.selectedSearchResult;
 
   const HandleGenerate = async(cache=true) => {
     try {
       setLoading(true);
 
-      const {results, keyframes} = await highlightsStore.GetHighlightsResults({
+      await highlightsStore.GetHighlightsResults({
         objectId: clip.id,
         startTime: clip.start_time,
         endTime: clip.end_time,
         cache
       });
 
-      setHighlights(results);
-      setKeyFrames(keyframes);
-
-      const summaryResults = await summaryStore.GetSummaryResults({
+      await summaryStore.GetSummaryResults({
         objectId: clip.id,
         startTime: clip.start_time,
         endTime: clip.end_time,
         cache
       });
-
-      setHashtags(summaryResults.hashtags);
     } finally {
       setLoading(false);
     }
@@ -65,7 +57,7 @@ const HighlightsPanel = observer(() => {
   return (
     <Box>
       {
-        !highlights ?
+        !searchStore.selectedSearchResult?._highlights?.results ?
           (
             <Box align="center" mt={8}>
               <Button onClick={HandleGenerate}>Generate Highlights</Button>
@@ -76,7 +68,7 @@ const HighlightsPanel = observer(() => {
               {/* Highlights */}
               <Box mb={16}>
                 {
-                  (highlights || []).map((item, i) => (
+                  (searchStore.selectedSearchResult?._highlights?.results || []).map((item, i) => (
                     <ThumbnailCard
                       key={`thumbnail-${item.path || i}`}
                       path={item._imageSrc}
@@ -92,7 +84,7 @@ const HighlightsPanel = observer(() => {
               {/* Images */}
               <Text size="sm" fw={600} c="elv-gray.8" mb={13}>Images</Text>
               {
-                (keyFrames || []).map(item => (
+                (searchStore.selectedSearchResult?._highlights?.keyframes || []).map(item => (
                   <Image
                     key={`keyframe-${item.start_time}`}
                     src={item._imageSrc}
@@ -103,12 +95,13 @@ const HighlightsPanel = observer(() => {
               }
 
               {/* Hashtags */}
-              <TitleGroup title={loading ? "Suggested Hashtags in Progress" : "Suggested Hashtags"} mt={16} />
+              <TitleGroup title={summaryStore.loadingSummary ? "Suggested Hashtags in Progress" : "Suggested Hashtags"} mt={16} />
               {
-                hashtags ?
+                summaryStore.loadingSummary ? "" :
+                searchStore.selectedSearchResult?._summary?.hashtags ?
                   <Flex wrap="wrap" direction="row" gap={8}>
                     {
-                      (hashtags || []).map(hashtag => (
+                      (searchStore.selectedSearchResult?._summary?.hashtags || []).map(hashtag => (
                         <Pill key={hashtag}>{ hashtag }</Pill>
                       ))
                     }
@@ -117,7 +110,7 @@ const HighlightsPanel = observer(() => {
               <Flex mt={16} justify="center">
                 <Button
                   onClick={async () => {
-                    setHighlights(null);
+                    searchStore.UpdateSelectedSearchResult({key: "_highlights", value: null});
 
                     await HandleGenerate(false);
                   }}

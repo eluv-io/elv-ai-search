@@ -20,7 +20,7 @@ const ImageContent = observer(({imageSrc, title}) => {
   } else {
     return (
       <Flex bg="black" align="center" justify="center" p={16}>
-        <Text c="white" fz="sm">
+        <Text c="white" fz="sm" style={{whiteSpace: "pre-line", wordBreak: "break-word"}}>
           { title }
         </Text>
       </Flex>

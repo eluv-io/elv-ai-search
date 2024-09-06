@@ -159,8 +159,8 @@ const VideoDetailsMain = observer(({
       </SimpleGrid>
 
       <TextCard
-        title={summary ? "Summary" : ""}
-        text={summary || ""}
+        title={searchStore.selectedSearchResult?._summary?.title ? "Summary" : ""}
+        text={searchStore.selectedSearchResult?._summary?.title || ""}
         lineClamp={8}
         topActions={[
           {
@@ -168,16 +168,14 @@ const VideoDetailsMain = observer(({
             onClick: async () => {
               try {
                 setLoadingSummary(true);
-                setSummary(null);
+                searchStore.UpdateSelectedSearchResult({key: "_summary", value: null});
 
-                const results = await summaryStore.GetSummaryResults({
+                await summaryStore.GetSummaryResults({
                   objectId: clip.id,
                   startTime: clip.start_time,
                   endTime: clip.end_time,
                   cache: false
                 });
-
-                setSummary(results.summary);
               } finally {
                 setLoadingSummary(false);
               }
@@ -186,7 +184,7 @@ const VideoDetailsMain = observer(({
         ]}
       >
         {
-          !summary &&
+          !searchStore.selectedSearchResult?._summary &&
           (
             <Flex justify="center" mb={16} mt={12}>
               {

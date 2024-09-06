@@ -1,4 +1,5 @@
 import {flow, makeAutoObservable} from "mobx";
+import {searchStore} from "@/stores/index.js";
 
 // Store for managing clip generated highlights
 class HighlightsStore {
@@ -84,6 +85,11 @@ class HighlightsStore {
           return item;
         })
       );
+
+      searchStore.UpdateSelectedSearchResult({
+        key: "_highlights",
+        value: {results, keyframes}
+      });
 
       return {
         results,
