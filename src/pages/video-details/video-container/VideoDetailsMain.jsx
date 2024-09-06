@@ -158,7 +158,7 @@ const VideoDetailsMain = observer(({
       </SimpleGrid>
 
       <TextCard
-        title={searchStore.selectedSearchResult?._summary?.title ? searchStore.selectedSearchResult?._summary?.title : "Summary"}
+        title={searchStore.selectedSearchResult?._summary ? searchStore.selectedSearchResult?._summary?.title || "Summary" : ""}
         text={searchStore.selectedSearchResult?._summary?.summary || ""}
         lineClamp={15}
         topActions={searchStore.selectedSearchResult?._summary ? [

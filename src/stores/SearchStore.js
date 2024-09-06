@@ -291,33 +291,44 @@ class SearchStore {
     }
   });
 
-  ParseTags = flow(function * ({tags={}}){
+  ParseTags = flow(function * ({sources=[]}){
     const parsedTags = {};
-
-    for(let i = 0; i < Object.keys(tags).length; i++) {
-      const tagKey = Object.keys(tags)[i];
-
-      if(tagKey.includes("_tag")) {
-        if(tagKey.includes("music")) {
-          const tagsArray = yield Promise.all(
-            (tags[tagKey] || []).map(async (tag) => {
-              const coverUrl = await this.GetCoverImage({
-                song: tag.text?.[0],
-                queryParams: {
-                  width: 50,
-                  height: 50
-                }
-              });
-
-              tag["_coverImage"] = coverUrl;
-
-              return tag;
-            })
-          );
-          parsedTags[tagKey] = tagsArray;
-        } else {
-          parsedTags[tagKey] = tags[tagKey];
+    const allTags = sources.reduce((acc, source) => {
+      Object.entries(source.fields).forEach(([key, value]) => {
+        if(key.includes("_tag")) {
+          if(acc.fields[key]) {
+            acc.fields[key] = acc.fields[key].concat(value);
+          } else {
+            acc.fields[key] = value;
+          }
         }
+      });
+
+      return acc;
+    }, {fields: {}});
+
+    for(let i = 0; i < Object.keys(allTags.fields || {}).length; i++) {
+      const tagKey = Object.keys(allTags.fields)[i];
+
+      if(tagKey.includes("music")) {
+        const tagsArray = yield Promise.all(
+          (allTags.fields?.[tagKey] || []).map(async (tag) => {
+            const coverUrl = await this.GetCoverImage({
+              song: tag.text?.[0],
+              queryParams: {
+                width: 50,
+                height: 50
+              }
+            });
+
+            tag["_coverImage"] = coverUrl;
+
+            return tag;
+          })
+        );
+        parsedTags[tagKey] = tagsArray;
+      } else {
+        parsedTags[tagKey] = allTags.fields?.[tagKey];
       }
     }
 
@@ -401,7 +412,9 @@ class SearchStore {
               timeSecs: fullUrl?.searchParams?.get("t")
             });
             result["_imageSrc"] = url;
-            result["_tags"] = await this.ParseTags({tags: result?.sources?.[0]?.fields});
+            result["_tags"] = await this.ParseTags({
+              sources: result?.sources
+            });
             result["_score"] = this.GetSearchScore({clip: result});
             result["_index"] = i;
 
