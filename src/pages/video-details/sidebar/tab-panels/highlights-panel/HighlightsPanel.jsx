@@ -1,9 +1,11 @@
 import {observer} from "mobx-react-lite";
-import {Box, Button, Flex, Group, Image, Loader, Pill, Text} from "@mantine/core";
+import {Box, Button, Flex, Group, Image, Loader, Pill, Text, UnstyledButton} from "@mantine/core";
 import {useState} from "react";
-import {highlightsStore, searchStore, summaryStore} from "@/stores/index.js";
+import {highlightsStore, rootStore, searchStore, summaryStore} from "@/stores/index.js";
 import ThumbnailCard from "@/components/thumbnail-card/ThumbnailCard.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
+
+import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
 
 const TitleGroup = ({title, loading, ...props}) => {
   return (
@@ -19,6 +21,108 @@ const TitleGroup = ({title, loading, ...props}) => {
     </Group>
   );
 };
+
+// Load video, seek to specified frame, make a blob URL out of that frame and open in new tab
+const GetKeyFrame = async (keyFrame) => {
+  const target = document.createElement("div");
+
+  const player = await InitializeEluvioPlayer(
+    target,
+    {
+      clientOptions: {
+        client: rootStore.client,
+        network: EluvioPlayerParameters.networks[rootStore.networkInfo.name === "main" ? "MAIN" : "DEMO"],
+      },
+      sourceOptions: {
+        protocols: [EluvioPlayerParameters.protocols.HLS],
+        playoutParameters: {
+          versionHash: searchStore.selectedSearchResult.hash,
+        }
+      },
+      playerOptions: {
+        muted: EluvioPlayerParameters.muted.ON,
+        autoplay: EluvioPlayerParameters.autoplay.OFF
+      }
+    },
+  );
+
+  // Wait until the player can play, set quality to highest, seek to keyframe, then generate image
+  await new Promise((resolve, reject) => {
+    let canPlay = false;
+    let frameAcquired = false;
+    player.controls.RegisterVideoEventListener("canplay", async () => {
+      if(canPlay) {
+        return;
+      }
+
+      canPlay = true;
+
+      player.controls.RegisterVideoEventListener("seeked", async () => {
+        try {
+          if(frameAcquired) {
+            return;
+          }
+
+          frameAcquired = true;
+
+          const canvas = document.createElement("canvas");
+          canvas.width = player.video.videoWidth;
+          canvas.height = player.video.videoHeight;
+          canvas.getContext("2d").drawImage(player.video, 0, 0, player.video.videoWidth, player.video.videoHeight);
+          canvas.toBlob(blob => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            window.open(downloadUrl, "_blank").focus();
+          });
+
+          resolve();
+        } catch(error) {
+          reject(error);
+        }
+      });
+
+      // Ensure highest quality
+      player.controls.SetQualityLevel(player.controls.GetQualityLevels().options[1].index)
+      player.controls.Seek({time: keyFrame.start_time / 1000});
+    });
+  });
+
+  player.Destroy();
+};
+
+const KeyFrameButton = observer(({keyFrame}) => {
+  const [loading, setLoading] = useState(false);
+
+  return (
+    <UnstyledButton
+      style={{display: "flex", alignItems: "center", justifyContent: "center", position: "relative"}}
+      onClick={async () => {
+        if(loading) { return; }
+
+        setLoading(true);
+        try {
+          await GetKeyFrame(keyFrame);
+        } catch(error) {
+          // eslint-disable-next-line no-console
+          console.error("Failed to generate keyframe image:");
+          // eslint-disable-next-line no-console
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      }}
+    >
+      <Image
+        src={keyFrame["_imageSrc"]}
+        w="auto"
+        fit="contain"
+      />
+      {
+        !loading ? null :
+          <Loader style={{position: "absolute"}} color="blue.2" />
+      }
+    </UnstyledButton>
+  );
+});
 
 const HighlightsPanel = observer(() => {
   const [loading, setLoading] = useState(false);
@@ -84,13 +188,8 @@ const HighlightsPanel = observer(() => {
               {/* Images */}
               <Text size="sm" fw={600} c="elv-gray.8" mb={13}>Images</Text>
               {
-                (searchStore.selectedSearchResult?._highlights?.keyframes || []).map(item => (
-                  <Image
-                    key={`keyframe-${item.start_time}`}
-                    src={item._imageSrc}
-                    w="auto"
-                    fit="contain"
-                  />
+                (searchStore.selectedSearchResult?._highlights?.keyframes || []).map(keyFrame => (
+                  <KeyFrameButton key={`keyframe-${keyFrame.start_time}`} keyFrame={keyFrame} />
                 ))
               }
 

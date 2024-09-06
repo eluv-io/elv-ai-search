@@ -69,6 +69,7 @@ const Video = observer(({
             }
           },
         ).then(newPlayer => {
+          window.player = newPlayer;
           setPlayer(newPlayer);
           if(Callback && typeof Callback === "function") {
             Callback({video: element, player: newPlayer});
