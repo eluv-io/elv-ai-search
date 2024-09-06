@@ -72,18 +72,18 @@ class HighlightsStore {
       const keyframes = yield Promise.all(
         (Array.isArray(response?.keyframe) ? response.keyframe : [response?.keyframe])
           .map(async (item) => {
-          const imageUrl = await this.rootStore.GetThumbnail({
-            objectId,
-            timeSecs: item.start_time / 1000,
-            queryParams: {
-              width: 100
-            }
-          });
+            const imageUrl = await this.rootStore.GetThumbnail({
+              objectId,
+              timeSecs: item.start_time / 1000,
+              queryParams: {
+                width: 100
+              }
+            });
 
-          item["_imageSrc"] = imageUrl;
+            item["_imageSrc"] = imageUrl;
 
-          return item;
-        })
+            return item;
+          })
       );
 
       searchStore.UpdateSelectedSearchResult({
