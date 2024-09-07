@@ -104,7 +104,7 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
         if(view === "ALL") {
           return true;
         } else {
-          return (parseInt(item._score || "") >= 60) || [null, undefined, ""].includes(item._score);
+          return (parseInt(item._score || "") >= 50) || [null, undefined, ""].includes(item._score);
         }
       });
     } else {
