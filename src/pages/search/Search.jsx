@@ -60,15 +60,18 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
         {/*    })*/}
         {/*  }*/}
         {/*</Text>*/}
-        <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
-          <Text size="sm" c="elv-neutral.5">
-            {
-              resultType === "ALL" ?
-                "Show Only High Score Results" :
-                "Show All Results"
-            }
-          </Text>
-        </UnstyledButton>
+        {
+          !searchStore.musicSettingEnabled &&
+          <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
+            <Text size="sm" c="elv-neutral.5">
+              {
+                resultType === "ALL" ?
+                  "Show Only High Score Results" :
+                  "Show All Results"
+              }
+            </Text>
+          </UnstyledButton>
+        }
       </Group>
       <SegmentedControl
         value={view}

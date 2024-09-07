@@ -91,12 +91,12 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
+const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", musicView=false}) => {
   if(!clips) {
     clips = searchStore.currentSearch?.results?.contents || [];
   }
 
-  const filteredClips = clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
+  const filteredClips = musicView ? clips : clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
 
   return (
     <SimpleGrid cols={4} spacing="lg">
