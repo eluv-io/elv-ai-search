@@ -61,7 +61,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
         {/*  }*/}
         {/*</Text>*/}
         {
-          !searchStore.musicSettingEnabled &&
+          (!searchStore.musicSettingEnabled && searchStore.currentSearch?.terms) &&
           <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
             <Text size="sm" c="elv-neutral.5">
               {

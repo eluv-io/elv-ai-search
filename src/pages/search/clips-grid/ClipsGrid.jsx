@@ -54,7 +54,7 @@ const Clip = observer(({
             title={clip.meta?.public?.asset_metadata?.title || id}
           />
         </AspectRatio>
-        <Flex wrap="nowrap" mt={10} align="center">
+        <Flex wrap="nowrap" mt={10} align="center" justify="space-between">
           <Title order={4} lineClamp={1} lh={1}>
             { clip.meta?.public?.asset_metadata?.title || id }
           </Title>
@@ -91,12 +91,24 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", musicView=false}) => {
+const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
   if(!clips) {
     clips = searchStore.currentSearch?.results?.contents || [];
   }
 
-  const filteredClips = musicView ? clips : clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
+  const musicEnabled = searchStore.musicSettingEnabled;
+
+  const FilterClips = ({clips}) => {
+    if(musicEnabled) {
+      return clips.filter(item => {
+        return (parseInt(item._score || "") >= 60) || [null, undefined, ""].includes(item._score);
+      });
+    } else {
+      return clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
+    }
+  };
+
+  const filteredClips = FilterClips({clips});
 
   return (
     <SimpleGrid cols={4} spacing="lg">

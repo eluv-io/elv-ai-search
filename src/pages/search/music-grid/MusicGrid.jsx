@@ -17,7 +17,6 @@ const MusicGrid = observer(() => {
             <ClipsGrid
               clips={clips[song]}
               song={song}
-              musicView
             />
           </Box>
         ))
