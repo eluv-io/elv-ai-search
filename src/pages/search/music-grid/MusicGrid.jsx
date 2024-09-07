@@ -1,9 +1,9 @@
 import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
-import {Box, Title} from "@mantine/core";
+import {Box} from "@mantine/core";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 
-const MusicGrid = observer(() => {
+const MusicGrid = observer(({view}) => {
   const clips = searchStore.currentSearch?.resultsBySong || {};
 
   return (
@@ -11,12 +11,10 @@ const MusicGrid = observer(() => {
       {
         Object.keys(clips).map((song, i) => (
           <Box key={`section-${song}-${i}`} mb={24}>
-            <Title c="elv-gray.8" size="1.5rem" mb={16}>
-              { song }
-            </Title>
             <ClipsGrid
               clips={clips[song]}
               song={song}
+              view={view}
             />
           </Box>
         ))

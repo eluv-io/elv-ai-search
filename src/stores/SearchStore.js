@@ -179,11 +179,14 @@ class SearchStore {
             limit: 160,
             start: 0,
             text: false,
-            sort: "f_music",
             clips: true,
             clips_include_source_tags: true,
             max_total: 30
           };
+
+          if(!searchPhrase) {
+            queryParams["sort"] = "f_music";
+          }
         }
       } else {
         server = "ai";

@@ -101,7 +101,11 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
   const FilterClips = ({clips}) => {
     if(musicEnabled) {
       return clips.filter(item => {
-        return (parseInt(item._score || "") >= 60) || [null, undefined, ""].includes(item._score);
+        if(view === "ALL") {
+          return true;
+        } else {
+          return (parseInt(item._score || "") >= 60) || [null, undefined, ""].includes(item._score);
+        }
       });
     } else {
       return clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
@@ -111,17 +115,25 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
   const filteredClips = FilterClips({clips});
 
   return (
-    <SimpleGrid cols={4} spacing="lg">
+    <>
       {
-        filteredClips.map((clip, i) => (
-          <Clip
-            key={`clip-result-${clip.id}-${clip.start_time}-${i}`}
-            clip={clip}
-            song={song}
-          />
-        ))
+        filteredClips.length > 0 &&
+        <Title c="elv-gray.8" size="1.5rem" mb={16}>
+          { song }
+        </Title>
       }
-    </SimpleGrid>
+      <SimpleGrid cols={4} spacing="lg">
+        {
+          filteredClips.map((clip, i) => (
+            <Clip
+              key={`clip-result-${clip.id}-${clip.start_time}-${i}`}
+              clip={clip}
+              song={song}
+            />
+          ))
+        }
+      </SimpleGrid>
+    </>
   );
 });
 

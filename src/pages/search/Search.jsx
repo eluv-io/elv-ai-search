@@ -2,7 +2,7 @@ import PageContainer from "@/components/page-container/PageContainer.jsx";
 import {observer} from "mobx-react-lite";
 import {Group, SegmentedControl, Select, Text, UnstyledButton, VisuallyHidden} from "@mantine/core";
 import SearchBar from "@/components/search-bar/SearchBar.jsx";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {searchStore} from "@/stores/index.js";
 import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";
@@ -61,7 +61,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
         {/*  }*/}
         {/*</Text>*/}
         {
-          (!searchStore.musicSettingEnabled && searchStore.currentSearch?.terms) &&
+          (searchStore.currentSearch?.terms) &&
           <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
             <Text size="sm" c="elv-neutral.5">
               {
@@ -106,6 +106,10 @@ const Search = observer(() => {
   // Show all results vs top results that have a high score
   const [resultType, setResultType] = useState("HIGH_SCORE");
 
+  useEffect(() => {
+    setResultType("ALL");
+  }, [searchStore.musicSettingEnabled]);
+
   return (
     <PageContainer title="AI Clip Search" centerTitle>
       <SearchBar
@@ -116,7 +120,7 @@ const Search = observer(() => {
       <FilterToolbar loadingSearch={loadingSearch} resultType={resultType} setResultType={setResultType} />
       {
         searchStore.musicSettingEnabled ?
-          <MusicGrid /> :
+          <MusicGrid view={resultType} /> :
           <ClipsGrid view={resultType} />
       }
     </PageContainer>
