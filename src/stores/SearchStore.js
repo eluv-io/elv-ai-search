@@ -181,7 +181,7 @@ class SearchStore {
             text: false,
             clips: true,
             clips_include_source_tags: true,
-            max_total: 30
+            max_total: searchPhrase ? 30 : -1
           };
 
           if(!searchPhrase) {

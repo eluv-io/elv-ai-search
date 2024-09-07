@@ -106,9 +106,9 @@ const Search = observer(() => {
   // Show all results vs top results that have a high score
   const [resultType, setResultType] = useState("HIGH_SCORE");
 
-  // useEffect(() => {
-  //   setResultType("ALL");
-  // }, [searchStore.musicSettingEnabled]);
+  useEffect(() => {
+    setResultType("ALL");
+  }, [searchStore.musicSettingEnabled]);
 
   return (
     <PageContainer title="AI Clip Search" centerTitle>
