@@ -79,7 +79,7 @@ const VideoDetailsMain = observer(({
   }, []);
 
   return (
-    <Box pos="relative" pr={24} pl={24} style={{flexGrow: 1}}>
+    <Box pos="relative" pr={0} pl={0} style={{flexGrow: 1}}>
       <Box w="100%" mb={22} pos="relative" >
         {
           !openedSidebar &&

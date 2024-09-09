@@ -37,8 +37,7 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
             h="calc(100dvh - 150px)"
             pos="relative"
             opacity={opened ? 1 : 0}
-            mr={24}
-            pl={10}
+            pl={0}
             style={{
               ...transitionStyle,
               zIndex: 10
@@ -46,7 +45,7 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
           >
             <Group
               pos="absolute"
-              right={-5}
+              right={7}
               top={3}
             >
               <CloseButton onClick={close} style={{zIndex: 50}} />

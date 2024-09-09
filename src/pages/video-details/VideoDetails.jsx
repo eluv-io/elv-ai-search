@@ -27,19 +27,21 @@ const VideoDetails = observer(() => {
       <VideoDetailsTopToolbar />
 
       {/* Left panel with video */}
-      <Flex direction="row" gap={20}>
-        <VideoDetailsMain
-          clip={clip}
-          open={open}
-          openedSidebar={openedSidebar}
-        />
+      <Flex justify="center">
+        <Flex direction="row" gap={20} w="82%">
+          <VideoDetailsMain
+            clip={clip}
+            open={open}
+            openedSidebar={openedSidebar}
+          />
 
-        {/* Right panel */}
-        <VideoDetailsSidebar
-          opened={openedSidebar}
-          open={open}
-          close={close}
-        />
+          {/* Right panel */}
+          <VideoDetailsSidebar
+            opened={openedSidebar}
+            open={open}
+            close={close}
+          />
+        </Flex>
       </Flex>
     </Box>
   );

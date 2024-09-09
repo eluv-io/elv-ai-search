@@ -4,7 +4,7 @@ import styles from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsPane
 
 const VideoDetailsSlider = observer(({sliderValues=[]}) => {
   return (
-    <Group w="100%" justify="space-between" mb={20}>
+    <Group w="100%" justify="space-between" mb={20} pr="0.75rem">
       <RangeSlider
         defaultValue={[30000, 150000]}
         label={null}

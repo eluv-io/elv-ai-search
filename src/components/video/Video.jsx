@@ -51,7 +51,7 @@ const Video = observer(({
               ...clientOptions
             },
             sourceOptions: {
-              protocols: [EluvioPlayerParameters.protocols.HLS],
+              protocols: [EluvioPlayerParameters.protocols.HLS, EluvioPlayerParameters.protocols.DASH],
               ...sourceOptions,
               playoutParameters: {
                 versionHash,
