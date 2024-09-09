@@ -179,7 +179,6 @@ const HighlightsPanel = observer(() => {
                       title={item.caption}
                       startTime={item.start_time}
                       endTime={item.end_time}
-                      lineClamp={10}
                       playable
                     />
                   ))
