@@ -14,7 +14,7 @@ const Video = observer(({
   playerOptions={},
   Callback
 }) => {
-  const [player, setPlayer] = useState();
+  const [player, setPlayer] = useState(null);
 
   useEffect(() => {
     return () => {
@@ -24,9 +24,11 @@ const Video = observer(({
 
   useEffect(() => {
     // Reload player when id/hash changes
-    player?.Destroy();
-    setPlayer(null);
-  }, [objectId, versionHash, playoutParameters]);
+    if(player) {
+      player.Destroy();
+      setPlayer(null);
+    }
+  }, [objectId, versionHash, playoutParameters.clipEnd, playoutParameters.clipStart]);
 
   if(!(versionHash || objectId)) {
     // eslint-disable-next-line no-console
