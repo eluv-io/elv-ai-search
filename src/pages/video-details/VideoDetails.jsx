@@ -27,8 +27,8 @@ const VideoDetails = observer(() => {
       <VideoDetailsTopToolbar />
 
       {/* Left panel with video */}
-      <Flex justify="center">
-        <Flex direction="row" gap={20} w="82%">
+      <Flex justify="center" pl={110} pr={20} direction="row" gap={20}>
+        {/*<Flex direction="row" gap={20}>*/}
           <VideoDetailsMain
             clip={clip}
             open={open}
@@ -41,7 +41,7 @@ const VideoDetails = observer(() => {
             open={open}
             close={close}
           />
-        </Flex>
+        {/*</Flex>*/}
       </Flex>
     </Box>
   );

@@ -23,8 +23,8 @@ const VideoDetailsTopToolbar = observer(() => {
 
   return (
     <Flex justify="center">
-      <Box w="82%">
-        <Group mb={16} gap={40}>
+      <Box w="100%">
+        <Group mb={16} gap={40} pl={110}>
           <SecondaryButton
             size="lg"
             iconOnly
