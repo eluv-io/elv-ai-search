@@ -87,6 +87,13 @@ const theme = createTheme({
         }
       })
     },
+    Modal: {
+      styles: () => ({
+        root: {
+          "--modal-size-xxl": "calc(55.75rem * var(--mantine-scale))"
+        }
+      })
+    },
     Switch: {
       styles: () => ({
         root: {

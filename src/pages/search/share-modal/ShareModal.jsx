@@ -45,7 +45,7 @@ const ShareModal = observer(({
     <Modal
       opened={opened}
       onClose={onClose}
-      size="xl"
+      size="xxl"
       title="Share"
       padding="26px"
     >

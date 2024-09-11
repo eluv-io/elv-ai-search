@@ -2,7 +2,7 @@ import PageContainer from "@/components/page-container/PageContainer.jsx";
 import {observer} from "mobx-react-lite";
 import {Group, SegmentedControl, Select, Text, UnstyledButton, VisuallyHidden} from "@mantine/core";
 import SearchBar from "@/components/search-bar/SearchBar.jsx";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {searchStore} from "@/stores/index.js";
 import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";

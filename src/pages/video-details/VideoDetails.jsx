@@ -4,7 +4,7 @@ import {useDisclosure} from "@mantine/hooks";
 
 import VideoDetailsMain from "@/pages/video-details/video-container/VideoDetailsMain.jsx";
 import VideoDetailsSidebar from "@/pages/video-details/sidebar/VideoDetailsSidebar.jsx";
-import VideoDetailsTopToolbar from "@/pages/video-details/top-toolbar/VideoDetailsTopToolbar.jsx";
+import VideoDetailsNavToolbar from "@/pages/video-details/nav-toolbar/VideoDetailsNavToolbar.jsx";
 import {searchStore} from "@/stores/index.js";
 
 export const sliderValues = [
@@ -23,12 +23,12 @@ const VideoDetails = observer(() => {
   if(!clip) { return null; }
 
   return (
-    <Box p="24 0">
-      <VideoDetailsTopToolbar />
+    <Box p="8 0 24">
+      <Flex direction="row" pl={"calc(110px - 28px - 2.125rem"} gap={28}>
+        <VideoDetailsNavToolbar />
 
-      {/* Left panel with video */}
-      <Flex justify="center" pl={110} pr={20} direction="row" gap={20}>
-        {/*<Flex direction="row" gap={20}>*/}
+        {/* Left panel with video */}
+        <Flex justify="center" pr={20} direction="row" gap={20} flex={1}>
           <VideoDetailsMain
             clip={clip}
             open={open}
@@ -41,7 +41,7 @@ const VideoDetails = observer(() => {
             open={open}
             close={close}
           />
-        {/*</Flex>*/}
+        </Flex>
       </Flex>
     </Box>
   );

@@ -81,7 +81,7 @@ const GetKeyFrame = async (keyFrame) => {
       });
 
       // Ensure highest quality
-      player.controls.SetQualityLevel(player.controls.GetQualityLevels().options[1].index)
+      player.controls.SetQualityLevel(player.controls.GetQualityLevels().options[1].index);
       player.controls.Seek({time: keyFrame.start_time / 1000});
     });
   });

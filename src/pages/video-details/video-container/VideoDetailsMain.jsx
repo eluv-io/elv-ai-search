@@ -80,7 +80,7 @@ const VideoDetailsMain = observer(({
 
   return (
     <Box pos="relative" pr={0} pl={0} style={{flexGrow: 1}}>
-      <Box w="100%" mb={22} pos="relative" >
+      <Box w="100%" mb={16} pos="relative" >
         {
           !openedSidebar &&
           <Transition mounted={!openedSidebar} transition="fade" enterDelay={350} exitDuration={100}>
@@ -134,7 +134,7 @@ const VideoDetailsMain = observer(({
         currentThumb={currentThumb}
       />
 
-      <SimpleGrid cols={3} mb={24} gap={8}>
+      <SimpleGrid cols={3} mb={8} gap={8}>
         <TextCard
           text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
         />
