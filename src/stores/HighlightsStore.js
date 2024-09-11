@@ -13,12 +13,16 @@ class HighlightsStore {
     return this.rootStore.client;
   }
 
-  GetHighlightsUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
+  GetHighlightsUrl = flow(function * ({objectId, startTime, endTime, cache=true, regenerate=false}) {
     try {
       const queryParams = {
         start_time: startTime,
         end_time: endTime
       };
+
+      if(regenerate && cache) {
+        queryParams["regenerate"] = regenerate;
+      }
 
       const url = yield this.client.Rep({
         libraryId: yield this.client.ContentObjectLibraryId({objectId}),
@@ -42,6 +46,7 @@ class HighlightsStore {
 
   GetHighlightsResults = flow(function * ({objectId, startTime, endTime, cache=true}) {
     let url;
+    let retries = 0;
     try {
       url = yield this.GetHighlightsUrl({
         objectId,
@@ -50,8 +55,20 @@ class HighlightsStore {
         cache
       });
     } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to get highlights URL", error);
+      if(retries === 0) {
+        url = yield this.GetHighlightsUrl({
+          objectId,
+          startTime,
+          endTime,
+          cache,
+          regenerate: true
+        });
+
+        retries = retries++;
+      } else {
+        // eslint-disable-next-line no-console
+        console.error("Failed to get highlights URL", error);
+      }
     }
 
     try {
