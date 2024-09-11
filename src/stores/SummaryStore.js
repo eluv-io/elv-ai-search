@@ -27,6 +27,10 @@ class SummaryStore {
         tracks: "speech_to_text,object_detection,celebrity_detection"
       };
 
+      if(!cache) {
+        queryParams["regenerate"] = true;
+      }
+
       const url = yield this.client.Rep({
         libraryId: yield this.client.ContentObjectLibraryId({objectId}),
         objectId,
@@ -37,7 +41,7 @@ class SummaryStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-03.contentfabric.io/${cache ? "mlcache/" : ""}summary/q/${objectId}`
+      const newUrl = `https://ai-03.contentfabric.io/mlcache/summary/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;

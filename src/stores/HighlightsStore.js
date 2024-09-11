@@ -13,15 +13,15 @@ class HighlightsStore {
     return this.rootStore.client;
   }
 
-  GetHighlightsUrl = flow(function * ({objectId, startTime, endTime, cache=true, regenerate=false}) {
+  GetHighlightsUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
     try {
       const queryParams = {
         start_time: startTime,
         end_time: endTime
       };
 
-      if(regenerate && cache) {
-        queryParams["regenerate"] = regenerate;
+      if(!cache) {
+        queryParams["regenerate"] = true;
       }
 
       const url = yield this.client.Rep({
@@ -34,7 +34,7 @@ class HighlightsStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-03.contentfabric.io/${cache ? "mlcache/" : ""}highlight/q/${objectId}`
+      const newUrl = `https://ai-03.contentfabric.io/mlcache/highlight/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;
@@ -60,8 +60,7 @@ class HighlightsStore {
           objectId,
           startTime,
           endTime,
-          cache,
-          regenerate: true
+          cache: false
         });
 
         retries = retries++;
