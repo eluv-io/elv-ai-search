@@ -181,6 +181,7 @@ class SearchStore {
             text: false,
             clips: true,
             clips_include_source_tags: true,
+            clips_max_duration: 55,
             max_total: searchPhrase ? 30 : -1
           };
 
