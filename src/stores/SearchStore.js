@@ -193,7 +193,6 @@ class SearchStore {
         server = "ai";
         queryParams = {
           terms: searchPhrase,
-          search_fields: searchFields.join(","),
           start: 0,
           limit: 160,
           display_fields: "all",
