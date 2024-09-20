@@ -14,6 +14,7 @@ export const ASSETS_SEARCH_FIELDS = [
   "game_events",
   "game_player",
   "game_team",
+  "f_magnifi_events"
 ];
 
 export const ALL_SEARCH_FIELDS = [
