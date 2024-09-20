@@ -193,6 +193,7 @@ class SearchStore {
         server = "ai";
         queryParams = {
           terms: searchPhrase,
+          search_fields: searchFields.join(","),
           start: 0,
           limit: 160,
           display_fields: "all",
@@ -200,7 +201,7 @@ class SearchStore {
           clips_include_source_tags: true,
           debug: true,
           clips_max_duration: 55,
-          max_total: 20,
+          max_total: 40,
           select: "/public/asset_metadata/title"
         };
       }
