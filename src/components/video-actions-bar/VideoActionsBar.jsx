@@ -12,7 +12,7 @@ const VideoActionsBar = ({title, subtitle, openModal, onClick, currentThumb}) =>
   }
 
   return (
-    <Group mb={8} justify="space-between">
+    <Group mb={8} justify="space-between" wrap="nowrap">
       {
         title ?
           <Title order={2} c="elv-gray.8" lineClamp={1} maw="50%" style={{wordBreak: "break-all"}}>

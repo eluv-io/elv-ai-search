@@ -47,104 +47,104 @@ class SearchStore {
     this.currentSearch.index = index;
   };
 
-  CreateSearchUrl = flow(function * ({
-    objectId,
-    versionHash,
-    searchVersion,
-    fuzzySearchValue,
-    fuzzySearchField,
-    searchAssets,
-  }) {
-    try {
-      const libraryId = yield this.client.ContentObjectLibraryId({objectId, versionHash});
-
-      if(searchVersion === "v1") {
-        // search v1
-        const url = yield this.client.Rep({
-          libraryId,
-          objectId,
-          versionHash,
-          rep: "search",
-          service: "search",
-          makeAccessRequest: true,
-          queryParams: {
-            terms: fuzzySearchValue,
-            select: "...,text,/public/asset_metadata/title",
-            start: 0,
-            limit: 160,
-            clips_include_source_tags: true,
-            clips: true,
-            sort: "f_start_time@asc",
-          },
-        });
-        return { url, status: 0 };
-      } else {
-        // search v2
-        const queryParams = {
-          terms: fuzzySearchValue,
-          select: "/public/asset_metadata/title",
-          start: 0,
-          limit: 160,
-          display_fields: "all",
-          clips: true,
-          scored: true,
-          clips_include_source_tags: true,
-          clips_max_duration: 55,
-        };
-
-        if(fuzzySearchField.length > 0) {
-          queryParams.search_fields = fuzzySearchField.join(",");
-        }
-
-        if(fuzzySearchValue === "") {
-          queryParams.sort = "f_start_time@asc";
-          queryParams.scored = false;
-        } else {
-          // only  set the max-total when we are using fuzzy search
-          queryParams.max_total = 160;
-        }
-
-        // for the two pass approach,
-        // if we do not have the exact match filters, we should enable semantic=true
-        queryParams.semantic = true;
-
-        // for assets index type, disable clip and relevant params
-        if(searchAssets === true) {
-          queryParams.clips = false;
-        }
-
-        const url = yield this.client.Rep({
-          libraryId,
-          objectId,
-          versionHash,
-          rep: "search",
-          service: "search",
-          makeAccessRequest: true,
-          queryParams: queryParams,
-        });
-
-        if(!this.searchV2Node) {
-          const configData = yield this.client.Request({
-            url: yield this.client.ConfigUrl()
-          });
-          this.searchV2Node = configData?.data?.network?.services?.search_v2?.[0];
-        }
-
-        const s1 = url.indexOf("contentfabric");
-        const s2 = this.searchV2Node.indexOf("contentfabric");
-        const newUrl = this.searchV2Node.slice(0, s2).concat(url.slice(s1));
-
-        return {
-          url: newUrl,
-          status: 0
-        };
-      }
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-      return { url: "", status: 1 };
-    }
-  });
+  // CreateSearchUrl = flow(function * ({
+  //   objectId,
+  //   versionHash,
+  //   searchVersion,
+  //   fuzzySearchValue,
+  //   fuzzySearchField,
+  //   searchAssets,
+  // }) {
+  //   try {
+  //     const libraryId = yield this.client.ContentObjectLibraryId({objectId, versionHash});
+  //
+  //     if(searchVersion === "v1") {
+  //       // search v1
+  //       const url = yield this.client.Rep({
+  //         libraryId,
+  //         objectId,
+  //         versionHash,
+  //         rep: "search",
+  //         service: "search",
+  //         makeAccessRequest: true,
+  //         queryParams: {
+  //           terms: fuzzySearchValue,
+  //           select: "...,text,/public/asset_metadata/title",
+  //           start: 0,
+  //           limit: 160,
+  //           clips_include_source_tags: true,
+  //           clips: true,
+  //           sort: "f_start_time@asc",
+  //         },
+  //       });
+  //       return { url, status: 0 };
+  //     } else {
+  //       // search v2
+  //       const queryParams = {
+  //         terms: fuzzySearchValue,
+  //         select: "/public/asset_metadata/title",
+  //         start: 0,
+  //         limit: 160,
+  //         display_fields: "all",
+  //         clips: true,
+  //         scored: true,
+  //         clips_include_source_tags: true,
+  //         clips_max_duration: 55,
+  //       };
+  //
+  //       if(fuzzySearchField.length > 0) {
+  //         queryParams.search_fields = fuzzySearchField.join(",");
+  //       }
+  //
+  //       if(fuzzySearchValue === "") {
+  //         queryParams.sort = "f_start_time@asc";
+  //         queryParams.scored = false;
+  //       } else {
+  //         // only  set the max-total when we are using fuzzy search
+  //         queryParams.max_total = 160;
+  //       }
+  //
+  //       // for the two pass approach,
+  //       // if we do not have the exact match filters, we should enable semantic=true
+  //       queryParams.semantic = true;
+  //
+  //       // for assets index type, disable clip and relevant params
+  //       if(searchAssets === true) {
+  //         queryParams.clips = false;
+  //       }
+  //
+  //       const url = yield this.client.Rep({
+  //         libraryId,
+  //         objectId,
+  //         versionHash,
+  //         rep: "search",
+  //         service: "search",
+  //         makeAccessRequest: true,
+  //         queryParams: queryParams,
+  //       });
+  //
+  //       if(!this.searchV2Node) {
+  //         const configData = yield this.client.Request({
+  //           url: yield this.client.ConfigUrl()
+  //         });
+  //         this.searchV2Node = configData?.data?.network?.services?.search_v2?.[0];
+  //       }
+  //
+  //       const s1 = url.indexOf("contentfabric");
+  //       const s2 = this.searchV2Node.indexOf("contentfabric");
+  //       const newUrl = this.searchV2Node.slice(0, s2).concat(url.slice(s1));
+  //
+  //       return {
+  //         url: newUrl,
+  //         status: 0
+  //       };
+  //     }
+  //   } catch(error) {
+  //     // eslint-disable-next-line no-console
+  //     console.error(error);
+  //     return { url: "", status: 1 };
+  //   }
+  // });
 
   CreateVectorSearchUrl = flow(function * ({
     objectId,
@@ -155,10 +155,10 @@ class SearchStore {
     try {
       const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
-      let queryParams, server;
+      let queryParams;
 
+      // Music mode search
       if(this.musicSettingEnabled) {
-        server = "ai";
         let musicParams = {
           terms: searchPhrase || "",
           search_fields: "f_music",
@@ -190,7 +190,7 @@ class SearchStore {
           }
         }
       } else {
-        server = "ai";
+        // Regular search
         queryParams = {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
@@ -218,8 +218,7 @@ class SearchStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      // TODO: change back to ai-02 to get regular search working
-      const newUrl = `https://${server}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
+      const newUrl = `https://ai.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -270,8 +269,8 @@ class SearchStore {
 
   GetCoverImage = flow(function * ({song, queryParams}) {
     try {
-      const libraryId = "ilib4HSA426GHsGHpVAagjhsDkZhgdCz";
       const objectId = "iq__3MmY78ZgtY4wXxMQMtqUWqnxy2kR";
+      const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
       const Sha1 = async (string) => {
         const digest = await (crypto.subtle || crypto.webcrypto.subtle).digest("SHA-1", new TextEncoder().encode(string));
@@ -281,10 +280,17 @@ class SearchStore {
 
       const hashname = yield Sha1(song);
 
-      const url = yield this.client.Rep({
+      // const url = yield this.client.Rep({
+      //   libraryId,
+      //   objectId,
+      //   rep: `image/default/files/covers/${hashname}.png`,
+      //   queryParams
+      // });
+
+      const url = yield this.client.FileUrl({
         libraryId,
         objectId,
-        rep: `image/default/files/covers/${hashname}.png`,
+        filePath: `covers/${hashname}.png`,
         queryParams
       });
 
@@ -330,9 +336,9 @@ class SearchStore {
             return tag;
           })
         );
-        parsedTags[tagKey] = tagsArray;
+        parsedTags[tagKey] = tagsArray.sort((a, b) => a.start_time < b.start_time);
       } else {
-        parsedTags[tagKey] = allTags.fields?.[tagKey];
+        parsedTags[tagKey] = allTags.fields?.[tagKey].sort((a, b) => a.start_time - b.start_time);
       }
     }
 
@@ -365,33 +371,30 @@ class SearchStore {
 
   GetSearchResults = flow(function * ({
     objectId,
-    versionHash,
     fuzzySearchValue,
-    searchVersion=2,
-    vector=true,
     musicType,
     cacheResults=true
   }) {
-    const {fuzzySearchFields, searchAssets} = yield this.GetSearchParams({objectId});
+    const {fuzzySearchFields} = yield this.GetSearchParams({objectId});
     let urlResponse;
 
-    if(vector) {
       urlResponse = yield this.CreateVectorSearchUrl({
         objectId,
         searchPhrase: fuzzySearchValue,
         searchFields: fuzzySearchFields,
         musicType: musicType
       });
-    } else {
-      urlResponse = yield this.CreateSearchUrl({
-        objectId,
-        versionHash,
-        fuzzySearchValue,
-        searchVersion,
-        fuzzySearchFields,
-        searchAssets,
-      });
-    }
+
+    // Used for v1 search. Unsupported until further notice
+    // The search engine is changed in a way that is no longer compatible with v1 indexes
+    // urlResponse = yield this.CreateSearchUrl({
+    //   objectId,
+    //   versionHash,
+    //   fuzzySearchValue,
+    //   searchVersion, // 1 or 2
+    //   fuzzySearchFields,
+    //   searchAssets,
+    // });
 
     if(urlResponse.status !== 0) {
       // TODO: Error handling
@@ -450,71 +453,6 @@ class SearchStore {
     }
   });
 
-  GetDownloadUrlWithMaxResolution = flow (function * () {
-    const {id: objectId, start_time, end_time, qlib_id: libraryId} = this.selectedSearchResult;
-    const clip_start = start_time / 1000;
-    const clip_end = end_time / 1000;
-
-    const offerings = yield this.client.ContentObjectMetadata({
-      objectId,
-      libraryId,
-      metadataSubtree: "offerings",
-    });
-    const offering = offerings["default"];
-    const representations = offering.playout.streams.video.representations;
-    let playoutKey = null;
-    let _max_height = 0;
-    let _max_width;
-    for (let key in representations) {
-      const playout = offering.playout.streams.video.representations[key];
-      if (playout.height > _max_height) {
-        playoutKey = key;
-        _max_height = playout.height;
-        _max_width = playout.width;
-      }
-    }
-    const title_name = yield this.client.ContentObjectMetadata({
-      objectId,
-      libraryId,
-      metadataSubtree: "public/name",
-    });
-
-    const token = yield this.client.CreateSignedToken({
-      objectId,
-      duration: 24 * 60 * 60 * 1000,
-    });
-    function formatTime(seconds) {
-      const hours = Math.floor(seconds / 3600);
-      const minutes = Math.floor((seconds % 3600) / 60);
-      const secondsLeft = Math.floor(seconds % 60);
-
-      const paddedHours = String(hours).padStart(2, "0");
-      const paddedMinutes = String(minutes).padStart(2, "0");
-      const paddedSeconds = String(secondsLeft).padStart(2, "0");
-
-      return `${paddedHours}-${paddedMinutes}-${paddedSeconds}`;
-    }
-    let _clip_start = formatTime(clip_start);
-    let _clip_end = formatTime(clip_end);
-
-    const filename = `Title - ${title_name} (${_max_width}x${_max_height}) (${_clip_start} - ${_clip_end}).mp4`;
-
-    const url = yield this.client.Rep({
-      objectId,
-      libraryId,
-      rep: `media_download/default/${playoutKey}`,
-      noAuth: true,
-      queryParams: {
-        clip_start,
-        clip_end,
-        authorization: token,
-        "header-x_set_content_disposition": `attachment;filename=${filename}`,
-      },
-    });
-
-    return url;
-  });
-
   GetShareUrls = flow(function * () {
     const embedUrl = yield this.client.EmbedUrl({
       objectId: this.selectedSearchResult.id,
@@ -523,8 +461,9 @@ class SearchStore {
         clipEnd: this.selectedSearchResult.end_time / 1000
       }
     });
+    const {id: objectId, start_time: startTime, end_time: endTime, qlib_id: libraryId} = this.selectedSearchResult;
 
-    const downloadUrl = yield this.GetDownloadUrlWithMaxResolution();
+    const downloadUrl = yield this.rootStore.GetDownloadUrlWithMaxResolution({objectId, startTime, endTime, libraryId});
 
     return {
       embedUrl,

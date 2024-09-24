@@ -74,6 +74,79 @@ class RootStore {
       console.error(`Unable to generate thumbnail url for ${objectId}`, error);
     }
   });
+
+  GetDownloadUrlWithMaxResolution = flow (function * ({
+    libraryId,
+    objectId,
+    startTime,
+    endTime
+  }) {
+    const clipStart = startTime / 1000;
+    const clipEnd = endTime / 1000;
+
+    const offerings = yield this.client.ContentObjectMetadata({
+      objectId,
+      libraryId,
+      metadataSubtree: "offerings",
+    });
+
+    const offering = offerings["default"];
+    const representations = offering.playout.streams.video.representations;
+    let playoutKey = null;
+    let maxHeight = 0;
+    let maxWidth;
+
+    for(let key in representations) {
+      const playout = offering.playout.streams.video.representations[key];
+      if (playout.height > maxHeight) {
+        playoutKey = key;
+        maxHeight = playout.height;
+        maxWidth = playout.width;
+      }
+    }
+    const title_name = yield this.client.ContentObjectMetadata({
+      objectId,
+      libraryId,
+      metadataSubtree: "public/name",
+    });
+
+    const token = yield this.client.CreateSignedToken({
+      objectId,
+      duration: 24 * 60 * 60 * 1000,
+    });
+
+    const FormatTime = (seconds) => {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      const secondsLeft = Math.floor(seconds % 60);
+
+      const paddedHours = String(hours).padStart(2, "0");
+      const paddedMinutes = String(minutes).padStart(2, "0");
+      const paddedSeconds = String(secondsLeft).padStart(2, "0");
+
+      return `${paddedHours}-${paddedMinutes}-${paddedSeconds}`;
+    };
+
+    let formattedClipStart = FormatTime(clipStart);
+    let formattedClipEnd = FormatTime(clipEnd);
+
+    const filename = `Title - ${title_name} (${maxWidth}x${maxHeight}) (${formattedClipStart} - ${formattedClipEnd}).mp4`;
+
+    const url = yield this.client.Rep({
+      objectId,
+      libraryId,
+      rep: `media_download/default/${playoutKey}`,
+      noAuth: true,
+      queryParams: {
+        clipStart,
+        clipEnd,
+        authorization: token,
+        "header-x_set_content_disposition": `attachment;filename=${filename}`,
+      },
+    });
+
+    return url;
+  });
 }
 
 export const rootStore = new RootStore();

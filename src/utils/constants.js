@@ -1,3 +1,4 @@
+// Values will be programatically prepended with f_ during search
 export const ASSETS_SEARCH_FIELDS = [
   "athlete_event",
   "celebrity",

@@ -39,7 +39,7 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
   const rows = tags.map((tagItem, i) => (
     {
       image: tagItem._coverImage,
-      timestamp: FormatTime({time: tagItem.start_time}),
+      timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),
       tags: tagItem.text.length > 0 ? tagItem.text.join(", ") : "",
       id: `tag-${tagItem.id || i}-${tagItem.start_time}-${tagItem.end_time}`,
       action: {

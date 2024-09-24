@@ -88,40 +88,6 @@ class VideoStore {
       dropFrame,
       callback: this.UpdateVideo
     });
-
-    // const start = this.videoHandler.TimeToSMPTE(startTime);
-    // const end = this.videoHandler.TimeToSMPTE(endTime);
-
-    // video.load();
-  });
-
-  GetClipTagData = flow(function * ({objectId, versionHash, startTime, endTime}) {
-    const metadata = yield this.client.ContentObjectMetadata({
-      objectId,
-      versionHash,
-      select: [
-        "video_tags"
-      ],
-      resolveLinks: true,
-      resolveIgnoreErrors: true,
-      resolveIncludeSource: true
-    });
-
-    const tagData = yield this.client.utils.LimitedMap(
-      5,
-      Object.keys(metadata.video_tags?.metadata_tags),
-      async fileLink => await this.client.LinkData({
-        versionHash: versionHash,
-        linkPath: `video_tags/metadata_tags/${fileLink}`,
-        format: "json"
-      })
-    );
-
-    Object.keys(tagData[0].metadata_tags || {}).forEach(tagKey => {
-      tagData[0].metadata_tags[tagKey].tags = (tagData[0].metadata_tags[tagKey].tags || []).filter(tag => tag.start_time >= startTime && tag.end_time <= endTime);
-    });
-
-    return tagData;
   });
 
   PlaySegment = ({startTime, endTime}) => {
@@ -130,8 +96,8 @@ class VideoStore {
     const endFrame = this.videoHandler.TimeToFrame(endTime);
     this.Seek({frame: startFrame});
     this.segmentEnd = endFrame;
-    // TODO: Get Seek working
     this.player.controls.Seek({time: (startTime - clipStartTime) / 1000});
+    this.player.controls.Play();
   };
 
   EndSegment() {
@@ -144,7 +110,9 @@ class VideoStore {
   };
 
   TimeToSMPTE = ({time}) => {
-    return this.videoHandler.TimeToSMPTE({time});
+    if(!this.videoHandler) { return; }
+
+    return this.videoHandler.TimeToSMPTE(time);
   };
 }
 
