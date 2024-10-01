@@ -8,6 +8,7 @@ import "@mantine/dropzone/styles.css";
 import SideNavigation from "@/components/side-navigation/SideNavigation.jsx";
 import AppRoutes from "./Routes.jsx";
 import {rootStore, uiStore} from "@/stores";
+import ErrorBanner from "@/components/error-banner/ErrorBanner.jsx";
 
 const App = observer(() => {
   return (
@@ -19,6 +20,7 @@ const App = observer(() => {
         >
           <SideNavigation />
           <AppShell.Main>
+            <ErrorBanner />
             {
               rootStore.loaded ?
                 <AppRoutes /> : <Loader />

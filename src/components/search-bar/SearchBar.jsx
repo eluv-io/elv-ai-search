@@ -15,12 +15,12 @@ const IndexMenu = observer(() => {
     const LoadData = async() => {
       try {
         setLoadingIndexes(true);
-        const indexes = await tenantStore.GetTenantIndexes();
-        setIndexes(indexes);
+        const tenantIndexes = await tenantStore.GetTenantIndexes();
+        setIndexes(tenantIndexes || []);
         setLoadingIndexes(false);
 
-        if(indexes && !searchStore.currentSearch.index) {
-          const firstIndex = indexes?.[0]?.id;
+        if(tenantIndexes && !searchStore.currentSearch.index) {
+          const firstIndex = tenantIndexes?.[0]?.id;
           searchStore.SetSearchIndex({index: firstIndex});
           setNewIndex(firstIndex);
         } else if(searchStore.currentSearch.index) {

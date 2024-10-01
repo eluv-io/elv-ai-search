@@ -1,4 +1,5 @@
 import {flow, makeAutoObservable} from "mobx";
+import {uiStore} from "@/stores/index.js";
 
 // Store for retrieving/caching tenant-level metadata
 class TenantStore {
@@ -25,6 +26,7 @@ class TenantStore {
     try {
       return this.client.userProfileClient.TenantContractId();
     } catch(error) {
+      uiStore.SetErrorMessage("Unable to determine tenant info");
       // eslint-disable-next-line no-console
       console.error(error);
       throw Error("No tenant contract ID found.");
@@ -45,6 +47,10 @@ class TenantStore {
       objectId: this.tenantId.replace("iten", "iq__"),
       metadataSubtree: "public/search/indexes"
     });
+
+    if(!indexes) {
+      uiStore.SetErrorMessage("Unable to determine search indexes for tenant");
+    }
 
     if(!this.searchIndexes) {
       // Cache search indexes for later reference

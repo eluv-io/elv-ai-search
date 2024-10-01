@@ -4,6 +4,7 @@ import {makeAutoObservable} from "mobx";
 class UiStore {
   rootStore;
   theme = "light";
+  errorMessage;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -14,6 +15,10 @@ class UiStore {
   SetTheme = ({theme}) => {
     this.theme = theme;
   };
+
+  SetErrorMessage(message) {
+    this.errorMessage = message;
+  }
 }
 
 export default UiStore;
