@@ -36,6 +36,10 @@ const VideoDetailsMain = observer(({
   const indexId = searchStore.currentSearch.index;
 
   const submitStars = async (upOrDown) => {
+
+    // set UI immediately; failure to upload stars is not catastrophic and has no feedback
+    setCurrentStars(upOrDown);
+
     await ratingStore.SetRatingResults({
       objectId: clip.id,
       startTime: clip.start_time,
@@ -44,7 +48,6 @@ const VideoDetailsMain = observer(({
       query: searchTerm,
       rating: upOrDown,
     });
-    setCurrentStars(upOrDown);
   };
 
   useEffect(() => {
