@@ -1,4 +1,4 @@
-import {ActionIcon, Button, Text} from "@mantine/core";
+import {ActionIcon, Button, HoverCard, Text} from "@mantine/core";
 import {forwardRef} from "react";
 
 const SecondaryButton = forwardRef(({
@@ -8,6 +8,7 @@ const SecondaryButton = forwardRef(({
   LeftIcon,
   iconOnly=false,
   iconColor,
+  hoverText,
   ...props
 }, ref) => {
   let iColor="var(--mantine-color-elv-neutral-5)";
@@ -15,10 +16,12 @@ const SecondaryButton = forwardRef(({
     iColor = iconColor;
   }
 
+  let target
+
   if(iconOnly) {
     if(!Icon && !children) { throw Error("Icon must be provided when using iconOnly"); }
 
-    return (
+    target = (
       <ActionIcon
         onClick={onClick}
         radius={30}
@@ -34,7 +37,7 @@ const SecondaryButton = forwardRef(({
       </ActionIcon>
     );
   } else {
-    return (
+    target = (
       <Button
         leftSection={LeftIcon ? <LeftIcon color={iColor} /> : null}
         radius={30}
@@ -47,6 +50,21 @@ const SecondaryButton = forwardRef(({
         </Text>
       </Button>
     );
+  }
+
+  if (hoverText) {
+    return (
+      <HoverCard>
+        <HoverCard.Target>
+          { target }
+        </HoverCard.Target>
+        <HoverCard.Dropdown>
+          <Text size="sm">{ hoverText }</Text>
+        </HoverCard.Dropdown>
+      </HoverCard>
+    )
+  } else {
+    return target
   }
 });
 

@@ -1,14 +1,19 @@
 import {Group, Text, Title} from "@mantine/core";
-import {ShareIcon, ThumbDownIcon, ThumbUpIcon, VideoEditorIcon} from "@/assets/icons/index.js";
+import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/assets/icons/index.js";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
+import styles from "@/components/video-actions-bar/VideoActionsBar.module.css";
 
-const VideoActionsBar = ({title, subtitle, openModal, onClick, currentThumb}) => {
-  let upColor = "var(--mantine-color-elv-neutral-5)";
-  let downColor = "var(--mantine-color-elv-neutral-5)";
-  if (currentThumb === "THUMBS_UP") {
-    upColor = "var(--mantine-color-elv-violet-3)";
-  } else if (currentThumb === "THUMBS_DOWN") {
-    downColor = "var(--mantine-color-elv-violet-3)";
+const VideoActionsBar = ({title, subtitle, openModal, onClick, currentStars}) => {
+  let star1icon = HollowStarIcon
+  let star2icon = HollowStarIcon
+  let star3icon = HollowStarIcon
+  console.log("CURRENT THUMB " + currentStars)
+  if (currentStars === "RELEVANCY_1_STAR") {
+    star1icon = FilledStarIcon
+  } else if (currentStars === "RELEVANCY_2_STAR") {
+    star1icon = star2icon = FilledStarIcon;
+  } else if (currentStars === "RELEVANCY_3_STAR") {
+    star1icon = star2icon = star3icon = FilledStarIcon;
   }
 
   return (
@@ -24,8 +29,11 @@ const VideoActionsBar = ({title, subtitle, openModal, onClick, currentThumb}) =>
           <Text fz="xs">{ subtitle }</Text> : null
       }
       <Group style={{flexShrink: 0}}>
-        <SecondaryButton iconColor={upColor} iconOnly Icon={ThumbUpIcon} onClick={() => onClick("THUMBS_UP")} />
-        <SecondaryButton iconColor={downColor} iconOnly Icon={ThumbDownIcon} onClick={() => onClick("THUMBS_DOWN")} />
+        <Group gap="1" classNames={{root: styles.starBackground}}>
+          <SecondaryButton size="lg" iconOnly Icon={star1icon} hoverText="Irrelevant" onClick={() => onClick("RELEVANCY_1_STAR")}/>
+          <SecondaryButton size="lg" iconOnly Icon={star2icon} hoverText="Somewhat Relevant" onClick={() => onClick("RELEVANCY_2_STAR")}/>        
+          <SecondaryButton size="lg" iconOnly Icon={star3icon} hoverText="Highly Relevant" onClick={() => onClick("RELEVANCY_3_STAR")}/>
+        </Group>
         <SecondaryButton LeftIcon={VideoEditorIcon}>
           Open in Video Editor
         </SecondaryButton>
