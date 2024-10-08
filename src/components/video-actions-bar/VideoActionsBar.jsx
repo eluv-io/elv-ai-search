@@ -7,7 +7,7 @@ const VideoActionsBar = ({title, subtitle, openModal, onClick, currentStars}) =>
   let star1icon = HollowStarIcon
   let star2icon = HollowStarIcon
   let star3icon = HollowStarIcon
-  console.log("CURRENT THUMB " + currentStars)
+
   if (currentStars === "RELEVANCY_1_STAR") {
     star1icon = FilledStarIcon
   } else if (currentStars === "RELEVANCY_2_STAR") {

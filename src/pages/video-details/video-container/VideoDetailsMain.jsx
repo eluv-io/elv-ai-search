@@ -35,19 +35,26 @@ const VideoDetailsMain = observer(({
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
 
-  const submitStars = async (upOrDown) => {
+  const submitStars = async (starRating) => {
 
-    // set UI immediately; failure to upload stars is not catastrophic and has no feedback
-    setCurrentStars(upOrDown);
+    // set UI immediately
+    setCurrentStars(starRating);
 
-    await ratingStore.SetRatingResults({
-      objectId: clip.id,
-      startTime: clip.start_time,
-      endTime: clip.end_time,
-      indexId: indexId,
-      query: searchTerm,
-      rating: upOrDown,
-    });
+    try {
+      await ratingStore.SetRatingResults({
+        objectId: clip.id,
+        startTime: clip.start_time,
+        endTime: clip.end_time,
+        indexId: indexId,
+        query: searchTerm,
+        rating: starRating,
+      });
+    }
+    catch (error) {
+        // eslint-disable-next-line no-console
+        console.log("Did not update rating store, reverting to previous state")
+        setCurrentStars(currentStars)
+    }
   };
 
   useEffect(() => {
@@ -81,7 +88,6 @@ const VideoDetailsMain = observer(({
     LoadData();
   }, []);
 
-  console.log("CURRENT THUMB COMP: " + currentStars)
   return (
     <Box pos="relative" pr={0} pl={0} style={{flexGrow: 1}}>
       <Box w="100%" mb={16} pos="relative" >
