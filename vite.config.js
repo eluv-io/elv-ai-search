@@ -19,7 +19,7 @@ export default defineConfig({
     manifest: true
   },
   server: {
-    port: 8120,
+    port: 3001,
     host: true
   },
   resolve: {

@@ -28,43 +28,53 @@ const VideoDetailsMain = observer(({
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
   const [loadingSummary, setLoadingSummary] = useState(false);
-  const [currentThumb, setCurrentThumb] = useState(null);
+  const [currentStars, setCurrentStars] = useState(null);
   const [embedUrl, setEmbedUrl] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);
 
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
 
-  const submitThumb = async (upOrDown) => {
-    await ratingStore.SetRatingResults({
-      objectId: clip.id,
-      startTime: clip.start_time,
-      endTime: clip.end_time,
-      indexId: indexId,
-      query: searchTerm,
-      rating: upOrDown,
-    });
-    setCurrentThumb(upOrDown);
+  const submitStars = async (starRating) => {
+
+    // set UI immediately
+    setCurrentStars(starRating);
+
+    try {
+      await ratingStore.SetRatingResults({
+        objectId: clip.id,
+        startTime: clip.start_time,
+        endTime: clip.end_time,
+        indexId: indexId,
+        query: searchTerm,
+        rating: starRating,
+      });
+    }
+    catch (error) {
+        // eslint-disable-next-line no-console
+        console.log("Did not update rating store, reverting to previous state")
+        setCurrentStars(currentStars)
+    }
   };
 
   useEffect(() => {
-    const fetchThumb = async () => {
+    const fetchStars = async () => {
       try {
-        const thumb = await ratingStore.GetRatingResults({
+        const stars = await ratingStore.GetRatingResults({
           objectId: clip.id,
           startTime: clip.start_time,
           endTime: clip.end_time,
           indexId: indexId,
           query: searchTerm,
         });
-        setCurrentThumb(thumb?.feedback_item?.rating);
+        setCurrentStars(stars?.feedback_item?.rating);
       } catch (error) {
         // eslint-disable-next-line no-console
-        console.error("Error fetching thumb:", error);
+        console.error("Error fetching stars:", error);
       }
     };
 
-    fetchThumb();
+    fetchStars();
   }, [clip.id, clip.start_time, clip.end_time]);
 
   useEffect(() => {
@@ -130,8 +140,8 @@ const VideoDetailsMain = observer(({
       <VideoActionsBar
         title={clip.meta?.public?.asset_metadata?.title || clip.id}
         openModal={openModal}
-        onClick={submitThumb}
-        currentThumb={currentThumb}
+        onClick={submitStars}
+        currentStars={currentStars}
       />
 
       <SimpleGrid cols={3} mb={8} gap={8}>
