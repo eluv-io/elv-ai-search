@@ -197,10 +197,7 @@ class SearchStore {
           start: 0,
           limit: 160,
           display_fields: "all",
-          clips: true,
-          clips_include_source_tags: true,
-          debug: true,
-          clips_max_duration: 55,
+          clips: false,
           max_total: 40,
           select: "/public/asset_metadata/title"
         };
@@ -218,7 +215,7 @@ class SearchStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
+      const newUrl = `http://ml-001.eluvio/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -411,8 +408,10 @@ class SearchStore {
             const base = this.rootStore.networkInfo.name === "main" ?
               "https://main.net955305.contentfabric.io" :
               "https://demov3.net955210.contentfabric.io";
+            result.start_time = result.fields.f_start_time[0];
+            result.end_time = result.fields.f_end_time[0];
+            result.image_url = `/q/${result.hash}/rep/frame/default/video?t=${result.start_time/1000}&ignore_trimming=true`;
             const fullUrl = new URL(result.image_url, base);
-
             let url = await this.rootStore.GetThumbnail({
               objectId: result.id,
               imagePath: result.image_url,
@@ -420,8 +419,9 @@ class SearchStore {
             });
             result["_imageSrc"] = url;
             result["_tags"] = await this.ParseTags({
-              sources: result?.sources
+              sources: [{ ...result }] // result?.sources
             });
+            result["sources"] = [{ ...result }];
             result["_score"] = this.GetSearchScore({clip: result});
             result["_index"] = i;
 
