@@ -15,7 +15,13 @@ export const ASSETS_SEARCH_FIELDS = [
   "game_events",
   "game_player",
   "game_team",
-  "magnifi_events"
+  "magnifi_events",
+  // for https://eluvio.slack.com/archives/CB9TPSPJR/p1728954817777439
+  "team",
+  "player",
+  "player_action",
+  "player_jersey",
+  "player_position",
 ];
 
 export const ALL_SEARCH_FIELDS = [
