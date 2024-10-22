@@ -3,7 +3,14 @@ import react from "@vitejs/plugin-react";
 import {viteStaticCopy} from "vite-plugin-static-copy";
 import {fileURLToPath, URL} from "url";
 
+let base = {}
+
+if (process.env.ELV_AI_SEARCH_BASE) {
+  base["base"] = process.env.ELV_AI_SEARCH_BASE
+}
+
 export default defineConfig({
+  ...base,
   plugins: [
     react(),
     viteStaticCopy({
@@ -19,7 +26,7 @@ export default defineConfig({
     manifest: true
   },
   server: {
-    port: 3001,
+    port: process.env.ELV_AI_SEARCH_PORT || 3001,
     host: true
   },
   resolve: {
