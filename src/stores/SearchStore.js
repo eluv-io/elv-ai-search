@@ -1,4 +1,5 @@
 import {makeAutoObservable, flow} from "mobx";
+import {ToTitleCase} from "@/utils/helpers.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -43,21 +44,24 @@ class SearchStore {
     this.currentSearch.terms = terms;
   };
 
-  SetSearchIndex = flow(function * ({index}) {
+  SetSearchIndex = flow(function * ({index, fuzzySearchFields}) {
     const indexerFields = yield this.client.ContentObjectMetadata({
       libraryId: yield this.client.ContentObjectLibraryId({objectId: index}),
       objectId: index,
       metadataSubtree: "indexer/config/indexer/arguments/fields"
     });
 
-    const fuzzySearchFields = {};
 
-    Object.keys(indexerFields || {})
-      .filter(field => indexerFields[field].type === "text" && !field.includes("music") && !field.includes("action") && !field.includes("segment") && !field.includes("title_type") && !field.includes("asset_type"))
-      .forEach(field => fuzzySearchFields[`f_${field}`] = {
-        label: field,
-        value: true
-      });
+    if(!fuzzySearchFields) {
+      Object.keys(indexerFields || {})
+        .filter(field => indexerFields[field].type === "text" && !field.includes("music") && !field.includes("action") && !field.includes("segment") && !field.includes("title_type") && !field.includes("asset_type"))
+        .forEach(field => {
+          fuzzySearchFields[`f_${field}`] = {
+            label: ToTitleCase({text: field.split("_").join(" ")}),
+            value: true
+          };
+        });
+    }
 
     this.currentSearch.index = index;
     this.currentSearch.searchFields = fuzzySearchFields;

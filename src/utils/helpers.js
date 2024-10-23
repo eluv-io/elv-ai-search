@@ -77,6 +77,13 @@ export const Pluralize = ({baseWord, suffix="s", count}) => {
   return `${count} ${count === 1 ? baseWord : `${baseWord}${suffix}`}`;
 };
 
+export const ToTitleCase = ({text}) => {
+  return text.replace(
+    /\w\S*/g,
+    string => string.charAt(0).toUpperCase() + string.substring(1).toLowerCase()
+  );
+};
+
 export const HumanReadableTag = ({text}) => {
   const tags = {
     "f_characters_tag": "Characters",

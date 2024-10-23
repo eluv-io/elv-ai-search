@@ -1,5 +1,5 @@
 import {
-  ActionIcon,
+  ActionIcon, Box,
   Button,
   Checkbox,
   Flex,
@@ -12,15 +12,16 @@ import {
 } from "@mantine/core";
 import {useEffect, useState} from "react";
 import {searchStore, tenantStore} from "@/stores/index.js";
-import {CameraIcon, DownArrowIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
+import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
 
-const IndexMenu = observer(() => {
+const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
   const [loadingIndexes, setLoadingIndexes] = useState(false);
   const [indexes, setIndexes] = useState([]);
   const [newIndex, setNewIndex] = useState("");
   const [indexMenuOpen, setIndexMenuOpen] = useState(false);
+  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
   useEffect(() => {
     const LoadData = async() => {
@@ -45,6 +46,9 @@ const IndexMenu = observer(() => {
     LoadData();
   }, []);
 
+  const allSearchFieldsSelected = Object.values(searchFields || {}).every(field => field.value);
+  const noSearchFieldsSelected = Object.values(searchFields || {}).every(field => !field.value);
+
   return (
     <Menu
       opened={indexMenuOpen}
@@ -57,7 +61,7 @@ const IndexMenu = observer(() => {
           <DownArrowIcon color="var(--mantine-color-elv-gray-5)" />
         </ActionIcon>
       </Menu.Target>
-      <Menu.Dropdown p={24} style={{left: "350px"}}>
+      <Menu.Dropdown p={24} style={{left: "300px"}}>
         {
           loadingIndexes ?
             <Loader /> :
@@ -84,9 +88,57 @@ const IndexMenu = observer(() => {
                     ))
                   }
                 </Radio.Group>
+
+                <Button
+                  onClick={() => setShowAdvancedOptions(prevState => !prevState)}
+                  variant={showAdvancedOptions ? "light" : "white"}
+                  color={showAdvancedOptions ? "elv-gray.8" : "elv-gray.6"}
+                  leftSection={<GearIcon />}
+                  mb={12}
+                >
+                  Advanced Settings
+                </Button>
+                {
+                  showAdvancedOptions &&
+                  <Box pl={12}>
+                    <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Searchable Fields</Text>
+                    <Flex mb={12} direction="column">
+                      {
+                        searchStore.currentSearch.searchFields && searchFields ?
+                          <>
+                            <Checkbox
+                              size="xs"
+                              label="Select All"
+                              checked={allSearchFieldsSelected} indeterminate={!allSearchFieldsSelected && !noSearchFieldsSelected}
+                              onChange={() => HandleUpdateSearchField({field: "ALL"})}
+                              mb={8}
+                            />
+                            {
+                              Object.keys(searchStore.currentSearch.searchFields || {}).map(fieldName => (
+                                <Checkbox
+                                  size="xs"
+                                  key={fieldName}
+                                  mb={8}
+                                  ml={16}
+                                  label={searchFields[fieldName].label}
+                                  checked={searchFields[fieldName].value}
+                                  onChange={event => {
+                                    HandleUpdateSearchField({
+                                      field: fieldName,
+                                      value: event.target.checked
+                                    });
+                                  }}
+                                />
+                              ))
+                            }
+                          </> : null
+                      }
+                    </Flex>
+                  </Box>
+                }
                 <Flex justify="flex-end">
                   <Button onClick={() => {
-                    searchStore.SetSearchIndex({index: newIndex});
+                    searchStore.SetSearchIndex({index: newIndex, fuzzySearchFields: searchFields});
                     setIndexMenuOpen(false);
                   }}>
                     Apply
@@ -148,12 +200,25 @@ const SearchBar = observer(({
   };
 
   const HandleUpdateSearchField = ({field, value}) => {
-    const fields = searchFields;
+    let fields = searchFields;
+    if(field === "ALL") {
+      let newValue = true;
+      if(Object.values(fields).every(item => item.value === true)) {
+        newValue = false;
+      }
 
-    fields[field] = {
-      ...fields[field],
-      value
-    };
+      Object.keys(fields).forEach(item => {
+        fields[item] = {
+          ...fields[item],
+          value: newValue
+        };
+      });
+    } else {
+      fields[field] = {
+        ...fields[field],
+        value
+      };
+    }
 
     setSearchFields(fields);
   };
@@ -178,7 +243,11 @@ const SearchBar = observer(({
               }}
               leftSectionPointerEvents="all"
               leftSection={
-                <IndexMenu />
+                <IndexMenu
+                  searchFields={searchFields}
+                  setSearchFields={setSearchFields}
+                  HandleUpdateSearchField={HandleUpdateSearchField}
+                />
               }
               rightSection={
                 loadingSearch ?
@@ -214,35 +283,6 @@ const SearchBar = observer(({
           />
         </Flex>
       </Flex>
-      {
-        !searchStore.musicSettingEnabled &&
-        <Flex direction="row" align="center" justify="center" w="100%" mb={24}>
-          <Flex w="70%" justify="center">
-            <Flex direction="row" w="100%" wrap="wrap" justify="center" gap={8}>
-              {
-                searchStore.currentSearch.searchFields && searchFields ?
-                  (
-                    Object.keys(searchFields || {}).map(fieldName => (
-                      <Checkbox
-                        size="xs"
-                        key={fieldName}
-                        mr={8}
-                        label={searchFields[fieldName].label}
-                        checked={searchFields[fieldName].value}
-                        onChange={event => {
-                          HandleUpdateSearchField({
-                            field: fieldName,
-                            value: event.target.checked
-                          });
-                        }}
-                      />
-                    ))
-                  ) : null
-              }
-            </Flex>
-          </Flex>
-        </Flex>
-      }
     </Flex>
   );
 });
