@@ -84,7 +84,7 @@ export const HumanReadableTag = ({text}) => {
     "f_music_tag": "Music",
     "f_object_tag": "Object",
     "f_speech_to_text_tag": "Speech To Text",
-    "f_team_tag": "Team in Posession",
+    "f_team_tag": "Team in Possession",
   };
 
   if(tags[text]) {
