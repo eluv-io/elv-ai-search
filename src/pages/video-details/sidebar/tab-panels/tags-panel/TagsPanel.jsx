@@ -14,7 +14,6 @@ const AccordionItems = (({tagData={}}) => {
       return (
         <TagsTable
           tags={tags}
-          headers={["Timestamps", "Tags"]}
         />
       );
     } else {

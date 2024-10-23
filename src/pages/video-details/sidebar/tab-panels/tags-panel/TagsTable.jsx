@@ -58,9 +58,6 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
       }
     }
   ));
-  console.log("rows", rows)
-  const hasImage = rows.some(item => item.image);
-  console.log("hasImage", hasImage)
 
   const [pagination, setPagination] = useState({
     total: rows.length,
@@ -69,7 +66,9 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
   });
 
   const [paginatedRows, setPaginatedRows] = useState(rows.slice(0, (resultsPerPage + 1) * pagination.currentPage));
-  const headers = hasImage ? ["", "Timestamps", "Tags"] : ["Timestamps", "Tags"];
+
+  const hasImage = rows.some(item => item.image);
+  const headers = hasImage ? ["", "Timestamp", "Tag"] : ["Timestamp", "Tag"];
 
   const HandleNextPage = () => {
     const newCurrentPage = pagination.currentPage + 1;
