@@ -83,13 +83,14 @@ export const HumanReadableTag = ({text}) => {
     "f_llava_tag": "LLaVA",
     "f_music_tag": "Music",
     "f_object_tag": "Object",
-    "f_speech_to_text_tag": "Speech To Text"
+    "f_speech_to_text_tag": "Speech To Text",
+    "f_team_tag": "Team in Posession",
   };
 
   if(tags[text]) {
     return tags[text];
   } else {
-    const main = text.split("_")[1];
-    return main.charAt(0).toUpperCase() + main.slice(1);
+    const main = text.replace(/_tag$/, "").split("_").slice(1);
+    return main.map( s => s.charAt(0).toUpperCase() + s.slice(1) ).join("  ")
   }
 };
