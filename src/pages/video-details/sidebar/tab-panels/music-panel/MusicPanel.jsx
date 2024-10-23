@@ -57,6 +57,7 @@ const MusicPanel = observer(() => {
         tags &&
         <TagsTable
           tags={tags}
+          headers={["", "Timestamps", "Tags"]}
         />
       }
       <Text fz="md" c="elv-gray.8" fw={600}>Explore</Text>

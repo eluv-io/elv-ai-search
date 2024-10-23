@@ -8,22 +8,25 @@ const Rows = ({rows=[]}) => {
   return (
     rows.map(row => (
       <Table.Tr key={row.id}>
-        <Table.Td>
-        <AspectRatio ratio={1}>
-          <Image
-            src={row.image}
-            fit="contain"
-            w="auto"
-          />
-        </AspectRatio>
-        </Table.Td>
-        <Table.Td>
+        {
+          row.image &&
+          <Table.Td>
+            <AspectRatio ratio={1}>
+              <Image
+                src={row.image}
+                fit="contain"
+                w="auto"
+              />
+            </AspectRatio>
+          </Table.Td>
+        }
+        <Table.Td w="100px">
           <Text size="xs">{ row.timestamp }</Text>
           </Table.Td>
         <Table.Td>
           <Text size="xs" c="dimmed">{ row.tags }</Text>
         </Table.Td>
-        <Table.Td align="center">
+        <Table.Td align="center" w="50px">
           {
             row.action ?
             row.action.icon : null
@@ -55,6 +58,9 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
       }
     }
   ));
+  console.log("rows", rows)
+  const hasImage = rows.some(item => item.image);
+  console.log("hasImage", hasImage)
 
   const [pagination, setPagination] = useState({
     total: rows.length,
@@ -63,7 +69,7 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
   });
 
   const [paginatedRows, setPaginatedRows] = useState(rows.slice(0, (resultsPerPage + 1) * pagination.currentPage));
-  const headers = ["", "Timestamps", "Tags"];
+  const headers = hasImage ? ["", "Timestamps", "Tags"] : ["Timestamps", "Tags"];
 
   const HandleNextPage = () => {
     const newCurrentPage = pagination.currentPage + 1;

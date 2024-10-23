@@ -53,6 +53,8 @@ const ThumbnailCard = ({path, title, startTime, endTime, playable, lineClamp=2})
           variant="transparent"
           aria-label="Play button"
           title="Play Segment"
+          ml="auto"
+          maw="50px"
           onClick={() => videoStore.PlaySegment({startTime, endTime})}
         >
           <PlayIcon width={18} height={18} color="var(--mantine-color-elv-neutral-5)" style={{verticalAlign: "middle"}} />
