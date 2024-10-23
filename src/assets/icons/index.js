@@ -5,9 +5,9 @@ import CollapseIcon from "./CollapseIcon.jsx";
 import CreateIcon from "./CreateIcon.jsx";
 import DownArrowIcon from "./DownArrowIcon.jsx";
 import EyeIcon from "./EyeIcon.jsx";
-import FilledStarIcon from "./FilledStarIcon.jsx"
+import FilledStarIcon from "./FilledStarIcon.jsx";
 import GridIcon from "./GridIcon.jsx";
-import HollowStarIcon from "./HollowStarIcon.jsx"
+import HollowStarIcon from "./HollowStarIcon.jsx";
 import LibraryIcon from "./LibraryIcon.jsx";
 import LinkIcon from "./LinkIcon.jsx";
 import ListIcon from "./ListIcon.jsx";

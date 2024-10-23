@@ -61,8 +61,6 @@ class SearchStore {
 
     this.currentSearch.index = index;
     this.currentSearch.searchFields = fuzzySearchFields;
-
-    console.log("fuzzySearchFIelds", fuzzySearchFields)
   });
 
   // CreateSearchUrl = flow(function * ({

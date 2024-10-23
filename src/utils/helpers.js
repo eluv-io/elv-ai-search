@@ -91,6 +91,6 @@ export const HumanReadableTag = ({text}) => {
     return tags[text];
   } else {
     const main = text.replace(/_tag$/, "").split("_").slice(1);
-    return main.map( s => s.charAt(0).toUpperCase() + s.slice(1) ).join("  ")
+    return main.map( s => s.charAt(0).toUpperCase() + s.slice(1) ).join("  ");
   }
 };

@@ -1,10 +1,8 @@
 import {
   ActionIcon,
-  Box,
   Button,
   Checkbox,
   Flex,
-  Group,
   Loader,
   Menu,
   Radio,
@@ -132,7 +130,7 @@ const SearchBar = observer(({
         if(searchFields[field].value) {
           fuzzySearchFields.push(field);
         }
-      })
+      });
 
       await searchStore.GetSearchResults({
         fuzzySearchValue,
@@ -235,7 +233,7 @@ const SearchBar = observer(({
                           HandleUpdateSearchField({
                             field: fieldName,
                             value: event.target.checked
-                          })
+                          });
                         }}
                       />
                     ))

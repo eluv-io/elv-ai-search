@@ -5,7 +5,7 @@ import TagsPanel from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsP
 import styles from "../VideoDetails.module.css";
 import SummaryPanel from "@/pages/video-details/sidebar/tab-panels/summary-panel/SummaryPanel.jsx";
 import {useRef} from "react";
-import {sliderValues} from "@/pages/video-details/VideoDetails.jsx";
+import {SLIDER_VALUES} from "@/utils/constants.js";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
 
 const DETAILS_TABS = [
@@ -86,7 +86,7 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
                       value={tab.value}
                       h="90%"
                     >
-                      <VideoDetailsSlider sliderValues={sliderValues} mb={13} />
+                      <VideoDetailsSlider sliderValues={SLIDER_VALUES} mb={13} />
                       <ScrollArea h="95%" type="auto" offsetScrollbars>
                         <tab.Component />
                       </ScrollArea>

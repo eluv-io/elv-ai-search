@@ -37,7 +37,7 @@ class RatingStore {
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to set rating results", error);
-      throw error
+      throw error;
     }
   });
 
