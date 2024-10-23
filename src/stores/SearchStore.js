@@ -51,8 +51,8 @@ class SearchStore {
       metadataSubtree: "indexer/config/indexer/arguments/fields"
     });
 
-
     if(!fuzzySearchFields) {
+      fuzzySearchFields = {};
       Object.keys(indexerFields || {})
         .filter(field => indexerFields[field].type === "text" && !field.includes("music") && !field.includes("action") && !field.includes("segment") && !field.includes("title_type") && !field.includes("asset_type"))
         .forEach(field => {
