@@ -12,7 +12,10 @@ class RatingStore {
     return this.rootStore.client;
   }
 
-  SetRatingResults = flow(function * ({objectId, startTime, endTime, indexId, query, rating}) {
+  SetRatingResults = flow(function * ({objectId, versionHash, startTime, endTime, indexId, query, rating}) {
+    const indexLib = yield this.client.ContentObjectLibraryId({objectId: indexId});
+    const indexContentInfo = yield this.client.ContentObject({objectId: indexId, libraryId: indexLib});
+    const indexHash = indexContentInfo.hash;
     const token = yield this.client.CreateSignedToken({
       objectId,
       duration: 24 * 60 * 60 * 1000,
@@ -29,6 +32,10 @@ class RatingStore {
         query: query,
       },
       rating: rating,
+      additional: {
+        content_hash: versionHash,
+        index_hash: indexHash,
+      }
     };
     const body = JSON.stringify(itemBody);
 

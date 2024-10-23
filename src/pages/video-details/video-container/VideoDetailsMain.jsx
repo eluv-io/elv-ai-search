@@ -43,6 +43,7 @@ const VideoDetailsMain = observer(({
     try {
       await ratingStore.SetRatingResults({
         objectId: clip.id,
+        versionHash: clip.hash,
         startTime: clip.start_time,
         endTime: clip.end_time,
         indexId: indexId,
