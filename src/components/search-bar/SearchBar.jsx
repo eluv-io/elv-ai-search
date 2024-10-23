@@ -216,32 +216,35 @@ const SearchBar = observer(({
           />
         </Flex>
       </Flex>
-      <Flex direction="row" align="center" justify="center" w="100%" mb={24}>
-        <Flex w="70%" justify="center">
-          <Flex direction="row" w="100%" wrap="wrap" justify="center" gap={8}>
-            {
-              searchStore.currentSearch.searchFields && searchFields ?
-                (
-                  Object.keys(searchFields || {}).map(fieldName => (
-                    <Checkbox
-                      size="xs"
-                      key={fieldName}
-                      mr={8}
-                      label={searchFields[fieldName].label}
-                      checked={searchFields[fieldName].value}
-                      onChange={event => {
-                        HandleUpdateSearchField({
-                          field: fieldName,
-                          value: event.target.checked
-                        })
-                      }}
-                    />
-                  ))
-                ) : null
-            }
+      {
+        !searchStore.musicSettingEnabled &&
+        <Flex direction="row" align="center" justify="center" w="100%" mb={24}>
+          <Flex w="70%" justify="center">
+            <Flex direction="row" w="100%" wrap="wrap" justify="center" gap={8}>
+              {
+                searchStore.currentSearch.searchFields && searchFields ?
+                  (
+                    Object.keys(searchFields || {}).map(fieldName => (
+                      <Checkbox
+                        size="xs"
+                        key={fieldName}
+                        mr={8}
+                        label={searchFields[fieldName].label}
+                        checked={searchFields[fieldName].value}
+                        onChange={event => {
+                          HandleUpdateSearchField({
+                            field: fieldName,
+                            value: event.target.checked
+                          })
+                        }}
+                      />
+                    ))
+                  ) : null
+              }
+            </Flex>
           </Flex>
         </Flex>
-      </Flex>
+      }
     </Flex>
   );
 });

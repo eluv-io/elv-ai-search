@@ -53,7 +53,7 @@ class SearchStore {
     const fuzzySearchFields = {};
 
     Object.keys(indexerFields || {})
-      .filter(field => indexerFields[field].type === "text")
+      .filter(field => indexerFields[field].type === "text" && !field.includes("music") && !field.includes("action") && !field.includes("segment"))
       .forEach(field => fuzzySearchFields[`f_${field}`] = {
         label: field,
         value: true
