@@ -1,5 +1,4 @@
 import {makeAutoObservable, flow} from "mobx";
-import {ASSETS_SEARCH_FIELDS} from "@/utils/constants.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -9,7 +8,8 @@ class SearchStore {
     results: null,
     resultsBySong: null,
     index: "",
-    terms: ""
+    terms: "",
+    searchFields: null
   };
   selectedSearchResult;
   musicSettingEnabled = false;
@@ -43,9 +43,27 @@ class SearchStore {
     this.currentSearch.terms = terms;
   };
 
-  SetSearchIndex = ({index}) => {
+  SetSearchIndex = flow(function * ({index}) {
+    const indexerFields = yield this.client.ContentObjectMetadata({
+      libraryId: yield this.client.ContentObjectLibraryId({objectId: index}),
+      objectId: index,
+      metadataSubtree: "indexer/config/indexer/arguments/fields"
+    });
+
+    const fuzzySearchFields = {};
+
+    Object.keys(indexerFields || {})
+      .filter(field => indexerFields[field].type === "text")
+      .forEach(field => fuzzySearchFields[`f_${field}`] = {
+        label: field,
+        value: true
+      });
+
     this.currentSearch.index = index;
-  };
+    this.currentSearch.searchFields = fuzzySearchFields;
+
+    console.log("fuzzySearchFIelds", fuzzySearchFields)
+  });
 
   // CreateSearchUrl = flow(function * ({
   //   objectId,
@@ -245,11 +263,10 @@ class SearchStore {
       searchAssets = true;
     }
 
-    const selectedFields = ASSETS_SEARCH_FIELDS;
-
     if(indexerMetadata?.fields) {
       fuzzySearchFields = Object.keys(indexerMetadata?.fields || {})
-        .filter(field => selectedFields.includes(field))
+        .filter(field => indexerMetadata?.fields[field].type === "text")
+        // .filter(field => selectedFields.includes(field))
         .map(field => `f_${field}`);
     }
 
@@ -372,10 +389,10 @@ class SearchStore {
   GetSearchResults = flow(function * ({
     objectId,
     fuzzySearchValue,
+    fuzzySearchFields,
     musicType,
     cacheResults=true
   }) {
-    const {fuzzySearchFields} = yield this.GetSearchParams({objectId});
     let urlResponse;
 
       urlResponse = yield this.CreateVectorSearchUrl({
