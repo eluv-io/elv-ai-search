@@ -44,31 +44,34 @@ class SearchStore {
     this.currentSearch.terms = terms;
   };
 
-  SetSearchIndex = flow(function * ({index, fuzzySearchFields}) {
+  SetSearchIndex = ({index}) => {
+    this.currentSearch.index = index;
+  };
+
+  SetSearchFields = flow(function * ({index}) {
+    if(!index) { return; }
+
     const indexerFields = yield this.client.ContentObjectMetadata({
       libraryId: yield this.client.ContentObjectLibraryId({objectId: index}),
       objectId: index,
       metadataSubtree: "indexer/config/indexer/arguments/fields"
     });
 
-    if(!fuzzySearchFields) {
-      fuzzySearchFields = {};
-      const excludedFields = ["music", "action", "segment", "title_type", "asset_type"];
-      Object.keys(indexerFields || {})
-        .filter(field => {
-          const isTextType = indexerFields[field].type === "text";
-          const isNotExcluded = !excludedFields.some(exclusion => field.includes(exclusion));
-          return isTextType && isNotExcluded;
-        })
-        .forEach(field => {
-          fuzzySearchFields[`f_${field}`] = {
-            label: ToTitleCase({text: field.split("_").join(" ")}),
-            value: true
-          };
-        });
-    }
+    const fuzzySearchFields = {};
+    const excludedFields = ["music", "action", "segment", "title_type", "asset_type"];
+    Object.keys(indexerFields || {})
+      .filter(field => {
+        const isTextType = indexerFields[field].type === "text";
+        const isNotExcluded = !excludedFields.some(exclusion => field.includes(exclusion));
+        return isTextType && isNotExcluded;
+      })
+      .forEach(field => {
+        fuzzySearchFields[`f_${field}`] = {
+          label: ToTitleCase({text: field.split("_").join(" ")}),
+          value: true
+        };
+      });
 
-    this.currentSearch.index = index;
     this.currentSearch.searchFields = fuzzySearchFields;
   });
 

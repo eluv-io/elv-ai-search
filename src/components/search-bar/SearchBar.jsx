@@ -46,6 +46,12 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
     LoadData();
   }, []);
 
+  useEffect(() => {
+    if(newIndex) {
+      searchStore.SetSearchFields({index: newIndex});
+    }
+  }, [newIndex]);
+
   const allSearchFieldsSelected = Object.values(searchFields || {}).every(field => field.value);
   const noSearchFieldsSelected = Object.values(searchFields || {}).every(field => !field.value);
 
@@ -114,14 +120,14 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
                               mb={8}
                             />
                             {
-                              Object.keys(searchStore.currentSearch.searchFields || {}).map(fieldName => (
+                              Object.keys(searchFields || {}).map(fieldName => (
                                 <Checkbox
                                   size="xs"
                                   key={fieldName}
                                   mb={8}
                                   ml={16}
-                                  label={searchFields[fieldName].label}
-                                  checked={searchFields[fieldName].value}
+                                  label={searchFields[fieldName]?.label}
+                                  checked={searchFields[fieldName]?.value}
                                   onChange={event => {
                                     HandleUpdateSearchField({
                                       field: fieldName,
@@ -138,7 +144,7 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
                 }
                 <Flex justify="flex-end">
                   <Button onClick={() => {
-                    searchStore.SetSearchIndex({index: newIndex, fuzzySearchFields: searchFields});
+                    searchStore.SetSearchIndex({index: newIndex});
                     setIndexMenuOpen(false);
                   }}>
                     Apply
@@ -155,18 +161,17 @@ const SearchBar = observer(({
   loadingSearch,
   setLoadingSearch
 }) => {
-  // Data
   const [fuzzySearchValue, setFuzzySearchValue] = useState("");
   const [searchFields, setSearchFields] = useState(null);
 
   useEffect(() => {
-    const {terms, searchFields} = searchStore.currentSearch;
+    const {terms, searchFields: cachedSearchFields} = searchStore.currentSearch;
     if(terms) {
       setFuzzySearchValue(terms);
     }
 
-    if(searchFields) {
-      setSearchFields(searchFields);
+    if(cachedSearchFields) {
+      setSearchFields(cachedSearchFields);
     }
   }, [searchStore.currentSearch.searchFields, searchStore.currentSearch.terms]);
 
