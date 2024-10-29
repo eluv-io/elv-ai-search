@@ -73,8 +73,19 @@ class HighlightsStore {
     try {
       const response = yield this.client.Request({url});
 
+      // Parse highlights if they are returned stringified
+      // TODO: Remove this eventually
+      if(typeof response?.highlight === "string") {
+        try {
+          response.highlight = JSON.parse(response.highlight);
+        } catch(error) {
+          // eslint-disable-next-line no-console
+          console.error("Unable to parse highlight response");
+        }
+      }
+
       const results = yield Promise.all(
-        (response?.highlight || []).map(async (item) => {
+        (Array.isArray(response?.highlight) ? response.highlight : []).map(async (item) => {
           const imageUrl = await this.rootStore.GetThumbnail({
             objectId,
             timeSecs: item.start_time / 1000

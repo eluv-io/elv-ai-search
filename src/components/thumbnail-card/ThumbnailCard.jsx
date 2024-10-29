@@ -9,7 +9,7 @@ const ThumbnailCard = ({path, title, startTime, endTime, playable, lineClamp=2})
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <Group gap={8} mb={8} wrap="nowrap">
+    <Group gap={8} mb={8} wrap="nowrap" align="center">
       <Box flex="0 0 125px">
         <AspectRatio ratio={16 / 9}>
           {
@@ -30,7 +30,7 @@ const ThumbnailCard = ({path, title, startTime, endTime, playable, lineClamp=2})
         </AspectRatio>
       </Box>
       <Stack gap={2}>
-        <Group w="100%" gap={0} wrap="nowrap" align="center">
+        <Group gap={0} wrap="nowrap" align="center">
           <Text
             fz="xs"
             lineClamp={expanded ? undefined : lineClamp}
@@ -53,6 +53,8 @@ const ThumbnailCard = ({path, title, startTime, endTime, playable, lineClamp=2})
           variant="transparent"
           aria-label="Play button"
           title="Play Segment"
+          ml="auto"
+          flex="0 0 20px"
           onClick={() => videoStore.PlaySegment({startTime, endTime})}
         >
           <PlayIcon width={18} height={18} color="var(--mantine-color-elv-neutral-5)" style={{verticalAlign: "middle"}} />

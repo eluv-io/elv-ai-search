@@ -1,5 +1,5 @@
 import {makeAutoObservable, flow} from "mobx";
-import {ASSETS_SEARCH_FIELDS} from "@/utils/constants.js";
+import {ToTitleCase} from "@/utils/helpers.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -9,7 +9,8 @@ class SearchStore {
     results: null,
     resultsBySong: null,
     index: "",
-    terms: ""
+    terms: "",
+    searchFields: null
   };
   selectedSearchResult;
   musicSettingEnabled = false;
@@ -43,9 +44,33 @@ class SearchStore {
     this.currentSearch.terms = terms;
   };
 
-  SetSearchIndex = ({index}) => {
+  SetSearchIndex = flow(function * ({index, fuzzySearchFields}) {
+    const indexerFields = yield this.client.ContentObjectMetadata({
+      libraryId: yield this.client.ContentObjectLibraryId({objectId: index}),
+      objectId: index,
+      metadataSubtree: "indexer/config/indexer/arguments/fields"
+    });
+
+    if(!fuzzySearchFields) {
+      fuzzySearchFields = {};
+      const excludedFields = ["music", "action", "segment", "title_type", "asset_type"];
+      Object.keys(indexerFields || {})
+        .filter(field => {
+          const isTextType = indexerFields[field].type === "text";
+          const isNotExcluded = !excludedFields.some(exclusion => field.includes(exclusion));
+          return isTextType && isNotExcluded;
+        })
+        .forEach(field => {
+          fuzzySearchFields[`f_${field}`] = {
+            label: ToTitleCase({text: field.split("_").join(" ")}),
+            value: true
+          };
+        });
+    }
+
     this.currentSearch.index = index;
-  };
+    this.currentSearch.searchFields = fuzzySearchFields;
+  });
 
   // CreateSearchUrl = flow(function * ({
   //   objectId,
@@ -245,11 +270,10 @@ class SearchStore {
       searchAssets = true;
     }
 
-    const selectedFields = ASSETS_SEARCH_FIELDS;
-
     if(indexerMetadata?.fields) {
       fuzzySearchFields = Object.keys(indexerMetadata?.fields || {})
-        .filter(field => selectedFields.includes(field))
+        .filter(field => indexerMetadata?.fields[field].type === "text")
+        // .filter(field => selectedFields.includes(field))
         .map(field => `f_${field}`);
     }
 
@@ -372,10 +396,10 @@ class SearchStore {
   GetSearchResults = flow(function * ({
     objectId,
     fuzzySearchValue,
+    fuzzySearchFields,
     musicType,
     cacheResults=true
   }) {
-    const {fuzzySearchFields} = yield this.GetSearchParams({objectId});
     let urlResponse;
 
       urlResponse = yield this.CreateVectorSearchUrl({

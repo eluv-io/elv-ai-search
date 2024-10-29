@@ -7,14 +7,6 @@ import VideoDetailsSidebar from "@/pages/video-details/sidebar/VideoDetailsSideb
 import VideoDetailsNavToolbar from "@/pages/video-details/nav-toolbar/VideoDetailsNavToolbar.jsx";
 import {searchStore} from "@/stores/index.js";
 
-export const sliderValues = [
-  {value: 30000, label: "30:00"},
-  {value: 60000, label: "01:00:00"},
-  {value: 90000, label: "01:30:00"},
-  {value: 120000, label: "02:00:00"},
-  {value: 150000, label: "02:30:00"}
-];
-
 const VideoDetails = observer(() => {
   const clip = searchStore.selectedSearchResult;
 

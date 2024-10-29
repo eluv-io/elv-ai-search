@@ -16,7 +16,7 @@ const SecondaryButton = forwardRef(({
     iColor = iconColor;
   }
 
-  let target
+  let target;
 
   if(iconOnly) {
     if(!Icon && !children) { throw Error("Icon must be provided when using iconOnly"); }
@@ -62,9 +62,9 @@ const SecondaryButton = forwardRef(({
           <Text size="sm">{ hoverText }</Text>
         </HoverCard.Dropdown>
       </HoverCard>
-    )
+    );
   } else {
-    return target
+    return target;
   }
 });
 

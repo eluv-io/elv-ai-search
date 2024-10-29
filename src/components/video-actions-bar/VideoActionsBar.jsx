@@ -4,12 +4,12 @@ import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionI
 import styles from "@/components/video-actions-bar/VideoActionsBar.module.css";
 
 const VideoActionsBar = ({title, subtitle, openModal, onClick, currentStars}) => {
-  let star1icon = HollowStarIcon
-  let star2icon = HollowStarIcon
-  let star3icon = HollowStarIcon
+  let star1icon = HollowStarIcon;
+  let star2icon = HollowStarIcon;
+  let star3icon = HollowStarIcon;
 
   if (currentStars === "RELEVANCY_1_STAR") {
-    star1icon = FilledStarIcon
+    star1icon = FilledStarIcon;
   } else if (currentStars === "RELEVANCY_2_STAR") {
     star1icon = star2icon = FilledStarIcon;
   } else if (currentStars === "RELEVANCY_3_STAR") {
