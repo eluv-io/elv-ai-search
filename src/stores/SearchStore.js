@@ -53,8 +53,13 @@ class SearchStore {
 
     if(!fuzzySearchFields) {
       fuzzySearchFields = {};
+      const excludedFields = ["music", "action", "segment", "title_type", "asset_type"];
       Object.keys(indexerFields || {})
-        .filter(field => indexerFields[field].type === "text" && !field.includes("music") && !field.includes("action") && !field.includes("segment") && !field.includes("title_type") && !field.includes("asset_type"))
+        .filter(field => {
+          const isTextType = indexerFields[field].type === "text";
+          const isNotExcluded = !excludedFields.some(exclusion => field.includes(exclusion));
+          return isTextType && isNotExcluded;
+        })
         .forEach(field => {
           fuzzySearchFields[`f_${field}`] = {
             label: ToTitleCase({text: field.split("_").join(" ")}),
