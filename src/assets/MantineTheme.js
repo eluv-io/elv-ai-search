@@ -105,6 +105,13 @@ const theme = createTheme({
         }
       })
     },
+    Radio: {
+      styles: () => ({
+        body: {
+          alignItems: "flex-start"
+        }
+      })
+    },
     Table: {
       vars: (theme, props) => {
         if(props.size === "xxs") {
