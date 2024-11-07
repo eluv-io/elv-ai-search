@@ -51,6 +51,8 @@ class SearchStore {
   SetSearchFields = flow(function * ({index}) {
     if(!index) { return; }
 
+    this.currentSearch.searchFields = null;
+
     const indexerFields = yield this.client.ContentObjectMetadata({
       libraryId: yield this.client.ContentObjectLibraryId({objectId: index}),
       objectId: index,

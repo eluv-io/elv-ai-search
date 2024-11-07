@@ -16,10 +16,62 @@ import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/asse
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
 
+const AdvancedSection = observer(({show, loadingSearchFields, searchFields, HandleUpdate}) => {
+  if(!show) { return null; }
+
+  const allSearchFieldsSelected = Object.values(searchFields || {}).every(field => field.value);
+  const noSearchFieldsSelected = Object.values(searchFields || {}).every(field => !field.value);
+  console.log("loading", loadingSearchFields)
+
+  return (
+    <Box pl={12}>
+      <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Searchable Fields</Text>
+      {
+        loadingSearchFields ?
+          <Loader /> :
+          (
+            <Flex mb={12} direction="column">
+              {
+                searchStore.currentSearch.searchFields && searchFields ?
+                  <>
+                    <Checkbox
+                      size="xs"
+                      label="Select All"
+                      checked={allSearchFieldsSelected} indeterminate={!allSearchFieldsSelected && !noSearchFieldsSelected}
+                      onChange={() => HandleUpdate({field: "ALL"})}
+                      mb={8}
+                    />
+                    {
+                      Object.keys(searchFields || {}).map(fieldName => (
+                        <Checkbox
+                          size="xs"
+                          key={fieldName}
+                          mb={8}
+                          ml={16}
+                          label={searchFields[fieldName]?.label}
+                          checked={searchFields[fieldName]?.value}
+                          onChange={event => {
+                            HandleUpdate({
+                              field: fieldName,
+                              value: event.target.checked
+                            });
+                          }}
+                        />
+                      ))
+                    }
+                  </> : null
+              }
+            </Flex>
+          )
+      }
+    </Box>
+  );
+});
+
 const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
   const [loadingIndexes, setLoadingIndexes] = useState(false);
+  const [loadingSearchFields, setLoadingSearchFields] = useState(false);
   const [indexes, setIndexes] = useState([]);
-  const [newIndex, setNewIndex] = useState("");
   const [indexMenuOpen, setIndexMenuOpen] = useState(false);
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
 
@@ -34,9 +86,6 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
         if(tenantIndexes && !searchStore.currentSearch.index) {
           const firstIndex = tenantIndexes?.[0]?.id;
           searchStore.SetSearchIndex({index: firstIndex});
-          setNewIndex(firstIndex);
-        } else if(searchStore.currentSearch.index) {
-          setNewIndex(searchStore.currentSearch.index);
         }
       } finally {
         setLoadingIndexes(false);
@@ -47,13 +96,19 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
   }, []);
 
   useEffect(() => {
-    if(newIndex) {
-      searchStore.SetSearchFields({index: newIndex});
-    }
-  }, [newIndex]);
+    if(searchStore.currentSearch.index) {
+      const LoadFields = async() => {
+        try {
+          setLoadingSearchFields(true);
+          await searchStore.SetSearchFields({index: searchStore.currentSearch.index});
+        } finally {
+          setLoadingSearchFields(false);
+        }
+      };
 
-  const allSearchFieldsSelected = Object.values(searchFields || {}).every(field => field.value);
-  const noSearchFieldsSelected = Object.values(searchFields || {}).every(field => !field.value);
+      LoadFields();
+    }
+  }, [searchStore.currentSearch.index]);
 
   return (
     <Menu
@@ -75,8 +130,10 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
               <>
                 <Text c="elv-gray.8" size="xl" fw={700}>Index</Text>
                 <Radio.Group
-                  value={newIndex}
-                  onChange={setNewIndex}
+                  value={searchStore.currentSearch?.index}
+                  onChange={(value) => {
+                    searchStore.SetSearchIndex({index: value});
+                  }}
                 >
                   {
                     indexes.map(item => (
@@ -104,47 +161,14 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
                 >
                   Advanced Settings
                 </Button>
-                {
-                  showAdvancedOptions &&
-                  <Box pl={12}>
-                    <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Searchable Fields</Text>
-                    <Flex mb={12} direction="column">
-                      {
-                        searchStore.currentSearch.searchFields && searchFields ?
-                          <>
-                            <Checkbox
-                              size="xs"
-                              label="Select All"
-                              checked={allSearchFieldsSelected} indeterminate={!allSearchFieldsSelected && !noSearchFieldsSelected}
-                              onChange={() => HandleUpdateSearchField({field: "ALL"})}
-                              mb={8}
-                            />
-                            {
-                              Object.keys(searchFields || {}).map(fieldName => (
-                                <Checkbox
-                                  size="xs"
-                                  key={fieldName}
-                                  mb={8}
-                                  ml={16}
-                                  label={searchFields[fieldName]?.label}
-                                  checked={searchFields[fieldName]?.value}
-                                  onChange={event => {
-                                    HandleUpdateSearchField({
-                                      field: fieldName,
-                                      value: event.target.checked
-                                    });
-                                  }}
-                                />
-                              ))
-                            }
-                          </> : null
-                      }
-                    </Flex>
-                  </Box>
-                }
+                <AdvancedSection
+                  show={showAdvancedOptions}
+                  loadingSearchFields={loadingSearchFields}
+                  searchFields={searchFields}
+                  HandleUpdate={HandleUpdateSearchField}
+                />
                 <Flex justify="flex-end">
                   <Button onClick={() => {
-                    searchStore.SetSearchIndex({index: newIndex});
                     setIndexMenuOpen(false);
                   }}>
                     Apply
