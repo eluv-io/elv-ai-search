@@ -437,15 +437,10 @@ class SearchStore {
       editedContents = yield Promise.all(
         (results.contents || results.results).map(async (result, i) => {
           try {
-            const base = this.rootStore.networkInfo.name === "main" ?
-              "https://main.net955305.contentfabric.io" :
-              "https://demov3.net955210.contentfabric.io";
-            const fullUrl = new URL(result.image_url, base);
-
             let url = await this.rootStore.GetThumbnail({
               objectId: result.id,
               imagePath: result.image_url,
-              timeSecs: fullUrl?.searchParams?.get("t")
+              timeSecs: result.start_time ? result.start_time / 1000 : null
             });
             result["_imageSrc"] = url;
             result["_tags"] = await this.ParseTags({
