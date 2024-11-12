@@ -58,13 +58,22 @@ class SearchStore {
   GetSearchFields = flow(function * ({index}) {
     if(!index) { return; }
 
-    this.SetSearchFields({fields: null});
+    let libraryId, objectId, versionHash;
 
     try {
-      const libraryId = yield this.client.ContentObjectLibraryId({objectId: index});
+      this.SetSearchFields({fields: null});
+
+      if(index.startsWith("hq__")) {
+        versionHash = index;
+      } else if(index.startsWith("iq__")) {
+        objectId = index;
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
       const indexerFields = yield this.client.ContentObjectMetadata({
         libraryId,
-        objectId: index,
+        objectId,
+        versionHash,
         metadataSubtree: "indexer/config/indexer/arguments/fields"
       });
 
@@ -192,14 +201,13 @@ class SearchStore {
 
   CreateVectorSearchUrl = flow(function * ({
     objectId,
+    versionHash,
     searchPhrase,
     searchFields,
     musicType
   }) {
     try {
-      const libraryId = yield this.client.ContentObjectLibraryId({objectId});
-
-      let queryParams;
+      let libraryId, queryParams;
 
       // Music mode search
       if(this.musicSettingEnabled) {
@@ -250,10 +258,14 @@ class SearchStore {
         };
       }
 
+      if(objectId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
       const url = yield this.client.Rep({
         libraryId,
         objectId,
-        versionHash: undefined,
+        versionHash,
         select: "/public/asset_metadata/title",
         rep: "search",
         service: "search",
@@ -261,8 +273,12 @@ class SearchStore {
         queryParams: queryParams
       });
 
+      const contentObject = versionHash ?
+        (`q/${versionHash}`) :
+        `qlibs/${libraryId}/q/${objectId}`;
+
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
+      const newUrl = `https://ai.contentfabric.io/search/${contentObject}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -413,20 +429,29 @@ class SearchStore {
   };
 
   GetSearchResults = flow(function * ({
-    objectId,
+    // objectId,
+    // versionHash,
     fuzzySearchValue,
     fuzzySearchFields,
     musicType,
     cacheResults=true
   }) {
-    let urlResponse;
+    let urlResponse, objectId, versionHash;
+    const indexValue = this.customIndex || this.currentSearch.index;
 
-      urlResponse = yield this.CreateVectorSearchUrl({
-        objectId,
-        searchPhrase: fuzzySearchValue,
-        searchFields: fuzzySearchFields,
-        musicType: musicType
-      });
+    if(indexValue.startsWith("hq__")) {
+      versionHash = indexValue;
+    } else if(indexValue.startsWith("iq__")) {
+      objectId = indexValue;
+    }
+
+    urlResponse = yield this.CreateVectorSearchUrl({
+      objectId,
+      versionHash,
+      searchPhrase: fuzzySearchValue,
+      searchFields: fuzzySearchFields,
+      musicType: musicType
+    });
 
     // Used for v1 search. Unsupported until further notice
     // The search engine is changed in a way that is no longer compatible with v1 indexes

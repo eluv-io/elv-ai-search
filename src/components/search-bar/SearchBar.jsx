@@ -37,7 +37,7 @@ const AdvancedSection = observer(({
       <TextInput
         label="Search Index"
         description="This will replace any currently selected index from the generated list."
-        placeholder="Enter Object ID"
+        placeholder="Enter Object ID (iq__ or hq__)"
         value={searchStore.customIndex}
         onChange={(event) => {
           searchStore.SetCustomIndex({index: event.target.value});
@@ -50,7 +50,10 @@ const AdvancedSection = observer(({
           (
             <ActionIcon
               variant="subtle"
-              onClick={() => searchStore.SetCustomIndex({index: ""})}
+              aria-label="Clear Input"
+              onClick={() => {
+                searchStore.SetCustomIndex({index: ""});
+              }}
             >
               <CloseIcon />
             </ActionIcon>
@@ -148,9 +151,12 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
       if(debouncedValue.startsWith("iq__") || debouncedValue.startsWith("hq__")) {
         // const index = debouncedValue.startsWith("hq__") ? rootStore.DecodeVersionHash({versionHash: debouncedValue}) : debouncedValue;
         LoadFields({index: debouncedValue});
-      } else {
+      } else if(debouncedValue.length > 0) {
         setCustomIndexError("Invalid Object ID");
       }
+    } else {
+      setCustomIndexError("");
+      LoadFields({index: searchStore.currentSearch.index});
     }
   }, [debouncedValue]);
 
@@ -275,8 +281,6 @@ const SearchBar = observer(({
       await searchStore.GetSearchResults({
         fuzzySearchValue,
         fuzzySearchFields,
-        objectId: searchStore.customIndex || searchStore.currentSearch.index,
-        searchVersion: tenantStore.searchIndexes[searchStore.currentSearch.index]?.version,
         musicType: "all"
       });
     } catch(error) {
