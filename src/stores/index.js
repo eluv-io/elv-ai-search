@@ -81,8 +81,8 @@ class RootStore {
     startTime,
     endTime
   }) {
-    const clipStart = startTime / 1000;
-    const clipEnd = endTime / 1000;
+    const clip_start = startTime / 1000;
+    const clip_end = endTime / 1000;
 
     const offerings = yield this.client.ContentObjectMetadata({
       objectId,
@@ -127,8 +127,8 @@ class RootStore {
       return `${paddedHours}-${paddedMinutes}-${paddedSeconds}`;
     };
 
-    let formattedClipStart = FormatTime(clipStart);
-    let formattedClipEnd = FormatTime(clipEnd);
+    let formattedClipStart = FormatTime(clip_start);
+    let formattedClipEnd = FormatTime(clip_end);
 
     const filename = `Title - ${title_name} (${maxWidth}x${maxHeight}) (${formattedClipStart} - ${formattedClipEnd}).mp4`;
 
@@ -138,8 +138,8 @@ class RootStore {
       rep: `media_download/default/${playoutKey}`,
       noAuth: true,
       queryParams: {
-        clipStart,
-        clipEnd,
+        clip_start,
+        clip_end,
         authorization: token,
         "header-x_set_content_disposition": `attachment;filename=${filename}`,
       },
