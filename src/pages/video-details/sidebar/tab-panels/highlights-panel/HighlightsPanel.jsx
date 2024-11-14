@@ -189,15 +189,18 @@ const HighlightsPanel = observer(() => {
               </Box>
 
               {/* Images */}
-              <TitleGroup title="Images">Images</TitleGroup>
               {
                 searchStore.selectedSearchResult?._highlights?.keyframes ?
-                (searchStore.selectedSearchResult?._highlights?.keyframes || []).map(keyFrame => (
-                  <KeyFrameButton key={`keyframe-${keyFrame.start_time}`} keyFrame={keyFrame} />
-                )) :
-                (
-                  <Text size="xs">None Found</Text>
-                )
+                  (
+                    <>
+                      <TitleGroup title="Images">Images</TitleGroup>
+                      {
+                        (searchStore.selectedSearchResult?._highlights?.keyframes || []).map(keyFrame => (
+                          <KeyFrameButton key={`keyframe-${keyFrame.start_time}`} keyFrame={keyFrame} />
+                        ))
+                      }
+                    </>
+                  ) : null
               }
 
               {/* Hashtags */}
@@ -219,21 +222,20 @@ const HighlightsPanel = observer(() => {
               }
 
               {/* Topics */}
-              <TitleGroup title="Suggested Topics" mt={16} aiGenerated />
               {
-                <Flex wrap="wrap" direction="row" gap={8}>
-                  {
-                    (searchStore.selectedSearchResult?._topics || []).length > 0 ?
-                      (
-                        searchStore.selectedSearchResult?._topics.map(topic => (
-                          <Pill key={topic}>{ topic }</Pill>
-                        ))
-                      ) :
-                      (
-                        <Text size="xs">None Found</Text>
-                      )
-                  }
-                </Flex>
+                (searchStore.selectedSearchResult?._topics || []).length > 0 ?
+                  (
+                    <>
+                      <TitleGroup title="Suggested Topics" mt={16} aiGenerated />
+                      <Flex wrap="wrap" direction="row" gap={8}>
+                        {
+                          searchStore.selectedSearchResult?._topics.map(topic => (
+                            <Pill key={topic}>{ topic }</Pill>
+                          ))
+                        }
+                      </Flex>
+                    </>
+                  ) : null
               }
 
               <Flex mt={16} justify="center">
