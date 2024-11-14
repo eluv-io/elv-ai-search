@@ -362,6 +362,8 @@ class SearchStore {
 
   ParseTags = flow(function * ({sources=[]}){
     const parsedTags = {};
+    let parsedTopics = [];
+
     const allTags = sources.reduce((acc, source) => {
       Object.entries(source.fields).forEach(([key, value]) => {
         if(key.includes("_tag")) {
@@ -396,12 +398,17 @@ class SearchStore {
           })
         );
         parsedTags[tagKey] = tagsArray.sort((a, b) => a.start_time < b.start_time);
+      } else if(tagKey.includes("topic")) {
+        parsedTopics = allTags.fields?.[tagKey].flatMap(item => item.text);
       } else {
         parsedTags[tagKey] = allTags.fields?.[tagKey].sort((a, b) => a.start_time - b.start_time);
       }
     }
 
-    return parsedTags;
+    return {
+      parsedTags,
+      parsedTopics
+    };
   });
 
   ParseResultsBySong = ({results}) => {
@@ -482,9 +489,11 @@ class SearchStore {
               timeSecs: result.start_time ? result.start_time / 1000 : null
             });
             result["_imageSrc"] = url;
-            result["_tags"] = await this.ParseTags({
+            const tagsResponse = await this.ParseTags({
               sources: result?.sources
             });
+            result["_tags"] = tagsResponse?.parsedTags;
+            result["_topics"] = tagsResponse?.parsedTopics;
             result["_score"] = this.GetSearchScore({clip: result});
             result["_index"] = i;
 
@@ -499,6 +508,7 @@ class SearchStore {
       const resultsBySong = this.ParseResultsBySong({results: results.contents});
 
       results.contents = editedContents;
+      console.log("results", results)
 
       if(cacheResults) {
         this.SetCurrentSearch({
