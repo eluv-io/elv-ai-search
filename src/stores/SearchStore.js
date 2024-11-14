@@ -508,7 +508,6 @@ class SearchStore {
       const resultsBySong = this.ParseResultsBySong({results: results.contents});
 
       results.contents = editedContents;
-      console.log("results", results)
 
       if(cacheResults) {
         this.SetCurrentSearch({
