@@ -26,7 +26,7 @@ const AdvancedSection = observer(({
   customIndexError,
   setCustomIndexError
 }) => {
-  const [hostname, setHostname] = useState(rootStore.searchHostname || "ai");
+  const [hostname, setHostname] = useState(rootStore.searchHostname);
 
   if(!show) { return null; }
 

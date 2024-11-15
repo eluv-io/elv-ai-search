@@ -11,7 +11,7 @@ class SearchStore {
     searchFields: null
   };
   customIndex = "";
-  searchHostname;
+  searchHostname = "ai";
   selectedSearchResult;
   musicSettingEnabled = false;
 
