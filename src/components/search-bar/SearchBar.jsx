@@ -7,13 +7,13 @@ import {
   Flex,
   Loader,
   Menu,
-  Radio,
+  Radio, Select,
   Switch,
   Text,
   TextInput
 } from "@mantine/core";
 import {useEffect, useState} from "react";
-import {searchStore, tenantStore} from "@/stores/index.js";
+import {rootStore, searchStore, tenantStore} from "@/stores/index.js";
 import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
@@ -26,6 +26,8 @@ const AdvancedSection = observer(({
   customIndexError,
   setCustomIndexError
 }) => {
+  const [hostname, setHostname] = useState(rootStore.searchHostname || "ai");
+
   if(!show) { return null; }
 
   const allSearchFieldsSelected = Object.values(searchStore.currentSearch.searchFields || {}).every(field => field.value);
@@ -101,6 +103,26 @@ const AdvancedSection = observer(({
             </Flex>
           )
       }
+
+      <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Version</Text>
+      <Radio.Group
+        value={searchStore.searchHostname}
+        defaultValue="ai"
+        onChange={(value) => {
+          searchStore.SetSearchHostname({host: value});
+        }}
+      >
+        <Radio
+          label="AI 1"
+          value="ai"
+          mb={16}
+        />
+        <Radio
+          label="AI 2"
+          value="ai-02"
+          mb={16}
+        />
+      </Radio.Group>
     </Box>
   );
 });

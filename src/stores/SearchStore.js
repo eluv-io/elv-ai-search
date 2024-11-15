@@ -11,6 +11,7 @@ class SearchStore {
     searchFields: null
   };
   customIndex = "";
+  searchHostname;
   selectedSearchResult;
   musicSettingEnabled = false;
 
@@ -45,6 +46,10 @@ class SearchStore {
 
   SetSearchIndex = ({index}) => {
     this.currentSearch.index = index;
+  };
+
+  SetSearchHostname = ({host="ai"}) => {
+    this.searchHostname = host;
   };
 
   SetCustomIndex = ({index}) => {
@@ -278,7 +283,7 @@ class SearchStore {
         `qlibs/${libraryId}/q/${objectId}`;
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai.contentfabric.io/search/${contentObject}`.concat(url.slice(_pos));
+      const newUrl = `https://${this.searchHostname}.contentfabric.io/search/${contentObject}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
