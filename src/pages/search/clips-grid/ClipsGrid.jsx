@@ -100,13 +100,11 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
 
   const FilterClips = ({clips}) => {
     if(musicEnabled) {
-      return clips.filter(item => {
-        if(view === "ALL") {
-          return true;
-        } else {
-          return (parseInt(item._score || "") >= 50) || [null, undefined, ""].includes(item._score);
-        }
-      });
+      if(view === "ALL") {
+        return clips;
+      } else {
+        return searchStore.highScoreResults;
+      }
     } else {
       return clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
     }

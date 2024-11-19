@@ -12,6 +12,8 @@ class SearchStore {
   };
   customIndex = "";
   searchHostname = "ai";
+  highScore = 50;
+  highScoreResults = null;
   selectedSearchResult;
   musicSettingEnabled = false;
 
@@ -37,8 +39,9 @@ class SearchStore {
     this.selectedSearchResult[key] = value;
   };
 
-  SetCurrentSearch = ({results, resultsBySong, index, terms}) => {
+  SetCurrentSearch = ({results, resultsBySong, index, terms, highScoreResults}) => {
     this.currentSearch.results = {...results};
+    this.highScoreResults = highScoreResults;
     this.currentSearch.resultsBySong = {...resultsBySong};
     this.currentSearch.index = index;
     this.currentSearch.terms = terms;
@@ -326,6 +329,8 @@ class SearchStore {
   ResetSearch = () => {
     this.SetCurrentSearch({
       results: null,
+      resultsBySong: null,
+      highScoreResults: null,
       index: this.currentSearch.index,
       terms: this.currentSearch.terms
     });
@@ -514,10 +519,15 @@ class SearchStore {
 
       results.contents = editedContents;
 
+      const highScoreResults = (results.contents || []).filter(item => {
+        (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
+      });
+
       if(cacheResults) {
         this.SetCurrentSearch({
           results,
           resultsBySong,
+          highScoreResults,
           index: objectId,
           terms: fuzzySearchValue
         });
