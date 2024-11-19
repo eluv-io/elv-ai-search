@@ -7,10 +7,13 @@ import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
 
-const TitleGroup = ({title, loading, ...props}) => {
+const TitleGroup = ({title, aiGenerated=false, loading, ...props}) => {
   return (
     <Group gap={4} mb={13} {...props}>
-      <AiIcon />
+      {
+        aiGenerated &&
+        <AiIcon />
+      }
       <Group>
         <Text size="sm" fw={600} c="elv-gray.8">{ title }</Text>
         {
@@ -186,15 +189,26 @@ const HighlightsPanel = observer(() => {
               </Box>
 
               {/* Images */}
-              <Text size="sm" fw={600} c="elv-gray.8" mb={13}>Images</Text>
               {
-                (searchStore.selectedSearchResult?._highlights?.keyframes || []).map(keyFrame => (
-                  <KeyFrameButton key={`keyframe-${keyFrame.start_time}`} keyFrame={keyFrame} />
-                ))
+                searchStore.selectedSearchResult?._highlights?.keyframes ?
+                  (
+                    <>
+                      <TitleGroup title="Images">Images</TitleGroup>
+                      {
+                        (searchStore.selectedSearchResult?._highlights?.keyframes || []).map(keyFrame => (
+                          <KeyFrameButton key={`keyframe-${keyFrame.start_time}`} keyFrame={keyFrame} />
+                        ))
+                      }
+                    </>
+                  ) : null
               }
 
               {/* Hashtags */}
-              <TitleGroup title={summaryStore.loadingSummary ? "Suggested Hashtags in Progress" : "Suggested Hashtags"} mt={16} />
+              <TitleGroup
+                title={summaryStore.loadingSummary ? "Suggested Hashtags in Progress" : "Suggested Hashtags"}
+                mt={16}
+                aiGenerated
+              />
               {
                 summaryStore.loadingSummary ? "" :
                 searchStore.selectedSearchResult?._summary?.hashtags ?
@@ -206,6 +220,24 @@ const HighlightsPanel = observer(() => {
                     }
                   </Flex> : "No results"
               }
+
+              {/* Topics */}
+              {
+                (searchStore.selectedSearchResult?._topics || []).length > 0 ?
+                  (
+                    <>
+                      <TitleGroup title="Suggested Topics" mt={16} aiGenerated />
+                      <Flex wrap="wrap" direction="row" gap={8}>
+                        {
+                          searchStore.selectedSearchResult?._topics.map(topic => (
+                            <Pill key={topic}>{ topic }</Pill>
+                          ))
+                        }
+                      </Flex>
+                    </>
+                  ) : null
+              }
+
               <Flex mt={16} justify="center">
                 <Button
                   onClick={async () => {

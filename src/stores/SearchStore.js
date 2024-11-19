@@ -3,8 +3,6 @@ import {ToTitleCase} from "@/utils/helpers.js";
 
 // Store for fetching search results
 class SearchStore {
-  searchV1Node;
-  searchV2Node;
   currentSearch = {
     results: null,
     resultsBySong: null,
@@ -12,6 +10,8 @@ class SearchStore {
     terms: "",
     searchFields: null
   };
+  customIndex = "";
+  searchHostname = "ai";
   selectedSearchResult;
   musicSettingEnabled = false;
 
@@ -48,33 +48,61 @@ class SearchStore {
     this.currentSearch.index = index;
   };
 
-  SetSearchFields = flow(function * ({index}) {
+  SetSearchHostname = ({host="ai"}) => {
+    this.searchHostname = host;
+  };
+
+  SetCustomIndex = ({index}) => {
+    this.customIndex = index;
+  };
+
+  SetSearchFields = ({fields}) => {
+    this.currentSearch.searchFields = fields;
+  };
+
+  GetSearchFields = flow(function * ({index}) {
     if(!index) { return; }
 
-    this.currentSearch.searchFields = null;
+    let libraryId, objectId, versionHash;
 
-    const indexerFields = yield this.client.ContentObjectMetadata({
-      libraryId: yield this.client.ContentObjectLibraryId({objectId: index}),
-      objectId: index,
-      metadataSubtree: "indexer/config/indexer/arguments/fields"
-    });
+    try {
+      this.SetSearchFields({fields: null});
 
-    const fuzzySearchFields = {};
-    const excludedFields = ["music", "action", "segment", "title_type", "asset_type"];
-    Object.keys(indexerFields || {})
-      .filter(field => {
-        const isTextType = indexerFields[field].type === "text";
-        const isNotExcluded = !excludedFields.some(exclusion => field.includes(exclusion));
-        return isTextType && isNotExcluded;
-      })
-      .forEach(field => {
-        fuzzySearchFields[`f_${field}`] = {
-          label: ToTitleCase({text: field.split("_").join(" ")}),
-          value: true
-        };
+      if(index.startsWith("hq__")) {
+        versionHash = index;
+      } else if(index.startsWith("iq__")) {
+        objectId = index;
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
+      const indexerFields = yield this.client.ContentObjectMetadata({
+        libraryId,
+        objectId,
+        versionHash,
+        metadataSubtree: "indexer/config/indexer/arguments/fields"
       });
 
-    this.currentSearch.searchFields = fuzzySearchFields;
+      const fuzzySearchFields = {};
+      const excludedFields = ["music", "action", "segment", "title_type", "asset_type"];
+      Object.keys(indexerFields || {})
+        .filter(field => {
+          const isTextType = indexerFields[field].type === "text";
+          const isNotExcluded = !excludedFields.some(exclusion => field.includes(exclusion));
+          return isTextType && isNotExcluded;
+        })
+        .forEach(field => {
+          fuzzySearchFields[`f_${field}`] = {
+            label: ToTitleCase({text: field.split("_").join(" ")}),
+            value: true
+          };
+        });
+
+      this.SetSearchFields({fields: fuzzySearchFields});
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Unable to load search fields", error);
+      this.SetSearchFields({fields: null});
+    }
   });
 
   // CreateSearchUrl = flow(function * ({
@@ -178,14 +206,13 @@ class SearchStore {
 
   CreateVectorSearchUrl = flow(function * ({
     objectId,
+    versionHash,
     searchPhrase,
     searchFields,
     musicType
   }) {
     try {
-      const libraryId = yield this.client.ContentObjectLibraryId({objectId});
-
-      let queryParams;
+      let libraryId, queryParams;
 
       // Music mode search
       if(this.musicSettingEnabled) {
@@ -236,10 +263,14 @@ class SearchStore {
         };
       }
 
+      if(objectId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
       const url = yield this.client.Rep({
         libraryId,
         objectId,
-        versionHash: undefined,
+        versionHash,
         select: "/public/asset_metadata/title",
         rep: "search",
         service: "search",
@@ -247,8 +278,12 @@ class SearchStore {
         queryParams: queryParams
       });
 
+      const contentObject = versionHash ?
+        (`q/${versionHash}`) :
+        `qlibs/${libraryId}/q/${objectId}`;
+
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
+      const newUrl = `https://${this.searchHostname}.contentfabric.io/search/${contentObject}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -332,6 +367,8 @@ class SearchStore {
 
   ParseTags = flow(function * ({sources=[]}){
     const parsedTags = {};
+    let parsedTopics = [];
+
     const allTags = sources.reduce((acc, source) => {
       Object.entries(source.fields).forEach(([key, value]) => {
         if(key.includes("_tag")) {
@@ -366,12 +403,17 @@ class SearchStore {
           })
         );
         parsedTags[tagKey] = tagsArray.sort((a, b) => a.start_time < b.start_time);
+      } else if(tagKey.includes("topic")) {
+        parsedTopics = allTags.fields?.[tagKey].flatMap(item => item.text);
       } else {
         parsedTags[tagKey] = allTags.fields?.[tagKey].sort((a, b) => a.start_time - b.start_time);
       }
     }
 
-    return parsedTags;
+    return {
+      parsedTags,
+      parsedTopics
+    };
   });
 
   ParseResultsBySong = ({results}) => {
@@ -399,20 +441,29 @@ class SearchStore {
   };
 
   GetSearchResults = flow(function * ({
-    objectId,
+    // objectId,
+    // versionHash,
     fuzzySearchValue,
     fuzzySearchFields,
     musicType,
     cacheResults=true
   }) {
-    let urlResponse;
+    let urlResponse, objectId, versionHash;
+    const indexValue = this.customIndex || this.currentSearch.index;
 
-      urlResponse = yield this.CreateVectorSearchUrl({
-        objectId,
-        searchPhrase: fuzzySearchValue,
-        searchFields: fuzzySearchFields,
-        musicType: musicType
-      });
+    if(indexValue.startsWith("hq__")) {
+      versionHash = indexValue;
+    } else if(indexValue.startsWith("iq__")) {
+      objectId = indexValue;
+    }
+
+    urlResponse = yield this.CreateVectorSearchUrl({
+      objectId,
+      versionHash,
+      searchPhrase: fuzzySearchValue,
+      searchFields: fuzzySearchFields,
+      musicType: musicType
+    });
 
     // Used for v1 search. Unsupported until further notice
     // The search engine is changed in a way that is no longer compatible with v1 indexes
@@ -443,9 +494,11 @@ class SearchStore {
               timeSecs: result.start_time ? result.start_time / 1000 : null
             });
             result["_imageSrc"] = url;
-            result["_tags"] = await this.ParseTags({
+            const tagsResponse = await this.ParseTags({
               sources: result?.sources
             });
+            result["_tags"] = tagsResponse?.parsedTags;
+            result["_topics"] = tagsResponse?.parsedTopics;
             result["_score"] = this.GetSearchScore({clip: result});
             result["_index"] = i;
 

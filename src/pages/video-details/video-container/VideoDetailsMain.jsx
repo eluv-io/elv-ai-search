@@ -117,7 +117,11 @@ const VideoDetailsMain = observer(({
             objectId={clip.id}
             playerOptions={{
               posterUrl: clip._imageSrc,
-              autoplay: EluvioPlayerParameters.autoplay.OFF
+              autoplay: EluvioPlayerParameters.autoplay.OFF,
+              hlsjsOptions: {
+                fragLoadingTimeOut: 30000,
+                maxBufferHole: 1.5
+              },
             }}
             playoutParameters={{
               clipStart: clip.start_time / 1000,

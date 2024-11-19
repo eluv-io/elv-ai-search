@@ -1,30 +1,69 @@
 import {
-  ActionIcon, Box,
+  ActionIcon,
+  Box,
   Button,
   Checkbox,
+  CloseIcon,
   Flex,
   Loader,
   Menu,
-  Radio,
+  Radio, Select,
   Switch,
   Text,
   TextInput
 } from "@mantine/core";
 import {useEffect, useState} from "react";
-import {searchStore, tenantStore} from "@/stores/index.js";
+import {rootStore, searchStore, tenantStore} from "@/stores/index.js";
 import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
+import {useDebouncedValue} from "@mantine/hooks";
 
-const AdvancedSection = observer(({show, loadingSearchFields, searchFields, HandleUpdate}) => {
+const AdvancedSection = observer(({
+  show,
+  loadingSearchFields,
+  HandleUpdate,
+  customIndexError,
+  setCustomIndexError
+}) => {
+  const [hostname, setHostname] = useState(rootStore.searchHostname);
+
   if(!show) { return null; }
 
-  const allSearchFieldsSelected = Object.values(searchFields || {}).every(field => field.value);
-  const noSearchFieldsSelected = Object.values(searchFields || {}).every(field => !field.value);
-  console.log("loading", loadingSearchFields)
+  const allSearchFieldsSelected = Object.values(searchStore.currentSearch.searchFields || {}).every(field => field.value);
+  const noSearchFieldsSelected = Object.values(searchStore.currentSearch.searchFields || {}).every(field => !field.value);
 
   return (
     <Box pl={12}>
+      <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Custom Search Index</Text>
+      <TextInput
+        label="Search Index"
+        description="This will replace any currently selected index from the generated list."
+        placeholder="Enter Object ID (iq__ or hq__)"
+        value={searchStore.customIndex}
+        onChange={(event) => {
+          searchStore.SetCustomIndex({index: event.target.value});
+          setCustomIndexError("");
+        }}
+        error={customIndexError}
+        mb={16}
+        rightSection={
+          searchStore.customIndex ?
+          (
+            <ActionIcon
+              variant="subtle"
+              aria-label="Clear Input"
+              onClick={() => {
+                searchStore.SetCustomIndex({index: ""});
+              }}
+            >
+              <CloseIcon />
+            </ActionIcon>
+          ) : null
+      }
+        rightSectionPointerEvents={searchStore.customIndex ? "all" : "none"}
+      />
+
       <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Searchable Fields</Text>
       {
         loadingSearchFields ?
@@ -32,7 +71,7 @@ const AdvancedSection = observer(({show, loadingSearchFields, searchFields, Hand
           (
             <Flex mb={12} direction="column">
               {
-                searchStore.currentSearch.searchFields && searchFields ?
+                searchStore.currentSearch.searchFields ?
                   <>
                     <Checkbox
                       size="xs"
@@ -42,14 +81,14 @@ const AdvancedSection = observer(({show, loadingSearchFields, searchFields, Hand
                       mb={8}
                     />
                     {
-                      Object.keys(searchFields || {}).map(fieldName => (
+                      Object.keys(searchStore.currentSearch.searchFields || {}).map(fieldName => (
                         <Checkbox
                           size="xs"
                           key={fieldName}
                           mb={8}
                           ml={16}
-                          label={searchFields[fieldName]?.label}
-                          checked={searchFields[fieldName]?.value}
+                          label={searchStore.currentSearch.searchFields[fieldName]?.label}
+                          checked={searchStore.currentSearch.searchFields[fieldName]?.value}
                           onChange={event => {
                             HandleUpdate({
                               field: fieldName,
@@ -59,21 +98,55 @@ const AdvancedSection = observer(({show, loadingSearchFields, searchFields, Hand
                         />
                       ))
                     }
-                  </> : null
+                  </> : "None found"
               }
             </Flex>
           )
       }
+
+      <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Version</Text>
+      <Radio.Group
+        value={searchStore.searchHostname}
+        defaultValue="ai"
+        onChange={(value) => {
+          searchStore.SetSearchHostname({host: value});
+        }}
+      >
+        <Radio
+          label="AI 1"
+          value="ai"
+          mb={16}
+        />
+        <Radio
+          label="AI 2"
+          value="ai-02"
+          mb={16}
+        />
+      </Radio.Group>
     </Box>
   );
 });
 
-const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
+const IndexMenu = observer(({HandleUpdateSearchField}) => {
   const [loadingIndexes, setLoadingIndexes] = useState(false);
   const [loadingSearchFields, setLoadingSearchFields] = useState(false);
   const [indexes, setIndexes] = useState([]);
   const [indexMenuOpen, setIndexMenuOpen] = useState(false);
+
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+  const [debouncedValue] = useDebouncedValue(searchStore.customIndex, 500);
+  const [customIndexError, setCustomIndexError] = useState("");
+
+  const LoadFields = async({index}) => {
+    try {
+      setLoadingSearchFields(true);
+      await searchStore.GetSearchFields({
+        index
+      });
+    } finally {
+      setLoadingSearchFields(false);
+    }
+  };
 
   useEffect(() => {
     const LoadData = async() => {
@@ -96,24 +169,41 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
   }, []);
 
   useEffect(() => {
-    if(searchStore.currentSearch.index) {
-      const LoadFields = async() => {
-        try {
-          setLoadingSearchFields(true);
-          await searchStore.SetSearchFields({index: searchStore.currentSearch.index});
-        } finally {
-          setLoadingSearchFields(false);
-        }
-      };
+    if(debouncedValue) {
+      if(debouncedValue.startsWith("iq__") || debouncedValue.startsWith("hq__")) {
+        // const index = debouncedValue.startsWith("hq__") ? rootStore.DecodeVersionHash({versionHash: debouncedValue}) : debouncedValue;
+        LoadFields({index: debouncedValue});
+      } else if(debouncedValue.length > 0) {
+        setCustomIndexError("Invalid Object ID");
+      }
+    } else {
+      setCustomIndexError("");
+      LoadFields({index: searchStore.currentSearch.index});
+    }
+  }, [debouncedValue]);
 
-      LoadFields();
+  useEffect(() => {
+    const index = searchStore.currentSearch.index;
+    if(index) {
+      if(searchStore.currentSearch.index) {
+        LoadFields({index});
+      }
     }
   }, [searchStore.currentSearch.index]);
+
+  const ResetMenu = () => {
+    if(searchStore.customIndex) {
+      setShowAdvancedOptions(true);
+    } else {
+      setShowAdvancedOptions(false);
+    }
+  };
 
   return (
     <Menu
       opened={indexMenuOpen}
       onChange={setIndexMenuOpen}
+      onClose={ResetMenu}
       closeOnItemClick={false}
       offset={12}
     >
@@ -140,6 +230,7 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
                       <Menu.Item
                         key={item.id}
                         mb={12}
+                        disabled={!!searchStore.customIndex}
                       >
                         <Radio
                           classNames={{body: styles.radioBody}}
@@ -164,8 +255,9 @@ const IndexMenu = observer(({searchFields, HandleUpdateSearchField}) => {
                 <AdvancedSection
                   show={showAdvancedOptions}
                   loadingSearchFields={loadingSearchFields}
-                  searchFields={searchFields}
                   HandleUpdate={HandleUpdateSearchField}
+                  customIndexError={customIndexError}
+                  setCustomIndexError={setCustomIndexError}
                 />
                 <Flex justify="flex-end">
                   <Button onClick={() => {
@@ -186,18 +278,13 @@ const SearchBar = observer(({
   setLoadingSearch
 }) => {
   const [fuzzySearchValue, setFuzzySearchValue] = useState("");
-  const [searchFields, setSearchFields] = useState(null);
 
   useEffect(() => {
-    const {terms, searchFields: cachedSearchFields} = searchStore.currentSearch;
+    const {terms} = searchStore.currentSearch;
     if(terms) {
       setFuzzySearchValue(terms);
     }
-
-    if(cachedSearchFields) {
-      setSearchFields(cachedSearchFields);
-    }
-  }, [searchStore.currentSearch.searchFields, searchStore.currentSearch.terms]);
+  }, [searchStore.currentSearch.terms]);
 
   const HandleSearch = async() => {
     if(!(fuzzySearchValue || searchStore.currentSearch.index)) { return; }
@@ -207,8 +294,8 @@ const SearchBar = observer(({
 
       searchStore.ResetSearch();
       const fuzzySearchFields = [];
-      Object.keys(searchFields || {}).forEach(field => {
-        if(searchFields[field].value) {
+      Object.keys(searchStore.currentSearch.searchFields || {}).forEach(field => {
+        if(searchStore.currentSearch.searchFields[field].value) {
           fuzzySearchFields.push(field);
         }
       });
@@ -216,8 +303,6 @@ const SearchBar = observer(({
       await searchStore.GetSearchResults({
         fuzzySearchValue,
         fuzzySearchFields,
-        objectId: searchStore.currentSearch.index,
-        searchVersion: tenantStore.searchIndexes[searchStore.currentSearch.index]?.version,
         musicType: "all"
       });
     } catch(error) {
@@ -229,7 +314,7 @@ const SearchBar = observer(({
   };
 
   const HandleUpdateSearchField = ({field, value}) => {
-    let fields = searchFields;
+    let fields = searchStore.currentSearch.searchFields;
     if(field === "ALL") {
       let newValue = true;
       if(Object.values(fields).every(item => item.value === true)) {
@@ -249,7 +334,7 @@ const SearchBar = observer(({
       };
     }
 
-    setSearchFields(fields);
+    searchStore.SetSearchFields({fields});
   };
 
   return (
@@ -273,8 +358,7 @@ const SearchBar = observer(({
               leftSectionPointerEvents="all"
               leftSection={
                 <IndexMenu
-                  searchFields={searchFields}
-                  setSearchFields={setSearchFields}
+                  setSearchFields={() => searchStore.currentSearch.SetSearchFields()}
                   HandleUpdateSearchField={HandleUpdateSearchField}
                 />
               }

@@ -50,7 +50,7 @@ class VideoStore {
     // Segment play specified - stop when segment ends
     if(this.segmentEnd && this.frame >= this.segmentEnd - 3) {
       this.video.pause();
-      this.Seek(this.segmentEnd - 1);
+      this.Seek({frame: this.segmentEnd - 1});
 
       this.EndSegment();
     }
@@ -81,32 +81,37 @@ class VideoStore {
     this.frameRateRat = metadata.offerings?.default?.media_struct?.streams?.video?.rate;
     this.frameRate = FrameAccurateVideo.ParseRat(this.frameRateRat);
 
-    this.videoHandler = new FrameAccurateVideo({
+    const videoHandler = new FrameAccurateVideo({
       video,
       frameRate: this.frameRate,
       frameRateRat: this.frameRateRat,
       dropFrame,
       callback: this.UpdateVideo
     });
+
+    this.videoHandler = videoHandler;
   });
 
   PlaySegment = ({startTime, endTime}) => {
     const clipStartTime = searchStore.selectedSearchResult?.start_time || 0;
-    const startFrame = this.videoHandler.TimeToFrame(startTime);
+    // const startFrame = this.videoHandler.TimeToFrame((startTime - clipStartTime) / 1000);
     const endFrame = this.videoHandler.TimeToFrame(endTime);
-    this.Seek({frame: startFrame});
+    // this.Seek({frame: startFrame});
+    this.Seek({time: (startTime - clipStartTime) / 1000});
     this.segmentEnd = endFrame;
-    this.player.controls.Seek({time: (startTime - clipStartTime) / 1000});
-    this.player.controls.Play();
+    if(!this.player.controls.IsPlaying()) {
+      this.player.controls.Play();
+    }
   };
 
   EndSegment() {
     this.segmentEnd = undefined;
   }
 
-  Seek = ({frame, clearSegment=true}) => {
+  Seek = ({time, clearSegment=true}) => {
     if(clearSegment) { this.EndSegment(); }
-    this.videoHandler.Seek(frame);
+    // this.videoHandler.Seek(frame);
+    this.player.controls.Seek({time});
   };
 
   TimeToSMPTE = ({time}) => {
