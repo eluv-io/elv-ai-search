@@ -1,6 +1,6 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {observer} from "mobx-react-lite";
-import {Box, Accordion, AccordionControl, Text} from "@mantine/core";
+import {Box, Accordion, AccordionControl, Text, Loader, Flex} from "@mantine/core";
 import {CollapseIcon} from "@/assets/icons/index.js";
 import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import {searchStore} from "@/stores/index.js";
@@ -44,11 +44,34 @@ const AccordionItems = (({tagData={}}) => {
 
 const TagsPanel = observer(() => {
   const [value, setValue] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const tags = Object.fromEntries(
     Object.entries(searchStore.selectedSearchResult?._tags || {})
     .filter(([key]) => !key.toLowerCase().includes("llava"))
   );
+
+  useEffect(() => {
+    const LoadData = async() => {
+      setLoading(true);
+
+      await searchStore.GetTags();
+
+      setLoading(false);
+    };
+
+    if(!searchStore.selectedSearchResult?._tags) {
+      LoadData();
+    }
+  }, [searchStore.selectedSearchResult?._tags]);
+
+  if(loading) {
+    return (
+      <Flex justify="center">
+        <Loader />
+      </Flex>
+    );
+  }
 
   return (
     <Box>

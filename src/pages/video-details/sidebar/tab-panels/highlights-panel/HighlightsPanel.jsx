@@ -148,6 +148,8 @@ const HighlightsPanel = observer(() => {
         endTime: clip.end_time,
         cache
       });
+
+      await searchStore.GetTags();
     } finally {
       setLoading(false);
     }
@@ -230,7 +232,7 @@ const HighlightsPanel = observer(() => {
                       <Flex wrap="wrap" direction="row" gap={8}>
                         {
                           searchStore.selectedSearchResult?._topics.map(topic => (
-                            <Pill key={topic}>{ topic }</Pill>
+                            <Pill key={topic.text.join(", ")}>{ (topic.text || []).join(", ") }</Pill>
                           ))
                         }
                       </Flex>
