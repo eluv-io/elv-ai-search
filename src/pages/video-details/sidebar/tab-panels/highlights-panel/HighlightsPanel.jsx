@@ -179,7 +179,7 @@ const HighlightsPanel = observer(() => {
                 {
                   (searchStore.selectedSearchResult?._highlights?.results || []).map((item, i) => (
                     <ThumbnailCard
-                      key={`thumbnail-${item.path || i}`}
+                      key={`thumbnail-${i}-${item.start_time}-${item.end_time}`}
                       path={item._imageSrc}
                       title={item.caption}
                       startTime={item.start_time}

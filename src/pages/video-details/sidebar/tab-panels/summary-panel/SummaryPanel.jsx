@@ -31,7 +31,7 @@ const Card = ({startTime, text}) => {
 
 const SummaryPanel = observer(() => {
   const clip = searchStore.selectedSearchResult;
-  const llavaTags = clip?._tags?.f_llava_tag;
+  const llavaTags = clip?._tags?.["LLAVA Caption"];
 
   return (
     <Box>
