@@ -370,50 +370,103 @@ class SearchStore {
     }
   });
 
-  ParseTags = flow(function * ({sources=[]}){
+  GetTags = flow(function * ({objectId, startTime, endTime}) {
+    const libraryId = yield this.client.ContentObjectLibraryId({objectId});
+
+    const queryParams = {
+      start_time: startTime,
+      end_time: endTime
+    };
+
+    const url = yield this.client.Rep({
+      libraryId,
+      objectId,
+      rep: "tags",
+      service: "search",
+      makeAccessRequest: true,
+      queryParams
+    });
+
+    const _pos = url.indexOf("/tags?");
+    const newUrl = `https://${this.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
+      .concat(url.slice(_pos));
+
+    try {
+      const results = yield this.client.Request({url: newUrl});
+      const topics = results?.["Sports Topic"];
+
+      return {
+        tags: results,
+        topics
+      };
+    } catch(error) {
+      console.error("Failed to load tags", error);
+    }
+  });
+
+  ParseTags = flow(function * ({sources=[], objectId, startTime, endTime}){
     const parsedTags = {};
     let parsedTopics = [];
 
-    const allTags = sources.reduce((acc, source) => {
-      Object.entries(source.fields).forEach(([key, value]) => {
-        if(key.includes("_tag")) {
-          if(acc.fields[key]) {
-            acc.fields[key] = acc.fields[key].concat(value);
-          } else {
-            acc.fields[key] = value;
-          }
-        }
-      });
+    const libraryId = yield this.client.ContentObjectLibraryId({objectId});
+    const queryParams = {
+      start_time: startTime,
+      end_time: endTime
+    };
 
-      return acc;
-    }, {fields: {}});
+    const url = yield this.client.Rep({
+      libraryId,
+      objectId,
+      rep: "tags",
+      service: "search",
+      makeAccessRequest: true,
+      queryParams
+    });
 
-    for(let i = 0; i < Object.keys(allTags.fields || {}).length; i++) {
-      const tagKey = Object.keys(allTags.fields)[i];
-
-      if(tagKey.includes("music")) {
-        const tagsArray = yield Promise.all(
-          (allTags.fields?.[tagKey] || []).map(async (tag) => {
-            const coverUrl = await this.GetCoverImage({
-              song: tag.text?.[0],
-              queryParams: {
-                width: 50,
-                height: 50
-              }
-            });
-
-            tag["_coverImage"] = coverUrl;
-
-            return tag;
-          })
-        );
-        parsedTags[tagKey] = tagsArray.sort((a, b) => a.start_time < b.start_time);
-      } else if(tagKey.includes("topic")) {
-        parsedTopics = allTags.fields?.[tagKey].flatMap(item => item.text);
-      } else {
-        parsedTags[tagKey] = allTags.fields?.[tagKey].sort((a, b) => a.start_time - b.start_time);
-      }
-    }
+    const _pos = url.indexOf("/tags?");
+    const newUrl = `https://${this.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
+      .concat(url.slice(_pos));
+    //
+    // const allTags = sources.reduce((acc, source) => {
+    //   Object.entries(source.fields).forEach(([key, value]) => {
+    //     if(key.includes("_tag")) {
+    //       if(acc.fields[key]) {
+    //         acc.fields[key] = acc.fields[key].concat(value);
+    //       } else {
+    //         acc.fields[key] = value;
+    //       }
+    //     }
+    //   });
+    //
+    //   return acc;
+    // }, {fields: {}});
+    //
+    // for(let i = 0; i < Object.keys(allTags.fields || {}).length; i++) {
+    //   const tagKey = Object.keys(allTags.fields)[i];
+    //
+    //   if(tagKey.includes("music")) {
+    //     const tagsArray = yield Promise.all(
+    //       (allTags.fields?.[tagKey] || []).map(async (tag) => {
+    //         const coverUrl = await this.GetCoverImage({
+    //           song: tag.text?.[0],
+    //           queryParams: {
+    //             width: 50,
+    //             height: 50
+    //           }
+    //         });
+    //
+    //         tag["_coverImage"] = coverUrl;
+    //
+    //         return tag;
+    //       })
+    //     );
+    //     parsedTags[tagKey] = tagsArray.sort((a, b) => a.start_time < b.start_time);
+    //   } else if(tagKey.includes("topic")) {
+    //     parsedTopics = allTags.fields?.[tagKey].flatMap(item => item.text);
+    //   } else {
+    //     parsedTags[tagKey] = allTags.fields?.[tagKey].sort((a, b) => a.start_time - b.start_time);
+    //   }
+    // }
 
     return {
       parsedTags,
@@ -499,11 +552,14 @@ class SearchStore {
               timeSecs: result.start_time ? result.start_time / 1000 : null
             });
             result["_imageSrc"] = url;
-            const tagsResponse = await this.ParseTags({
-              sources: result?.sources
+            const tagsResponse = await this.GetTags({
+              // sources: result?.sources,
+              objectId: result.id,
+              startTime: result.start_time,
+              endTime: result.end_time
             });
-            result["_tags"] = tagsResponse?.parsedTags;
-            result["_topics"] = tagsResponse?.parsedTopics;
+            result["_tags"] = tagsResponse?.tags;
+            result["_topics"] = tagsResponse?.topics;
             result["_score"] = this.GetSearchScore({clip: result});
             result["_index"] = i;
 
