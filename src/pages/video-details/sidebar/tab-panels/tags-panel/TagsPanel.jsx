@@ -55,7 +55,7 @@ const TagsPanel = observer(() => {
     const LoadData = async() => {
       setLoading(true);
 
-      await searchStore.GetTags();
+      await searchStore.GetTags(false);
 
       setLoading(false);
     };

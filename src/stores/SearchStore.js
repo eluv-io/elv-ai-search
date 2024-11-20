@@ -370,7 +370,7 @@ class SearchStore {
     }
   });
 
-  GetTags = flow(function * () {
+  GetTags = flow(function * (dedupe=false) {
     const {id: objectId, start_time: startTime, end_time: endTime} = this.selectedSearchResult;
     const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
@@ -378,6 +378,10 @@ class SearchStore {
       start_time: startTime,
       end_time: endTime
     };
+
+    if(dedupe) {
+      queryParams["dedupe"] = true;
+    }
 
     const url = yield this.client.Rep({
       libraryId,
@@ -396,13 +400,15 @@ class SearchStore {
       const results = yield this.client.Request({url: newUrl});
       const topics = results?.["Sports Topic"];
 
-      this.UpdateSelectedSearchResult({
-        key: "_tags",
-        value: results
-      });
+      if(!dedupe) {
+        this.UpdateSelectedSearchResult({
+          key: "_tags",
+          value: results
+        });
+      }
 
       this.UpdateSelectedSearchResult({
-        key: "_topics",
+        key: dedupe ? "_topics_deduped" : "_topics",
         value: topics
       });
 

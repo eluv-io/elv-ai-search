@@ -149,7 +149,7 @@ const HighlightsPanel = observer(() => {
         cache
       });
 
-      await searchStore.GetTags();
+      await searchStore.GetTags(true);
     } finally {
       setLoading(false);
     }
@@ -225,13 +225,13 @@ const HighlightsPanel = observer(() => {
 
               {/* Topics */}
               {
-                (searchStore.selectedSearchResult?._topics || []).length > 0 ?
+                (searchStore.selectedSearchResult?._topics_deduped || []).length > 0 ?
                   (
                     <>
                       <TitleGroup title="Suggested Topics" mt={16} aiGenerated />
                       <Flex wrap="wrap" direction="row" gap={8}>
                         {
-                          searchStore.selectedSearchResult?._topics.map(topic => (
+                          searchStore.selectedSearchResult?._topics_deduped.map(topic => (
                             <Pill key={topic.text.join(", ")}>{ (topic.text || []).join(", ") }</Pill>
                           ))
                         }
