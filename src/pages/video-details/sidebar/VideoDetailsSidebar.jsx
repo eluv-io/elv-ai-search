@@ -85,10 +85,16 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
                     <Tabs.Panel
                       key={tab.value}
                       value={tab.value}
-                      h="90%"
+                      h="100vh"
                     >
                       <VideoDetailsSlider sliderValues={SLIDER_VALUES} mb={13} />
-                      <ScrollArea h="100vh" type="hover" maw={sidebarWidth} scrollbarSize={4} offsetScrollbars>
+                      <ScrollArea
+                        h="calc(100vh - 250px)"
+                        type="hover"
+                        maw={sidebarWidth}
+                        scrollbarSize={4}
+                        offsetScrollbars
+                      >
                         <Box w={sidebarWidth - 10} pr={10}>
                           <tab.Component />
                         </Box>

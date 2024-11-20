@@ -106,7 +106,8 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
           variant="transparent"
           c="elv-neutral.4"
           size="xs"
-          p="0.625rem"
+          pl="0.625rem"
+          lh={2}
           onClick={HandleNextPage}
         >
           View More
