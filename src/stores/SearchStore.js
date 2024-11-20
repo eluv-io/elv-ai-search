@@ -491,7 +491,7 @@ class SearchStore {
             let url = await this.rootStore.GetThumbnail({
               objectId: result.id,
               imagePath: result.image_url,
-              timeSecs: result.start_time ? result.start_time / 1000 : null
+              timeSecs: [null, undefined].includes(result.start_time) ? null : result.start_time / 1000
             });
             result["_imageSrc"] = url;
             result["_score"] = this.GetSearchScore({clip: result});
