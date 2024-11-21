@@ -20,6 +20,7 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
   const HandleTabClick = (tabRef) => {
     tabRef.current.scrollIntoView();
   };
+  const sidebarWidth = 415;
 
   return (
     <>
@@ -31,9 +32,9 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
         >
         {transitionStyle => (
           <Box
-            flex="0 0 415px"
-            miw="415px"
-            maw="415px"
+            flex={`0 0 ${sidebarWidth}px`}
+            miw={sidebarWidth}
+            maw={sidebarWidth}
             h="calc(100dvh - 150px)"
             pos="relative"
             opacity={opened ? 1 : 0}
@@ -84,11 +85,19 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
                     <Tabs.Panel
                       key={tab.value}
                       value={tab.value}
-                      h="90%"
+                      h="100vh"
                     >
                       <VideoDetailsSlider sliderValues={SLIDER_VALUES} mb={13} />
-                      <ScrollArea h="95%" type="auto" offsetScrollbars>
-                        <tab.Component />
+                      <ScrollArea
+                        h="calc(100vh - 250px)"
+                        type="hover"
+                        maw={sidebarWidth}
+                        scrollbarSize={4}
+                        offsetScrollbars
+                      >
+                        <Box w={sidebarWidth - 10} pr={10}>
+                          <tab.Component />
+                        </Box>
                       </ScrollArea>
                     </Tabs.Panel>
                   ))

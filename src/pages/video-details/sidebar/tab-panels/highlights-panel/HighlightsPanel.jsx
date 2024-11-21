@@ -148,6 +148,8 @@ const HighlightsPanel = observer(() => {
         endTime: clip.end_time,
         cache
       });
+
+      await searchStore.GetTags(true);
     } finally {
       setLoading(false);
     }
@@ -177,7 +179,7 @@ const HighlightsPanel = observer(() => {
                 {
                   (searchStore.selectedSearchResult?._highlights?.results || []).map((item, i) => (
                     <ThumbnailCard
-                      key={`thumbnail-${item.path || i}`}
+                      key={`thumbnail-${i}-${item.start_time}-${item.end_time}`}
                       path={item._imageSrc}
                       title={item.caption}
                       startTime={item.start_time}
@@ -223,14 +225,14 @@ const HighlightsPanel = observer(() => {
 
               {/* Topics */}
               {
-                (searchStore.selectedSearchResult?._topics || []).length > 0 ?
+                (searchStore.selectedSearchResult?._topics_deduped || []).length > 0 ?
                   (
                     <>
                       <TitleGroup title="Suggested Topics" mt={16} aiGenerated />
                       <Flex wrap="wrap" direction="row" gap={8}>
                         {
-                          searchStore.selectedSearchResult?._topics.map(topic => (
-                            <Pill key={topic}>{ topic }</Pill>
+                          searchStore.selectedSearchResult?._topics_deduped.map(topic => (
+                            <Pill key={topic.text.join(", ")}>{ (topic.text || []).join(", ") }</Pill>
                           ))
                         }
                       </Flex>

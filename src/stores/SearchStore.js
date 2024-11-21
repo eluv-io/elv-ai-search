@@ -12,6 +12,8 @@ class SearchStore {
   };
   customIndex = "";
   searchHostname = "ai";
+  highScore = 50;
+  highScoreResults = null;
   selectedSearchResult;
   musicSettingEnabled = false;
 
@@ -37,8 +39,9 @@ class SearchStore {
     this.selectedSearchResult[key] = value;
   };
 
-  SetCurrentSearch = ({results, resultsBySong, index, terms}) => {
+  SetCurrentSearch = ({results, resultsBySong, index, terms, highScoreResults}) => {
     this.currentSearch.results = {...results};
+    this.highScoreResults = highScoreResults;
     this.currentSearch.resultsBySong = {...resultsBySong};
     this.currentSearch.index = index;
     this.currentSearch.terms = terms;
@@ -326,6 +329,8 @@ class SearchStore {
   ResetSearch = () => {
     this.SetCurrentSearch({
       results: null,
+      resultsBySong: null,
+      highScoreResults: null,
       index: this.currentSearch.index,
       terms: this.currentSearch.terms
     });
@@ -365,55 +370,56 @@ class SearchStore {
     }
   });
 
-  ParseTags = flow(function * ({sources=[]}){
-    const parsedTags = {};
-    let parsedTopics = [];
+  GetTags = flow(function * (dedupe=false) {
+    const {id: objectId, start_time: startTime, end_time: endTime} = this.selectedSearchResult;
+    const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
-    const allTags = sources.reduce((acc, source) => {
-      Object.entries(source.fields).forEach(([key, value]) => {
-        if(key.includes("_tag")) {
-          if(acc.fields[key]) {
-            acc.fields[key] = acc.fields[key].concat(value);
-          } else {
-            acc.fields[key] = value;
-          }
-        }
-      });
+    const queryParams = {
+      start_time: startTime,
+      end_time: endTime
+    };
 
-      return acc;
-    }, {fields: {}});
-
-    for(let i = 0; i < Object.keys(allTags.fields || {}).length; i++) {
-      const tagKey = Object.keys(allTags.fields)[i];
-
-      if(tagKey.includes("music")) {
-        const tagsArray = yield Promise.all(
-          (allTags.fields?.[tagKey] || []).map(async (tag) => {
-            const coverUrl = await this.GetCoverImage({
-              song: tag.text?.[0],
-              queryParams: {
-                width: 50,
-                height: 50
-              }
-            });
-
-            tag["_coverImage"] = coverUrl;
-
-            return tag;
-          })
-        );
-        parsedTags[tagKey] = tagsArray.sort((a, b) => a.start_time < b.start_time);
-      } else if(tagKey.includes("topic")) {
-        parsedTopics = allTags.fields?.[tagKey].flatMap(item => item.text);
-      } else {
-        parsedTags[tagKey] = allTags.fields?.[tagKey].sort((a, b) => a.start_time - b.start_time);
-      }
+    if(dedupe) {
+      queryParams["dedupe"] = true;
     }
 
-    return {
-      parsedTags,
-      parsedTopics
-    };
+    const url = yield this.client.Rep({
+      libraryId,
+      objectId,
+      rep: "tags",
+      service: "search",
+      makeAccessRequest: true,
+      queryParams
+    });
+
+    const _pos = url.indexOf("/tags?");
+    const newUrl = `https://${this.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
+      .concat(url.slice(_pos));
+
+    try {
+      const results = yield this.client.Request({url: newUrl});
+      const topics = results?.["Sports Topic"];
+
+      if(!dedupe) {
+        this.UpdateSelectedSearchResult({
+          key: "_tags",
+          value: results
+        });
+      }
+
+      this.UpdateSelectedSearchResult({
+        key: dedupe ? "_topics_deduped" : "_topics",
+        value: topics
+      });
+
+      return {
+        tags: results,
+        topics
+      };
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to load tags", error);
+    }
   });
 
   ParseResultsBySong = ({results}) => {
@@ -491,14 +497,9 @@ class SearchStore {
             let url = await this.rootStore.GetThumbnail({
               objectId: result.id,
               imagePath: result.image_url,
-              timeSecs: result.start_time ? result.start_time / 1000 : null
+              timeSecs: [null, undefined].includes(result.start_time) ? null : result.start_time / 1000
             });
             result["_imageSrc"] = url;
-            const tagsResponse = await this.ParseTags({
-              sources: result?.sources
-            });
-            result["_tags"] = tagsResponse?.parsedTags;
-            result["_topics"] = tagsResponse?.parsedTopics;
             result["_score"] = this.GetSearchScore({clip: result});
             result["_index"] = i;
 
@@ -514,10 +515,15 @@ class SearchStore {
 
       results.contents = editedContents;
 
+      const highScoreResults = (results.contents || []).filter(item => {
+        (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
+      });
+
       if(cacheResults) {
         this.SetCurrentSearch({
           results,
           resultsBySong,
+          highScoreResults,
           index: objectId,
           terms: fuzzySearchValue
         });

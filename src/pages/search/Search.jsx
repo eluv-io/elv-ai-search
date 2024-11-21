@@ -104,7 +104,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
 const Search = observer(() => {
   const [loadingSearch, setLoadingSearch] = useState(false);
   // Show all results vs top results that have a high score
-  const [resultType, setResultType] = useState("HIGH_SCORE");
+  const [resultType, setResultType] = useState((searchStore.highScoreResults || []).length ? "HIGH_SCORE" : "ALL");
 
   // useEffect(() => {
   //   setResultType("ALL");
