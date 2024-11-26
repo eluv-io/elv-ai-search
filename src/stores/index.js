@@ -75,6 +75,24 @@ class RootStore {
     }
   });
 
+  GetFilePath = flow(function * ({
+    libraryId,
+    objectId,
+    path,
+    queryParams={}
+  }){
+    if(!libraryId) {
+      libraryId = yield this.client.ContentObjectLibraryId({objectId});
+    }
+
+    return this.client.FileUrl({
+      libraryId,
+      objectId,
+      filePath: path,
+      queryParams
+    });
+  });
+
   GetDownloadUrlWithMaxResolution = flow (function * ({
     libraryId,
     objectId,

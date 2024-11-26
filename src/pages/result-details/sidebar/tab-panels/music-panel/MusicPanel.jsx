@@ -1,7 +1,7 @@
 import {observer} from "mobx-react-lite";
 import {Box, Flex, Loader, SimpleGrid, Text} from "@mantine/core";
 import {searchStore} from "@/stores/index.js";
-import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
+import TagsTable from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import {useEffect, useState} from "react";
 
 const MusicPanel = observer(() => {

@@ -38,7 +38,7 @@ const Rows = ({rows=[]}) => {
 };
 
 const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
-  const rows = tags.map((tagItem, i) => (
+  const rows = (tags || []).map((tagItem, i) => (
     {
       image: tagItem._coverImage,
       timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),

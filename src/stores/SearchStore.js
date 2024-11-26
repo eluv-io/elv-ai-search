@@ -212,7 +212,8 @@ class SearchStore {
     versionHash,
     searchPhrase,
     searchFields,
-    musicType
+    musicType,
+    searchAssetType
   }) {
     try {
       let libraryId, queryParams;
@@ -257,7 +258,7 @@ class SearchStore {
           start: 0,
           limit: 160,
           display_fields: "all",
-          clips: true,
+          clips: searchAssetType ? false : true,
           clips_include_source_tags: true,
           debug: true,
           clips_max_duration: 55,
@@ -296,33 +297,32 @@ class SearchStore {
   });
 
   GetSearchParams = flow(function * ({objectId}) {
-    // TODO: Find a better way to determine searchAssets field
-    let searchAssets = false;
-    let fuzzySearchFields;
+    let searchAssetType = false;
+    // let fuzzySearchFields;
     const indexerMetadata = yield this.client.ContentObjectMetadata({
       libraryId: yield this.client.ContentObjectLibraryId({objectId}),
       objectId: objectId,
       metadataSubtree: "indexer/config/indexer/arguments",
       select: [
         "document/prefix",
-        "fields"
+        // "fields"
       ]
     });
 
     if(indexerMetadata?.document?.prefix?.includes("assets")) {
-      searchAssets = true;
+      searchAssetType = true;
     }
 
-    if(indexerMetadata?.fields) {
-      fuzzySearchFields = Object.keys(indexerMetadata?.fields || {})
-        .filter(field => indexerMetadata?.fields[field].type === "text")
-        // .filter(field => selectedFields.includes(field))
-        .map(field => `f_${field}`);
-    }
+    // if(indexerMetadata?.fields) {
+    //   fuzzySearchFields = Object.keys(indexerMetadata?.fields || {})
+    //     .filter(field => indexerMetadata?.fields[field].type === "text")
+    //     // .filter(field => selectedFields.includes(field))
+    //     .map(field => `f_${field}`);
+    // }
 
     return {
-      fuzzySearchFields,
-      searchAssets
+      // fuzzySearchFields,
+      searchAssetType
     };
   });
 
@@ -380,6 +380,7 @@ class SearchStore {
     };
 
     if(dedupe) {
+      // De-duplicates results
       queryParams["dedupe"] = true;
     }
 
@@ -400,7 +401,7 @@ class SearchStore {
       const results = yield this.client.Request({url: newUrl});
       const topics = results?.["Sports Topic"];
 
-      if(!dedupe) {
+      if(!dedupe && !results?.error) {
         this.UpdateSelectedSearchResult({
           key: "_tags",
           value: results
@@ -439,11 +440,21 @@ class SearchStore {
     return resultsBySong;
   };
 
-  GetSearchScore = ({clip}) => {
-    const scores = clip?.sources?.map(source => source.score);
-    const highScore = Math.max(...scores);
+  GetSearchScore = ({clip, score}) => {
+    let highScore;
 
-    return highScore ? (highScore * 100).toFixed(1) : "";
+    // Score is provided as a single float
+    if(score) {
+      highScore = score;
+    } else {
+      // Score is provided as an array of scores
+      const scores = clip?.sources?.map(source => source.score);
+      highScore = Math.max(...scores);
+
+      highScore = highScore * 100;
+    }
+
+    return highScore ? highScore.toFixed(1) : "";
   };
 
   GetSearchResults = flow(function * ({
@@ -463,12 +474,18 @@ class SearchStore {
       objectId = indexValue;
     }
 
+    // Determine whether index is asset type
+    const {searchAssetType} = yield this.GetSearchParams({
+      objectId
+    });
+
     urlResponse = yield this.CreateVectorSearchUrl({
       objectId,
       versionHash,
       searchPhrase: fuzzySearchValue,
       searchFields: fuzzySearchFields,
-      musicType: musicType
+      musicType: musicType,
+      searchAssetType
     });
 
     // Used for v1 search. Unsupported until further notice
@@ -493,21 +510,37 @@ class SearchStore {
 
       editedContents = yield Promise.all(
         (results.contents || results.results).map(async (result, i) => {
-          try {
-            let url = await this.rootStore.GetThumbnail({
-              objectId: result.id,
-              imagePath: result.image_url,
-              timeSecs: [null, undefined].includes(result.start_time) ? null : result.start_time / 1000
-            });
-            result["_imageSrc"] = url;
-            result["_score"] = this.GetSearchScore({clip: result});
-            result["_index"] = i;
+          let url;
 
-            return result;
-          } catch(error) {
-            // eslint-disable-next-line no-console
-            console.error(`Unable to retrieve thumbnail for ${result.id}`);
+          if(searchAssetType) {
+            result["_score"] = this.GetSearchScore({score: result.score});
+            result["_assetType"] = true;
+
+            url = await this.rootStore.GetFilePath({
+              objectId: result.id,
+              path: result.prefix
+            });
+
+            result["_imageSrc"] = url;
+          } else {
+            try {
+              url = await this.rootStore.GetThumbnail({
+                objectId: result.id,
+                imagePath: result.image_url,
+                timeSecs: [null, undefined].includes(result.start_time) ? null : result.start_time / 1000
+              });
+              result["_imageSrc"] = url;
+            } catch(error) {
+              // eslint-disable-next-line no-console
+              console.error(`Unable to retrieve thumbnail for ${result.id}`, error);
+            }
+
+            result["_score"] = this.GetSearchScore({clip: result});
           }
+
+          result["_index"] = i;
+
+          return result;
         })
       );
 

@@ -146,6 +146,8 @@ const HighlightsPanel = observer(() => {
         objectId: clip.id,
         startTime: clip.start_time,
         endTime: clip.end_time,
+        prefix: clip.prefix,
+        assetType: clip._assetType,
         cache
       });
 

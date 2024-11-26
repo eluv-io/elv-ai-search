@@ -1,6 +1,6 @@
 import {observer} from "mobx-react-lite";
 import {Button, Group, RangeSlider} from "@mantine/core";
-import styles from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsPanel.module.css";
+import styles from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsPanel.module.css";
 
 const VideoDetailsSlider = observer(({sliderValues=[]}) => {
   return (

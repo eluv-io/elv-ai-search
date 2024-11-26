@@ -5,7 +5,7 @@ import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionI
 import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 
-const VideoDetailsNavToolbar = observer(() => {
+const ResultDetailsNavToolbar = observer(() => {
   const navigate = useNavigate();
 
   const HandleNavClip = (prev) => {
@@ -37,4 +37,4 @@ const VideoDetailsNavToolbar = observer(() => {
   );
 });
 
-export default VideoDetailsNavToolbar;
+export default ResultDetailsNavToolbar;

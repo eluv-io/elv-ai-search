@@ -2,7 +2,7 @@ import {useEffect, useState} from "react";
 import {observer} from "mobx-react-lite";
 import {Box, Accordion, AccordionControl, Text, Loader, Flex} from "@mantine/core";
 import {CollapseIcon} from "@/assets/icons/index.js";
-import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
+import TagsTable from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import {searchStore} from "@/stores/index.js";
 
 const AccordionItems = (({tagData={}}) => {

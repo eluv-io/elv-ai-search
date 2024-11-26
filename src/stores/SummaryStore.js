@@ -19,29 +19,46 @@ class SummaryStore {
     this.loadingSummary = !this.loadingSummary;
   };
 
-  GetSummaryUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
+  GetSummaryUrl = flow(function * ({
+    objectId,
+    startTime,
+    endTime,
+    prefix,
+    assetType=false,
+    cache=true
+  }) {
     try {
+      let requestRep, requestUrl;
       const queryParams = {
-        start_time: startTime,
-        end_time: endTime,
         tracks: "speech_to_text,object_detection,celebrity_detection"
       };
 
+      if(assetType) {
+        queryParams["path"] = prefix.toString();
+        requestRep = "image_summarize";
+        requestUrl = "summary";
+      } else {
+        queryParams["start_time"] = startTime;
+        queryParams["end_time"] = endTime;
+        requestRep = "summarize";
+        requestUrl = "mlcache/summary";
+      }
+
       if(!cache) {
-        queryParams["regenerate"] = true;
+        queryParams.set("regenerate", "true");
       }
 
       const url = yield this.client.Rep({
         libraryId: yield this.client.ContentObjectLibraryId({objectId}),
         objectId,
-        rep: "summarize",
+        rep: requestRep,
         service: "search",
         makeAccessRequest: true,
         queryParams: queryParams
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-03.contentfabric.io/mlcache/summary/q/${objectId}`
+      const newUrl = `https://ai-03.contentfabric.io/${requestUrl}/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;
@@ -51,7 +68,14 @@ class SummaryStore {
     }
   });
 
-  GetSummaryResults = flow(function * ({objectId, startTime, endTime, cache=true}) {
+  GetSummaryResults = flow(function * ({
+    objectId,
+    startTime,
+    endTime,
+    prefix,
+    assetType=false,
+    cache=true
+  }) {
     let url;
     try {
       this.ToggleLoading();
@@ -59,6 +83,8 @@ class SummaryStore {
         objectId,
         startTime,
         endTime,
+        assetType,
+        prefix,
         cache
       });
     } catch(error) {

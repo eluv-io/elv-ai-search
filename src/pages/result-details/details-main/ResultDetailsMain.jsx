@@ -3,7 +3,7 @@ import {
   AspectRatio,
   Box,
   Button,
-  Flex,
+  Flex, Image,
   Loader,
   SimpleGrid,
   Transition
@@ -21,7 +21,52 @@ import {ratingStore, searchStore, summaryStore, videoStore} from "@/stores/index
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 
-const VideoDetailsMain = observer(({
+const MediaItem = ({
+  clip
+}) => {
+  if(clip._assetType) {
+    return (
+      <AspectRatio ratio={16 / 9}>
+        <Image
+          src={clip._imageSrc}
+        />
+      </AspectRatio>
+    );
+  } else {
+    return (
+      <AspectRatio ratio={16 / 9}>
+        <Video
+          objectId={clip.id}
+          playerOptions={{
+            posterUrl: clip._imageSrc,
+            autoplay: EluvioPlayerParameters.autoplay.OFF,
+            hlsjsOptions: {
+              fragLoadingTimeOut: 30000,
+              maxBufferHole: 1.5
+            },
+          }}
+          playoutParameters={{
+            clipStart: clip.start_time / 1000,
+            clipEnd: clip.end_time / 1000,
+            ignoreTrimming: true,
+            permanentPoster: PlayerParameters.permanentPoster.ON
+          }}
+          Callback={({video, player}) => {
+            videoStore.SetVideo({
+              video,
+              player,
+              objectId: clip.id,
+              startTime: clip.start_time,
+              endTime: clip.end_time
+            });
+          }}
+        />
+      </AspectRatio>
+    );
+  }
+};
+
+const ResultDetailsMain = observer(({
   clip,
   openedSidebar,
   open
@@ -112,34 +157,7 @@ const VideoDetailsMain = observer(({
             )}
           </Transition>
         }
-        <AspectRatio ratio={16 / 9}>
-          <Video
-            objectId={clip.id}
-            playerOptions={{
-              posterUrl: clip._imageSrc,
-              autoplay: EluvioPlayerParameters.autoplay.OFF,
-              hlsjsOptions: {
-                fragLoadingTimeOut: 30000,
-                maxBufferHole: 1.5
-              },
-            }}
-            playoutParameters={{
-              clipStart: clip.start_time / 1000,
-              clipEnd: clip.end_time / 1000,
-              ignoreTrimming: true,
-              permanentPoster: PlayerParameters.permanentPoster.ON
-            }}
-            Callback={({video, player}) => {
-              videoStore.SetVideo({
-                video,
-                player,
-                objectId: clip.id,
-                startTime: clip.start_time,
-                endTime: clip.end_time
-              });
-            }}
-          />
-        </AspectRatio>
+        <MediaItem clip={clip} />
       </Box>
 
       <VideoActionsBar
@@ -188,6 +206,8 @@ const VideoDetailsMain = observer(({
                   objectId: clip.id,
                   startTime: clip.start_time,
                   endTime: clip.end_time,
+                  prefix: clip.prefix,
+                  assetType: clip._assetType,
                   cache: false
                 });
               } finally {
@@ -212,7 +232,9 @@ const VideoDetailsMain = observer(({
                         await summaryStore.GetSummaryResults({
                           objectId: clip.id,
                           startTime: clip.start_time,
-                          endTime: clip.end_time
+                          endTime: clip.end_time,
+                          prefix: clip.prefix,
+                          assetType: clip._assetType,
                         });
                       } finally {
                         setLoadingSummary(false);
@@ -239,4 +261,4 @@ const VideoDetailsMain = observer(({
   );
 });
 
-export default VideoDetailsMain;
+export default ResultDetailsMain;

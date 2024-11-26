@@ -33,7 +33,7 @@ const Clip = observer(({
   song
  }) => {
   const navigate = useNavigate();
-  const {id, start_time: startTime, end_time: endTime} = clip;
+  const {id, start_time: startTime, end_time: endTime, _assetType} = clip;
 
   return (
     <UnstyledButton
@@ -67,11 +67,14 @@ const Clip = observer(({
             </Box>
           }
         </Flex>
-        <Box>
-          <Text size="sm">
-            { TimeInterval({startTime, endTime}) }
-          </Text>
-        </Box>
+        {
+          !_assetType &&
+          <Box>
+            <Text size="sm">
+              { TimeInterval({startTime, endTime}) }
+            </Text>
+          </Box>
+        }
         <Group gap={4} wrap="nowrap">
           <EyeIcon color="var(--mantine-color-elv-gray-3)" />
           {/* TODO: Replace hardcoded value with api response */}

@@ -1,9 +1,9 @@
 import {observer} from "mobx-react-lite";
 import {Box, CloseButton, Flex, Group, ScrollArea, Tabs, Transition} from "@mantine/core";
-import HighlightsPanel from "@/pages/video-details/sidebar/tab-panels/highlights-panel/HighlightsPanel.jsx";
-import TagsPanel from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsPanel.jsx";
-import styles from "../VideoDetails.module.css";
-import SummaryPanel from "@/pages/video-details/sidebar/tab-panels/summary-panel/SummaryPanel.jsx";
+import HighlightsPanel from "@/pages/result-details/sidebar/tab-panels/highlights-panel/HighlightsPanel.jsx";
+import TagsPanel from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsPanel.jsx";
+import styles from "../ResultDetails.module.css";
+import SummaryPanel from "@/pages/result-details/sidebar/tab-panels/summary-panel/SummaryPanel.jsx";
 import {useRef} from "react";
 import {SLIDER_VALUES} from "@/utils/constants.js";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
@@ -15,7 +15,7 @@ const DETAILS_TABS = [
   // {value: "music", label: "Music", Component: MusicPanel, hidden: !searchStore.musicSettingEnabled},
 ];
 
-const VideoDetailsSidebar = observer(({opened, close}) => {
+const ResultDetailsSidebar = observer(({opened, close}) => {
   const tabRef = useRef(null);
   const HandleTabClick = (tabRef) => {
     tabRef.current.scrollIntoView();
@@ -110,4 +110,4 @@ const VideoDetailsSidebar = observer(({opened, close}) => {
   );
 });
 
-export default VideoDetailsSidebar;
+export default ResultDetailsSidebar;
