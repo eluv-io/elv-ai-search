@@ -3,7 +3,9 @@ import {
   AspectRatio,
   Box,
   Button,
-  Flex, Image,
+  Flex,
+  Grid,
+  Image,
   Loader,
   SimpleGrid,
   Transition
@@ -167,28 +169,40 @@ const ResultDetailsMain = observer(({
         currentStars={currentStars}
       />
 
-      <SimpleGrid cols={3} mb={8} gap={8}>
-        <TextCard
-          text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
-        />
-        <TextCard
-          text={clip.id}
-          copyText={clip.id}
-          lineClamp={1}
-        />
-        <SimpleGrid cols={2} gap={16}>
+      <Grid gap={8} mb={8}>
+        {
+          clip._assetType ? null :
+          <Grid.Col span={4}>
+            <TextCard
+              text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
+            />
+          </Grid.Col>
+        }
+        <Grid.Col span={clip._assetType ? 10 : 4}>
           <TextCard
-            text="Streaming"
-            centerText
-            copyText={embedUrl}
+            text={clip.id}
+            copyText={clip.id}
+            lineClamp={1}
           />
-          <TextCard
-            text="Download"
-            centerText
-            copyText={downloadUrl}
-          />
-        </SimpleGrid>
-      </SimpleGrid>
+        </Grid.Col>
+        <Grid.Col span={clip._assetType ? 2 : 4}>
+          <SimpleGrid cols={clip._assetType ? 1 : 2}>
+            {
+              clip._assetType ? null :
+                <TextCard
+                  text="Streaming"
+                  centerText
+                  copyText={embedUrl}
+                />
+            }
+              <TextCard
+                text="Download"
+                centerText
+                copyText={downloadUrl}
+              />
+          </SimpleGrid>
+        </Grid.Col>
+      </Grid>
 
       <TextCard
         title={searchStore.selectedSearchResult?._summary ? searchStore.selectedSearchResult?._summary?.title || "Summary" : ""}
