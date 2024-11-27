@@ -94,11 +94,9 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
-  let clipsType;
+const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", viewCount}) => {
   if(!clips) {
     clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
-    clipsType = searchStore.results?.video ? "VIDEO" : "IMAGE";
   }
 
   const musicEnabled = searchStore.musicSettingEnabled;
@@ -111,7 +109,7 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
         return searchStore.highScoreResults;
       }
     } else {
-      return clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
+      return clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60).slice(0, viewCount);
     }
   };
 
@@ -128,7 +126,7 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
       {
         clips.length > 0 &&
         <Title c="elv-gray.8" order={3} size="1.5rem" mb={16}>
-          { clipsType === "VIDEO" ? "Videos" : "Images"}
+          {/*{ clipsType === "VIDEO" ? "Videos" : "Images"}*/}
         </Title>
       }
       <SimpleGrid cols={4} spacing="lg">

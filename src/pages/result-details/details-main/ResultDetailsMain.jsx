@@ -31,6 +31,7 @@ const MediaItem = ({
       <AspectRatio ratio={16 / 9}>
         <Image
           src={clip._imageSrc}
+          fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
         />
       </AspectRatio>
     );

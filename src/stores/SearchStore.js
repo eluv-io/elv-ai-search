@@ -12,14 +12,16 @@ class SearchStore {
   };
   customIndex = "";
   searchHostname = "ai";
-  searchType;
+  searchType = "ALL";
 
   resultsBySong = null;
   resultsVideo = null;
   resultsImage = null;
 
   highScore = 50;
-  highScoreResults = null;
+  highScoreVideoResults = null;
+  highScoreImageResults = null;
+
   selectedSearchResult;
   musicSettingEnabled = false;
 
@@ -36,8 +38,10 @@ class SearchStore {
   get results() {
     return {
       video: this.resultsVideo,
+      videoHighScore: this.highScoreVideoResults,
       bySong: this.resultsBySong,
-      image: this.resultsImage
+      image: this.resultsImage,
+      imageHighScore: this.highScoreImageResults
     };
   }
 
@@ -60,10 +64,12 @@ class SearchStore {
     imageResults,
     index,
     terms,
-    highScoreResults
+    highScoreVideoResults,
+    highScoreImageResults
   }) => {
     this.currentSearch.results = {...results};
-    this.highScoreResults = highScoreResults;
+    this.highScoreImageResults = highScoreImageResults;
+    this.highScoreVideoResults = highScoreVideoResults;
     this.currentSearch.resultsBySong = {...resultsBySong};
     this.currentSearch.index = index;
     this.currentSearch.terms = terms;
@@ -241,7 +247,7 @@ class SearchStore {
     searchPhrase,
     searchFields,
     musicType,
-    searchAssetType
+    searchType
   }) {
     try {
       let libraryId, queryParams;
@@ -286,7 +292,7 @@ class SearchStore {
           start: 0,
           limit: 160,
           display_fields: "all",
-          clips: searchAssetType ? false : true,
+          clips: searchType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
           debug: true,
           clips_max_duration: 55,
@@ -364,7 +370,7 @@ class SearchStore {
       index: this.currentSearch.index,
       terms: this.currentSearch.terms
     });
-    this.SetSearchType({type: ""});
+    this.SetSearchType({type: "ALL"});
   };
 
   GetCoverImage = flow(function * ({song, queryParams}) {
@@ -509,66 +515,19 @@ class SearchStore {
     return highScore ? highScore.toFixed(1) : "";
   };
 
-  GetSearchResults = flow(function * ({
-    // objectId,
-    // versionHash,
-    fuzzySearchValue,
-    fuzzySearchFields,
-    musicType,
-    cacheResults=true
-  }) {
-    let urlResponse, objectId, versionHash;
-    const indexValue = this.customIndex || this.currentSearch.index;
-
-    if(indexValue.startsWith("hq__")) {
-      versionHash = indexValue;
-    } else if(indexValue.startsWith("iq__")) {
-      objectId = indexValue;
-    }
-
-    // Determine whether index is asset type
-    const {searchAssetType} = yield this.GetSearchParams({
-      objectId
-    });
-
-    urlResponse = yield this.CreateVectorSearchUrl({
-      objectId,
-      versionHash,
-      searchPhrase: fuzzySearchValue,
-      searchFields: fuzzySearchFields,
-      musicType: musicType,
-      searchAssetType
-    });
-
-    // Used for v1 search. Unsupported until further notice
-    // The search engine is changed in a way that is no longer compatible with v1 indexes
-    // urlResponse = yield this.CreateSearchUrl({
-    //   objectId,
-    //   versionHash,
-    //   fuzzySearchValue,
-    //   searchVersion, // 1 or 2
-    //   fuzzySearchFields,
-    //   searchAssets,
-    // });
-
-    if(urlResponse.status !== 0) {
-      // TODO: Error handling
-      throw Error("Failed to create search query URL");
-    }
-
+  ParseResults = flow(function * ({url, searchType}) {
     try {
-      let videoResults, imageResults;
-      let results = yield this.client.Request({url: urlResponse.url});
+      let videoResults, imageResults, resultsBySong;
+      let results = yield this.client.Request({url});
       let editedContents;
 
       editedContents = yield Promise.all(
         (results.contents || results.results).map(async (result, i) => {
           let url;
 
-          if(searchAssetType) {
+          if(searchType === "IMAGES") {
             result["_score"] = this.GetSearchScore({score: result.score});
             result["_assetType"] = true;
-            this.SetSearchType({type: "IMAGES"});
 
             url = await this.rootStore.GetFilePath({
               objectId: result.id,
@@ -587,7 +546,6 @@ class SearchStore {
                 timeSecs: [null, undefined].includes(result.start_time) ? null : result.start_time / 1000
               });
               result["_imageSrc"] = url;
-              this.SetSearchType({type: "VIDEOS"});
             } catch(error) {
               // eslint-disable-next-line no-console
               console.error(`Unable to retrieve thumbnail for ${result.id}`, error);
@@ -602,14 +560,13 @@ class SearchStore {
         })
       );
 
-      const resultsBySong = this.ParseResultsBySong({results: results.contents});
-
-      if(searchAssetType) {
+      if(searchType === "IMAGES") {
         imageResults = {
           ...results,
           contents: editedContents
         };
       } else {
+        resultsBySong = this.ParseResultsBySong({results: results.contents});
         videoResults = {
           ...results,
           contents: editedContents
@@ -620,22 +577,80 @@ class SearchStore {
         (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
       });
 
-      if(cacheResults) {
-        this.SetCurrentSearch({
-          results,
-          resultsBySong,
-          videoResults,
-          imageResults,
-          highScoreResults,
-          index: objectId,
-          terms: fuzzySearchValue
-        });
-      }
-
-      return results;
+      return {
+        imageResults,
+        videoResults,
+        resultsBySong,
+        highScoreResults
+      };
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Unable to perform search", error);
+    }
+  });
+
+  GetSearchResults = flow(function * ({
+    fuzzySearchValue,
+    fuzzySearchFields,
+    musicType,
+    cacheResults=true
+  }) {
+    let objectId, versionHash, imageUrl, videoUrl, imageResults, videoResults, resultsBySong, highScoreImage, highScoreVideo;
+    const indexValue = this.customIndex || this.currentSearch.index;
+
+    if(indexValue.startsWith("hq__")) {
+      versionHash = indexValue;
+    } else if(indexValue.startsWith("iq__")) {
+      objectId = indexValue;
+    }
+
+    // Determine whether index is asset type
+    // const {searchAssetType} = yield this.GetSearchParams({
+    //   objectId
+    // });
+
+    const ImageRequest = this.CreateVectorSearchUrl({
+      objectId,
+      versionHash,
+      searchPhrase: fuzzySearchValue,
+      searchFields: fuzzySearchFields,
+      musicType: musicType,
+      searchType: "IMAGES"
+    });
+
+    const VideoRequest = this.CreateVectorSearchUrl({
+      objectId,
+      versionHash,
+      searchPhrase: fuzzySearchValue,
+      searchFields: fuzzySearchFields,
+      musicType: musicType,
+      searchType: "VIDEOS"
+    });
+
+    if(this.searchType === "ALL") {
+      imageUrl = yield ImageRequest;
+      videoUrl = yield VideoRequest;
+
+      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({url: videoUrl.url, searchType: "VIDEOS"}));
+      ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({url: imageUrl.url, searchType: "IMAGES"}));
+    } else if(this.searchType === "IMAGES") {
+      imageUrl = yield ImageRequest();
+      ({imageResults, highScoreResults: highScoreVideo} = yield this.ParseResults({url: imageUrl.url, searchType: "IMAGES"}));
+    } else if(this.searchType === "VIDEOS") {
+      videoUrl = yield VideoRequest();
+      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({url: videoUrl.url, searchType: "VIDEOS"}));
+    }
+
+    if(cacheResults) {
+      this.SetCurrentSearch({
+        videoResults,
+        imageResults,
+        resultsBySong,
+        highScoreImageResults: highScoreImage,
+        highScoreVideoResults: highScoreVideo,
+        index: objectId,
+        terms: fuzzySearchValue
+      });
     }
   });
 
