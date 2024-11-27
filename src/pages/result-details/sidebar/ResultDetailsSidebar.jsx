@@ -7,6 +7,7 @@ import SummaryPanel from "@/pages/result-details/sidebar/tab-panels/summary-pane
 import {useRef} from "react";
 import {SLIDER_VALUES} from "@/utils/constants.js";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
+import {searchStore} from "@/stores/index.js";
 
 const DETAILS_TABS = [
   {value: "summary", label: "Description", Component: SummaryPanel},
@@ -87,7 +88,10 @@ const ResultDetailsSidebar = observer(({opened, close}) => {
                       value={tab.value}
                       h="100vh"
                     >
-                      <VideoDetailsSlider sliderValues={SLIDER_VALUES} mb={13} />
+                      {
+                        !searchStore.selectedSearchResult?._assetType &&
+                        <VideoDetailsSlider sliderValues={SLIDER_VALUES} mb={13} />
+                      }
                       <ScrollArea
                         h="calc(100vh - 250px)"
                         type="hover"

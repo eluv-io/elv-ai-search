@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {Box, Flex, Stack, Text} from "@mantine/core";
+import {Box, Flex, Loader, Stack, Text} from "@mantine/core";
 import {searchStore} from "@/stores/index.js";
 import {PencilIcon} from "@/assets/icons/index.js";
 import {FormatTime} from "@/utils/helpers.js";
@@ -31,7 +31,10 @@ const Card = ({startTime, text}) => {
 
 const SummaryPanel = observer(() => {
   const clip = searchStore.selectedSearchResult;
-  const llavaTags = clip?._tags?.["LLAVA Caption"];
+  const llavaTagKey = Object.keys(clip?._tags || {}).find(tagKey => tagKey.toLowerCase().includes("llava"));
+  const llavaTags = clip._tags?.[llavaTagKey];
+
+  if(!clip?._tags) { return <Loader />; }
 
   return (
     <Box>

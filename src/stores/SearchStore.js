@@ -423,6 +423,27 @@ class SearchStore {
     }
   });
 
+  ParseTags = ({sources=[]}) => {
+    const parsedTags = {};
+    Object.keys(sources).forEach(source => {
+      const label = source
+        .replace("f_", "")
+        .split("_")
+        .join(" ")
+        .replace(/\b\w/g, char => char.toUpperCase());
+
+      if(!parsedTags[label]) {
+        parsedTags[label] = [];
+      }
+
+      parsedTags[label].push({
+        text: sources[source]
+      });
+    });
+
+    return parsedTags;
+  };
+
   ParseResultsBySong = ({results}) => {
     const resultsBySong = {};
     (results || []).forEach(result => {
@@ -522,6 +543,9 @@ class SearchStore {
             });
 
             result["_imageSrc"] = url;
+            result["_tags"] = this.ParseTags({
+              sources: result?.fields
+            });
           } else {
             try {
               url = await this.rootStore.GetThumbnail({

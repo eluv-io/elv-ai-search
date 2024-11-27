@@ -1,10 +1,10 @@
 import {observer} from "mobx-react-lite";
 import {ActionIcon, AspectRatio, Box, Button, Image, Table, Text} from "@mantine/core";
 import {useState} from "react";
-import {videoStore} from "@/stores/index.js";
+import {searchStore, videoStore} from "@/stores/index.js";
 import {PlayIcon} from "@/assets/icons/index.js";
 
-const Rows = ({rows=[]}) => {
+const Rows = ({rows=[], playable=true}) => {
   return (
     rows.map(row => (
       <Table.Tr key={row.id}>
@@ -20,18 +20,24 @@ const Rows = ({rows=[]}) => {
             </AspectRatio>
           </Table.Td>
         }
-        <Table.Td w="100px">
-          <Text size="xs">{ row.timestamp }</Text>
+        {
+          row.timestamp &&
+          <Table.Td w="100px">
+            <Text size="xs">{ row.timestamp }</Text>
           </Table.Td>
+        }
         <Table.Td>
           <Text size="xs" c="dimmed">{ row.tags }</Text>
         </Table.Td>
-        <Table.Td align="center" w="50px">
-          {
-            row.action ?
-            row.action.icon : null
-          }
-        </Table.Td>
+        {
+          playable &&
+          <Table.Td align="center" w="50px">
+            {
+              row.action ?
+              row.action.icon : null
+            }
+          </Table.Td>
+        }
       </Table.Tr>
     ))
   );
@@ -68,7 +74,7 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
   const [paginatedRows, setPaginatedRows] = useState(rows.slice(0, (resultsPerPage + 1) * pagination.currentPage));
 
   const hasImage = rows.some(item => item.image);
-  const headers = hasImage ? ["", "Timestamp", "Tag"] : ["Timestamp", "Tag"];
+  const headers = searchStore.selectedSearchResult?._assetType ? ["Tag"] : hasImage ? ["", "Timestamp", "Tag"] : ["Timestamp", "Tag"];
 
   const HandleNextPage = () => {
     const newCurrentPage = pagination.currentPage + 1;
@@ -97,7 +103,7 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          <Rows rows={paginatedRows} />
+          <Rows rows={paginatedRows} playable={!searchStore.selectedSearchResult?._assetType} />
         </Table.Tbody>
       </Table>
       {

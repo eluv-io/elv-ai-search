@@ -60,10 +60,10 @@ const TagsPanel = observer(() => {
       setLoading(false);
     };
 
-    if(!searchStore.selectedSearchResult?._tags) {
+    if(!searchStore.selectedSearchResult?._tags && !searchStore.selectedSearchResult._assetType) {
       LoadData();
     }
-  }, [searchStore.selectedSearchResult?._tags]);
+  }, [searchStore.selectedSearchResult?._tags, searchStore.selectedSearchResult._assetType]);
 
   if(loading) {
     return (

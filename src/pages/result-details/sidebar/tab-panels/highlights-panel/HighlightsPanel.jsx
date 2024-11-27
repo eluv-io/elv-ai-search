@@ -151,7 +151,9 @@ const HighlightsPanel = observer(() => {
         cache
       });
 
-      await searchStore.GetTags(true);
+      if(!clip._assetType) {
+        await searchStore.GetTags(true);
+      }
     } finally {
       setLoading(false);
     }
