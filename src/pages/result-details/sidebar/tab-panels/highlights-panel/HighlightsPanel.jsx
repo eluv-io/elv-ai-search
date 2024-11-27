@@ -173,7 +173,9 @@ const HighlightsPanel = observer(() => {
         !searchStore.selectedSearchResult?._highlights?.results ?
           (
             <Box align="center" mt={8}>
-              <Button onClick={HandleGenerate}>Generate Highlights</Button>
+              <Button onClick={HandleGenerate}>
+                {searchStore.selectedSearchResult?._assetType ? "Generate Hashtags" : "Generate Highlights"}
+              </Button>
             </Box>
           ) :
           (
@@ -253,7 +255,7 @@ const HighlightsPanel = observer(() => {
                   }}
                   size="xs"
                 >
-                  Regenerate Highlights
+                  {searchStore.selectedSearchResult?._assetType ? "Regenerate Hashtags" : "Regenerate Highlights"}
                 </Button>
               </Flex>
             </>
