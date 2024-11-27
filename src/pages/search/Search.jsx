@@ -35,7 +35,13 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
       <Group>
         <Select
           placeholder="View By Category"
-          data={["All Content", "Full Length Videos", "Clips", "Images", "Reels"]}
+          data={[
+            {label: "All Content", value: "ALL"},
+            {label: "Images", value: "IMAGES"},
+            {label: "Videos", value: "VIDEOS"}
+          ]}
+          value={searchStore.searchType}
+          onChange={(value) => searchStore.SetSearchType({type: value})}
           defaultValue="All Content"
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
@@ -52,14 +58,6 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
         />
-        {/*<Text size="sm">*/}
-        {/*  {*/}
-        {/*    Pluralize({*/}
-        {/*      baseWord: "Result",*/}
-        {/*      count: searchStore.currentSearch?.results?.contents?.length*/}
-        {/*    })*/}
-        {/*  }*/}
-        {/*</Text>*/}
         {
           (searchStore.currentSearch?.terms) &&
           <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
@@ -106,17 +104,12 @@ const Search = observer(() => {
   // Show all results vs top results that have a high score
   const [resultType, setResultType] = useState((searchStore.highScoreResults || []).length ? "HIGH_SCORE" : "ALL");
 
-  // useEffect(() => {
-  //   setResultType("ALL");
-  // }, [searchStore.musicSettingEnabled]);
-
   return (
     <PageContainer title="AI Clip Search" centerTitle>
       <SearchBar
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}
       />
-      {/*<SearchDropzone loadingSearch={loadingSearch} />*/}
       <FilterToolbar loadingSearch={loadingSearch} resultType={resultType} setResultType={setResultType} />
       {
         searchStore.musicSettingEnabled ?

@@ -12,6 +12,12 @@ class SearchStore {
   };
   customIndex = "";
   searchHostname = "ai";
+  searchType;
+
+  resultsBySong = null;
+  resultsVideo = null;
+  resultsImage = null;
+
   highScore = 50;
   highScoreResults = null;
   selectedSearchResult;
@@ -27,6 +33,14 @@ class SearchStore {
     return this.rootStore.client;
   }
 
+  get results() {
+    return {
+      video: this.resultsVideo,
+      bySong: this.resultsBySong,
+      image: this.resultsImage
+    };
+  }
+
   ToggleMusicSetting = () => {
     this.musicSettingEnabled = !this.musicSettingEnabled;
   };
@@ -39,12 +53,22 @@ class SearchStore {
     this.selectedSearchResult[key] = value;
   };
 
-  SetCurrentSearch = ({results, resultsBySong, index, terms, highScoreResults}) => {
+  SetCurrentSearch = ({
+    results,
+    resultsBySong,
+    videoResults,
+    imageResults,
+    index,
+    terms,
+    highScoreResults
+  }) => {
     this.currentSearch.results = {...results};
     this.highScoreResults = highScoreResults;
     this.currentSearch.resultsBySong = {...resultsBySong};
     this.currentSearch.index = index;
     this.currentSearch.terms = terms;
+    this.resultsVideo = videoResults;
+    this.resultsImage = imageResults;
   };
 
   SetSearchIndex = ({index}) => {
@@ -61,6 +85,10 @@ class SearchStore {
 
   SetSearchFields = ({fields}) => {
     this.currentSearch.searchFields = fields;
+  };
+
+  SetSearchType = ({type}) => {
+    this.searchType = type;
   };
 
   GetSearchFields = flow(function * ({index}) {
@@ -330,10 +358,13 @@ class SearchStore {
     this.SetCurrentSearch({
       results: null,
       resultsBySong: null,
+      videoResults: null,
+      imageResults: null,
       highScoreResults: null,
       index: this.currentSearch.index,
       terms: this.currentSearch.terms
     });
+    this.SetSearchType({type: ""});
   };
 
   GetCoverImage = flow(function * ({song, queryParams}) {
@@ -526,6 +557,7 @@ class SearchStore {
     }
 
     try {
+      let videoResults, imageResults;
       let results = yield this.client.Request({url: urlResponse.url});
       let editedContents;
 
@@ -536,6 +568,7 @@ class SearchStore {
           if(searchAssetType) {
             result["_score"] = this.GetSearchScore({score: result.score});
             result["_assetType"] = true;
+            this.SetSearchType({type: "IMAGES"});
 
             url = await this.rootStore.GetFilePath({
               objectId: result.id,
@@ -554,6 +587,7 @@ class SearchStore {
                 timeSecs: [null, undefined].includes(result.start_time) ? null : result.start_time / 1000
               });
               result["_imageSrc"] = url;
+              this.SetSearchType({type: "VIDEOS"});
             } catch(error) {
               // eslint-disable-next-line no-console
               console.error(`Unable to retrieve thumbnail for ${result.id}`, error);
@@ -570,7 +604,17 @@ class SearchStore {
 
       const resultsBySong = this.ParseResultsBySong({results: results.contents});
 
-      results.contents = editedContents;
+      if(searchAssetType) {
+        imageResults = {
+          ...results,
+          contents: editedContents
+        };
+      } else {
+        videoResults = {
+          ...results,
+          contents: editedContents
+        };
+      }
 
       const highScoreResults = (results.contents || []).filter(item => {
         (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
@@ -580,6 +624,8 @@ class SearchStore {
         this.SetCurrentSearch({
           results,
           resultsBySong,
+          videoResults,
+          imageResults,
           highScoreResults,
           index: objectId,
           terms: fuzzySearchValue

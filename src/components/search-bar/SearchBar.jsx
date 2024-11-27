@@ -387,13 +387,16 @@ const SearchBar = observer(({
             }
           </Flex>
 
-          <Switch
-            size="xxl"
-            thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
-            checked={searchStore.musicSettingEnabled}
-            onChange={() => searchStore.ToggleMusicSetting()}
-            ml={24}
-          />
+          {
+            searchStore.searchType !== "IMAGES" &&
+            <Switch
+              size="xxl"
+              thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
+              checked={searchStore.musicSettingEnabled}
+              onChange={() => searchStore.ToggleMusicSetting()}
+              ml={24}
+            />
+          }
         </Flex>
       </Flex>
     </Flex>

@@ -46,7 +46,7 @@ const Clip = observer(({
     >
       <Flex direction="column" gap={6}>
         <AspectRatio
-          ratio={16 / 9}
+          ratio={clip._assetType ? (1 / 1) : (16 / 9)}
           style={{borderRadius: "14px", overflow: "hidden"}}
         >
           <ImageContent
@@ -95,8 +95,10 @@ const Clip = observer(({
 });
 
 const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
+  let clipsType;
   if(!clips) {
-    clips = searchStore.currentSearch?.results?.contents || [];
+    clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
+    clipsType = searchStore.results?.video ? "VIDEO" : "IMAGE";
   }
 
   const musicEnabled = searchStore.musicSettingEnabled;
@@ -121,6 +123,12 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
         filteredClips.length > 0 &&
         <Title c="elv-gray.8" size="1.5rem" mb={16}>
           { song }
+        </Title>
+      }
+      {
+        clips.length > 0 &&
+        <Title c="elv-gray.8" order={3} size="1.5rem" mb={16}>
+          { clipsType === "VIDEO" ? "Videos" : "Images"}
         </Title>
       }
       <SimpleGrid cols={4} spacing="lg">
