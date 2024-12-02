@@ -94,7 +94,7 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", viewCount}) => {
+const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", viewCount, cols=4}) => {
   if(!clips) {
     clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
   }
@@ -129,7 +129,7 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", viewCount}) => {
           {/*{ clipsType === "VIDEO" ? "Videos" : "Images"}*/}
         </Title>
       }
-      <SimpleGrid cols={4} spacing="lg">
+      <SimpleGrid cols={cols} spacing="lg">
         {
           filteredClips.map((clip, i) => (
             <Clip

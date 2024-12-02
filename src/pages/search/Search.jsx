@@ -104,7 +104,7 @@ const Search = observer(() => {
   // Show all results vs top results that have a high score
   const [resultType, setResultType] = useState((searchStore.highScoreResults || []).length ? "HIGH_SCORE" : "ALL");
   const [viewVideoCount, setViewVideoCount] = useState(4);
-  const [viewImageCount, setViewImageCount] = useState(4);
+  const [viewImageCount, setViewImageCount] = useState(7);
 
   return (
     <PageContainer title="AI Clip Search" centerTitle>
@@ -149,13 +149,13 @@ const Search = observer(() => {
                     <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? 4 : -1)} classNames={{root: styles.textButton}}>
                       <Group gap={8}>
                         <Text size="sm" c="elv-neutral.3" tt="uppercase">
-                          { viewImageCount === 4 ? "View All" : "View Less" }
+                          { viewImageCount === 7 ? "View All" : "View Less" }
                         </Text>
                         <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />
                       </Group>
                     </UnstyledButton>
                   </Group>
-                <ClipsGrid view={resultType} clips={searchStore.results?.image?.contents} viewCount={viewImageCount} />
+                <ClipsGrid view={resultType} clips={searchStore.results?.image?.contents} viewCount={viewImageCount} cols={7} />
                 </>
               }
             </>
