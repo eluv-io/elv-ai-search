@@ -16,7 +16,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
 
   const [view, setView] = useState("grid");
 
-  if(!searchStore.currentSearch.results || loadingSearch) { return null; }
+  if(!(searchStore.results?.video?.contents || searchStore.results?.image?.contents) || loadingSearch) { return null; }
 
   const ToggleResultType = () => {
     let newValue;

@@ -11,7 +11,8 @@ const ResultDetailsNavToolbar = observer(() => {
   const HandleNavClip = (prev) => {
     const currentClip = searchStore.selectedSearchResult;
     const newIndex = prev ? (currentClip._index - 1) : (currentClip._index + 1);
-    const newClip = searchStore.currentSearch?.results?.contents?.[newIndex];
+    const clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
+    const newClip = clips?.[newIndex];
 
     if(newClip) {
       searchStore.SetSelectedSearchResult({result: newClip});
