@@ -36,9 +36,9 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
         <Select
           placeholder="View By Category"
           data={[
-            {label: "All Content", value: "ALL"},
-            {label: "Images", value: "IMAGES"},
-            {label: "Videos", value: "VIDEOS"}
+            {label: "All Content", value: "ALL", disabled: true},
+            {label: "Images", value: "IMAGES", disabled: true},
+            {label: "Videos", value: "VIDEOS", disabled: true}
           ]}
           value={searchStore.searchType}
           onChange={(value) => searchStore.SetSearchType({type: value})}
@@ -103,8 +103,12 @@ const Search = observer(() => {
   const [loadingSearch, setLoadingSearch] = useState(false);
   // Show all results vs top results that have a high score
   const [resultType, setResultType] = useState((searchStore.highScoreResults || []).length ? "HIGH_SCORE" : "ALL");
-  const [viewVideoCount, setViewVideoCount] = useState(4);
-  const [viewImageCount, setViewImageCount] = useState(7);
+  const colCount = {
+    video: 4,
+    image: 7
+  };
+  const [viewVideoCount, setViewVideoCount] = useState(colCount.video);
+  const [viewImageCount, setViewImageCount] = useState(colCount.image);
 
   return (
     <PageContainer title="AI Clip Search" centerTitle>
@@ -126,14 +130,19 @@ const Search = observer(() => {
                     <Title c="elv-gray.8" order={3} size="1.5rem">
                       Videos
                     </Title>
-                    <UnstyledButton onClick={() => setViewVideoCount(prevState => prevState === -1 ? 4 : -1)} classNames={{root: styles.textButton}}>
-                      <Group gap={8}>
-                        <Text size="sm" c="elv-neutral.3" tt="uppercase">
-                          { viewVideoCount === 4 ? "View All" : "View Less" }
-                        </Text>
-                        <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />
-                      </Group>
-                    </UnstyledButton>
+                    {
+                      searchStore.results?.video?.contents.length > colCount.video ?
+                        (
+                          <UnstyledButton onClick={() => setViewVideoCount(prevState => prevState === -1 ? colCount.video : -1)} classNames={{root: styles.textButton}}>
+                            <Group gap={8}>
+                              <Text size="sm" c="elv-neutral.3" tt="uppercase">
+                                { viewVideoCount === colCount.video ? "View All" : "View Less" }
+                              </Text>
+                              <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />
+                            </Group>
+                          </UnstyledButton>
+                        ) : null
+                    }
                   </Group>
                 <ClipsGrid view={resultType} clips={searchStore.results?.video?.contents} viewCount={viewVideoCount} />
                 </>
@@ -146,16 +155,21 @@ const Search = observer(() => {
                     <Title c="elv-gray.8" order={3} size="1.5rem">
                       Images
                     </Title>
-                    <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? 4 : -1)} classNames={{root: styles.textButton}}>
-                      <Group gap={8}>
-                        <Text size="sm" c="elv-neutral.3" tt="uppercase">
-                          { viewImageCount === 7 ? "View All" : "View Less" }
-                        </Text>
-                        <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />
-                      </Group>
-                    </UnstyledButton>
+                    {
+                      searchStore.results?.images?.contents.length > colCount.image ?
+                        (
+                          <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? colCount.image : -1)} classNames={{root: styles.textButton}}>
+                            <Group gap={8}>
+                              <Text size="sm" c="elv-neutral.3" tt="uppercase">
+                                { viewImageCount === colCount.image ? "View All" : "View Less" }
+                              </Text>
+                              <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />
+                            </Group>
+                          </UnstyledButton>
+                        ) : null
+                    }
                   </Group>
-                <ClipsGrid view={resultType} clips={searchStore.results?.image?.contents} viewCount={viewImageCount} cols={7} />
+                <ClipsGrid view={resultType} clips={searchStore.results?.image?.contents} viewCount={viewImageCount} cols={colCount.image} />
                 </>
               }
             </>

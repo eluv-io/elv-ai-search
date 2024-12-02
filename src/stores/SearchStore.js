@@ -12,7 +12,7 @@ class SearchStore {
   };
   customIndex = "";
   searchHostname = "ai";
-  searchType = "ALL";
+  searchType; // ALL, IMAGES, VIDEOS
 
   resultsBySong = null;
   resultsVideo = null;
@@ -605,9 +605,11 @@ class SearchStore {
     }
 
     // Determine whether index is asset type
-    // const {searchAssetType} = yield this.GetSearchParams({
-    //   objectId
-    // });
+    const {searchAssetType} = yield this.GetSearchParams({
+      objectId
+    });
+
+    this.SetSearchType({type: searchAssetType ? "IMAGES" : "VIDEOS"});
 
     const ImageRequest = this.CreateVectorSearchUrl({
       objectId,
@@ -634,10 +636,10 @@ class SearchStore {
       ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({url: videoUrl.url, searchType: "VIDEOS"}));
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({url: imageUrl.url, searchType: "IMAGES"}));
     } else if(this.searchType === "IMAGES") {
-      imageUrl = yield ImageRequest();
+      imageUrl = yield ImageRequest;
       ({imageResults, highScoreResults: highScoreVideo} = yield this.ParseResults({url: imageUrl.url, searchType: "IMAGES"}));
     } else if(this.searchType === "VIDEOS") {
-      videoUrl = yield VideoRequest();
+      videoUrl = yield VideoRequest;
       ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({url: videoUrl.url, searchType: "VIDEOS"}));
     }
 

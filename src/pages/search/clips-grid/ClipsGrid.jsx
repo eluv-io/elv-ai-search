@@ -123,12 +123,6 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", viewCount, cols=4})
           { song }
         </Title>
       }
-      {
-        clips.length > 0 &&
-        <Title c="elv-gray.8" order={3} size="1.5rem" mb={16}>
-          {/*{ clipsType === "VIDEO" ? "Videos" : "Images"}*/}
-        </Title>
-      }
       <SimpleGrid cols={cols} spacing="lg">
         {
           filteredClips.map((clip, i) => (
