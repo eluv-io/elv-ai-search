@@ -18,9 +18,9 @@ class RootStore {
   constructor() {
     makeAutoObservable(this);
 
+    this.uiStore = new UiStore(this);
     this.tenantStore = new TenantStore(this);
     this.searchStore = new SearchStore(this);
-    this.uiStore = new UiStore(this);
     this.videoStore = new VideoStore(this);
     this.summaryStore = new SummaryStore(this);
     this.highlightsStore = new HighlightsStore(this);

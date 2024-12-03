@@ -18,7 +18,7 @@ class SearchStore {
   resultsVideo = null;
   resultsImage = null;
 
-  highScore = 50;
+  highScore = 60;
   highScoreVideoResults = null;
   highScoreImageResults = null;
 
@@ -133,6 +133,14 @@ class SearchStore {
             value: true
           };
         });
+
+      // Fields for all tenants that are not configured in the meta
+      ["movie_characters"].forEach(field => {
+        fuzzySearchFields[`f_${field}`] = {
+          label: ToTitleCase({text: field.split("_").join(" ")}),
+          value: true
+        };
+      });
 
       this.SetSearchFields({fields: fuzzySearchFields});
     } catch(error) {
@@ -572,7 +580,7 @@ class SearchStore {
       }
 
       const highScoreResults = (results.contents || []).filter(item => {
-        (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
+        return (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
       });
 
       return {
@@ -670,6 +678,63 @@ class SearchStore {
       embedUrl,
       downloadUrl
     };
+  });
+
+  GetTitleInfo = flow(function * () {
+    const result = this.selectedSearchResult;
+
+    const meta = yield this.client.ContentObjectMetadata({
+      objectId: result.id,
+      libraryId: result.qlib_id,
+      metadataSubtree: "/public/asset_metadata",
+      select: [
+        "title",
+        "info/add_ons/Synopsis",
+        "info/duration",
+        "info/genre",
+        "info/language",
+        "info/talent/Acteur", // Actors
+        "info/talent/Producteur", // Producer
+        "info/talent/Réalisateur", // Director
+        "info/talent/Scénariste", // Screenwriter
+        "info/year_of_production"
+      ]
+    });
+
+    const SortedArray = ({data=[], commaSeparated=false}) => {
+      const sorted = data
+        .sort((a, b) => a.order_in_function - b.order_in_function)
+        .map(i => `${i.first_name} ${i.last_name}`);
+
+      if(commaSeparated) {
+        return sorted.join(", ");
+      } else {
+        return sorted;
+      }
+    };
+
+    const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
+
+    const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
+    const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
+  }).slice(0, 5).join(", ");
+
+    const synopsisDisplay = (meta.info?.add_ons?.Synopsis || [])
+      .filter(i => i.language_iso_code === "GBR")
+      .map(i => i.content)
+      .join("");
+
+    this.UpdateSelectedSearchResult({
+      key: "_info",
+      value: {
+        ...meta.info,
+        title: meta.title,
+        synopsisDisplay,
+        directorDisplay,
+        writerDisplay,
+        actorDisplay
+      }
+    });
   });
 }
 

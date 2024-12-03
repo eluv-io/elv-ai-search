@@ -96,6 +96,7 @@ const Clip = observer(({
 
 const ClipsGrid = observer(({
   clips,
+  highScoreResults,
   song,
   view="HIGH_SCORE",
   // viewCount,
@@ -112,11 +113,11 @@ const ClipsGrid = observer(({
       if(view === "ALL") {
         return clips;
       } else {
-        return searchStore.highScoreResults;
+        return highScoreResults;
       }
     } else {
-      return clips
-        .filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
+      return view === "ALL" ? clips : highScoreResults;
+        // .filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
         // .slice(0, viewCount);
     }
   };

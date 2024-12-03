@@ -16,7 +16,7 @@ import {TimeInterval} from "@/utils/helpers.js";
 import {useDisclosure} from "@mantine/hooks";
 import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
-import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
+import VideoTitleSection from "@/components/video-title-section/VideoTitleSection.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {useEffect, useState} from "react";
 import {ratingStore, searchStore, summaryStore, videoStore} from "@/stores/index.js";
@@ -79,12 +79,12 @@ const ResultDetailsMain = observer(({
   const [currentStars, setCurrentStars] = useState(null);
   const [embedUrl, setEmbedUrl] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);
+  const [showInfoCard, setShowInfoCard] = useState(false);
 
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
 
-  const submitStars = async (starRating) => {
-
+  const SubmitRating = async(starRating) => {
     // set UI immediately
     setCurrentStars(starRating);
 
@@ -103,6 +103,12 @@ const ResultDetailsMain = observer(({
         // eslint-disable-next-line no-console
         console.log("Did not update rating store, reverting to previous state");
         setCurrentStars(currentStars);
+    }
+  };
+
+  const GetInfo = async() => {
+    if(!searchStore.selectedSearchResult?.info) {
+      await searchStore.GetTitleInfo();
     }
   };
 
@@ -132,6 +138,7 @@ const ResultDetailsMain = observer(({
 
       setEmbedUrl(embed || "");
       setDownloadUrl(download || "");
+      await GetInfo();
     };
 
     LoadData();
@@ -163,11 +170,13 @@ const ResultDetailsMain = observer(({
         <MediaItem clip={clip} />
       </Box>
 
-      <VideoActionsBar
+      <VideoTitleSection
         title={clip.meta?.public?.asset_metadata?.title || clip.id}
         openModal={openModal}
-        onClick={submitStars}
+        HandleRating={SubmitRating}
         currentStars={currentStars}
+        showInfoCard={showInfoCard}
+        setShowInfoCard={setShowInfoCard}
       />
 
       <Grid gap={8} mb={8}>

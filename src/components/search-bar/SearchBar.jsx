@@ -7,13 +7,13 @@ import {
   Flex,
   Loader,
   Menu,
-  Radio, Select,
+  Radio,
   Switch,
   Text,
   TextInput
 } from "@mantine/core";
 import {useEffect, useState} from "react";
-import {rootStore, searchStore, tenantStore} from "@/stores/index.js";
+import {searchStore, tenantStore} from "@/stores/index.js";
 import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
@@ -26,8 +26,6 @@ const AdvancedSection = observer(({
   customIndexError,
   setCustomIndexError
 }) => {
-  const [hostname, setHostname] = useState(rootStore.searchHostname);
-
   if(!show) { return null; }
 
   const allSearchFieldsSelected = Object.values(searchStore.currentSearch.searchFields || {}).every(field => field.value);
@@ -171,7 +169,6 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
   useEffect(() => {
     if(debouncedValue) {
       if(debouncedValue.startsWith("iq__") || debouncedValue.startsWith("hq__")) {
-        // const index = debouncedValue.startsWith("hq__") ? rootStore.DecodeVersionHash({versionHash: debouncedValue}) : debouncedValue;
         LoadFields({index: debouncedValue});
       } else if(debouncedValue.length > 0) {
         setCustomIndexError("Invalid Object ID");

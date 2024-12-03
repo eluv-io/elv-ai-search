@@ -63,6 +63,13 @@ export const FormatDuration = ({
   }
 };
 
+export const FormatRuntime = ({timeMins}) => {
+  const hours = Math.floor(timeMins / 60);
+  const minutes = timeMins % 60;
+
+  return `${hours}h ${minutes}m`;
+};
+
 export const TimeInterval = ({startTime, endTime}) => {
   const startTimeFormatted = FormatTime({time: startTime});
   const endTimeFormatted = FormatTime({time: endTime});

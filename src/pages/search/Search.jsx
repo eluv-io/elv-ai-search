@@ -1,10 +1,10 @@
 import PageContainer from "@/components/page-container/PageContainer.jsx";
 import {observer} from "mobx-react-lite";
-import {Flex, Group, SegmentedControl, Select, Text, Title, UnstyledButton, VisuallyHidden} from "@mantine/core";
+import {Group, SegmentedControl, Select, Text, Title, UnstyledButton, VisuallyHidden} from "@mantine/core";
 import SearchBar from "@/components/search-bar/SearchBar.jsx";
 import {useState} from "react";
 import {searchStore} from "@/stores/index.js";
-import {ArrowRightIcon, GridIcon, ListIcon} from "@/assets/icons/index.js";
+import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
@@ -102,7 +102,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
 const Search = observer(() => {
   const [loadingSearch, setLoadingSearch] = useState(false);
   // Show all results vs top results that have a high score
-  const [resultType, setResultType] = useState((searchStore.highScoreResults || []).length ? "HIGH_SCORE" : "ALL");
+  const [resultType, setResultType] = useState( ((searchStore.searchType === "VIDEOS" ? searchStore.highScoreVideoResults : searchStore.highScoreImageResults) || []).length > 0 ? "HIGH_SCORE" : "ALL");
   const colCount = {
     video: 4,
     image: 7
@@ -151,6 +151,7 @@ const Search = observer(() => {
                 <ClipsGrid
                   view={resultType}
                   clips={searchStore.results?.video?.contents}
+                  highScoreResults={searchStore.highScoreVideoResults}
                   viewCount={viewVideoCount}
                 />
                 </>
@@ -183,6 +184,7 @@ const Search = observer(() => {
                   clips={searchStore.results?.image?.contents}
                   viewCount={viewImageCount}
                   cols={colCount.image}
+                  highScoreResults={searchStore.highScoreImageResults}
                 />
                 </>
               }
