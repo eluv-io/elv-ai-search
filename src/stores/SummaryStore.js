@@ -30,7 +30,7 @@ class SummaryStore {
     try {
       let requestRep, requestUrl;
       const queryParams = {
-        tracks: "speech_to_text,object_detection,celebrity_detection"
+        // tracks: "speech_to_text,object_detection,celebrity_detection"
       };
 
       if(assetType) {
