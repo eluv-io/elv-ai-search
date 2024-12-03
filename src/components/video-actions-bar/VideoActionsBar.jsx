@@ -17,10 +17,10 @@ const VideoActionsBar = ({title, subtitle, openModal, onClick, currentStars}) =>
   }
 
   return (
-    <Group mb={8} justify="space-between" wrap="nowrap">
+    <Group mb={8} wrap="nowrap">
       {
         title ?
-          <Title order={2} c="elv-gray.8" lineClamp={1} maw="50%" style={{wordBreak: "break-all"}}>
+          <Title order={2} c="elv-gray.8" lineClamp={1} maw="70%" style={{wordBreak: "break-all"}}>
             { title }
           </Title> : null
       }
@@ -28,7 +28,7 @@ const VideoActionsBar = ({title, subtitle, openModal, onClick, currentStars}) =>
         subtitle ?
           <Text fz="xs">{ subtitle }</Text> : null
       }
-      <Group style={{flexShrink: 0}}>
+      <Group style={{flexShrink: 0, marginLeft: "auto"}}>
         <Group gap="1" classNames={{root: styles.starBackground}}>
           <SecondaryButton size="lg" iconOnly Icon={star1icon} hoverText="Irrelevant" onClick={() => onClick("RELEVANCY_1_STAR")}/>
           <SecondaryButton size="lg" iconOnly Icon={star2icon} hoverText="Relevant" onClick={() => onClick("RELEVANCY_2_STAR")}/>
