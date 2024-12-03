@@ -543,6 +543,7 @@ class SearchStore {
             result["_tags"] = this.ParseTags({
               sources: result?.fields
             });
+            result["_title"] = result.prefix.replace("/assets/", "");
           } else {
             try {
               url = await this.rootStore.GetThumbnail({
@@ -557,10 +558,10 @@ class SearchStore {
             }
 
             result["_score"] = this.GetSearchScore({clip: result});
+            result["_title"] = result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
           }
 
           result["_index"] = i;
-          result["_title"] = result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
 
           return result;
         })
