@@ -32,6 +32,8 @@ const MediaItem = ({
         <Image
           src={clip._imageSrc}
           fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+          fit="cover"
+          style={{objectPosition: "top"}}
         />
       </AspectRatio>
     );
