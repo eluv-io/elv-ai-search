@@ -3,7 +3,7 @@ import {searchStore} from "@/stores/index.js";
 import {Box} from "@mantine/core";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 
-const MusicGrid = observer(({view}) => {
+const MusicGrid = observer(() => {
   const clips = searchStore.currentSearch?.resultsBySong || {};
 
   return (
@@ -14,7 +14,7 @@ const MusicGrid = observer(({view}) => {
             <ClipsGrid
               clips={clips[song]}
               song={song}
-              view={view}
+              view={searchStore.resultsViewType}
             />
           </Box>
         ))

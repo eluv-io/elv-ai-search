@@ -95,8 +95,8 @@ const Clip = observer(({
 });
 
 const ClipsGrid = observer(({
-  clips,
-  highScoreResults,
+  clips=[],
+  highScoreResults=[],
   song,
   view="HIGH_SCORE",
   // viewCount,
@@ -110,11 +110,7 @@ const ClipsGrid = observer(({
 
   const FilterClips = ({clips}) => {
     if(musicEnabled) {
-      if(view === "ALL") {
-        return clips;
-      } else {
-        return highScoreResults;
-      }
+      return clips;
     } else {
       return view === "ALL" ? clips : highScoreResults;
         // .slice(0, viewCount);

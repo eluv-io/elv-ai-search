@@ -7,7 +7,7 @@ import {observer} from "mobx-react-lite";
 const SearchDropzone = observer(({loadingSearch}) => {
   // const [files, setFiles] = useState([]);
 
-  if(loadingSearch || searchStore.currentSearch.results) { return null; }
+  if(loadingSearch) { return null; }
 
   return (
     <Flex justify="center">

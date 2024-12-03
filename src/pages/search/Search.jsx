@@ -9,7 +9,7 @@ import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
 
-const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
+const FilterToolbar = observer(({loadingSearch}) => {
   const iconProps = {
     style: {width: "20px", height: "20px", display: "block"}
   };
@@ -21,13 +21,13 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
   const ToggleResultType = () => {
     let newValue;
 
-    if(resultType === "ALL") {
+    if(searchStore.resultsViewType === "ALL") {
       newValue = "HIGH_SCORE";
     } else {
       newValue = "ALL";
     }
 
-    setResultType(newValue);
+    searchStore.SetResultsViewType({value: newValue});
   };
 
   return (
@@ -40,8 +40,8 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
             {label: "Images", value: "IMAGES", disabled: true},
             {label: "Videos", value: "VIDEOS", disabled: true}
           ]}
-          value={searchStore.searchType}
-          onChange={(value) => searchStore.SetSearchType({type: value})}
+          value={searchStore.searchContentType}
+          onChange={(value) => searchStore.SetSearchContentType({type: value})}
           defaultValue="All Content"
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
@@ -63,7 +63,7 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
           <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
             <Text size="sm" c="elv-neutral.5">
               {
-                resultType === "ALL" ?
+                searchStore.resultsViewType === "ALL" ?
                   "Show Only High Score Results" :
                   "Show All Results"
               }
@@ -101,8 +101,6 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
 
 const Search = observer(() => {
   const [loadingSearch, setLoadingSearch] = useState(false);
-  // Show all results vs top results that have a high score
-  const [resultType, setResultType] = useState( ((searchStore.searchType === "VIDEOS" ? searchStore.highScoreVideoResults : searchStore.highScoreImageResults) || []).length > 0 ? "HIGH_SCORE" : "ALL");
   const colCount = {
     video: 4,
     image: 7
@@ -119,14 +117,14 @@ const Search = observer(() => {
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}
       />
-      <FilterToolbar loadingSearch={loadingSearch} resultType={resultType} setResultType={setResultType} />
+      <FilterToolbar loadingSearch={loadingSearch} />
       {
         searchStore.musicSettingEnabled ?
-          <MusicGrid view={resultType} /> :
+          <MusicGrid /> :
           (
             <>
               {
-                ["ALL", "VIDEOS"].includes(searchStore.searchType) &&
+                ["ALL", "VIDEOS"].includes(searchStore.searchContentType) &&
                 searchStore.results?.video?.contents &&
                 <>
                   <Group mb={16}>
@@ -149,15 +147,15 @@ const Search = observer(() => {
                     {/*}*/}
                   </Group>
                 <ClipsGrid
-                  view={resultType}
+                  view={searchStore.resultsViewType}
                   clips={searchStore.results?.video?.contents}
-                  highScoreResults={searchStore.highScoreVideoResults}
+                  highScoreResults={searchStore.results?.videoHighScore}
                   viewCount={viewVideoCount}
                 />
                 </>
               }
               {
-                ["ALL", "IMAGES"].includes(searchStore.searchType) &&
+                ["ALL", "IMAGES"].includes(searchStore.searchContentType) &&
                 searchStore.results?.image?.contents &&
                 <>
                   <Group mb={16} mt={16}>
@@ -180,11 +178,11 @@ const Search = observer(() => {
                     {/*}*/}
                   </Group>
                 <ClipsGrid
-                  view={resultType}
+                  view={searchStore.resultsViewType}
                   clips={searchStore.results?.image?.contents}
                   viewCount={viewImageCount}
                   cols={colCount.image}
-                  highScoreResults={searchStore.highScoreImageResults}
+                  highScoreResults={searchStore.results?.imageHighScore}
                 />
                 </>
               }

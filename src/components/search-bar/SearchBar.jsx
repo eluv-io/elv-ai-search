@@ -385,7 +385,7 @@ const SearchBar = observer(({
           </Flex>
 
           {
-            searchStore.searchType !== "IMAGES" &&
+            searchStore.searchContentType !== "IMAGES" &&
             <Switch
               size="xxl"
               thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
