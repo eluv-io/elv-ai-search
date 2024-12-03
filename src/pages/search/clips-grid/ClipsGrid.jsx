@@ -94,7 +94,13 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", viewCount, cols=4}) => {
+const ClipsGrid = observer(({
+  clips,
+  song,
+  view="HIGH_SCORE",
+  // viewCount,
+  cols=4
+}) => {
   if(!clips) {
     clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
   }
@@ -109,7 +115,9 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE", viewCount, cols=4})
         return searchStore.highScoreResults;
       }
     } else {
-      return clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60).slice(0, viewCount);
+      return clips
+        .filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
+        // .slice(0, viewCount);
     }
   };
 

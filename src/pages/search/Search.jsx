@@ -107,8 +107,11 @@ const Search = observer(() => {
     video: 4,
     image: 7
   };
-  const [viewVideoCount, setViewVideoCount] = useState(colCount.video);
-  const [viewImageCount, setViewImageCount] = useState(colCount.image);
+  const viewVideoCount = -1;
+  const viewImageCount = -1;
+  // TODO: When multi-search is supported, use limited view
+  // const [viewVideoCount, setViewVideoCount] = useState(-1);
+  // const [viewImageCount, setViewImageCount] = useState(-1);
 
   return (
     <PageContainer title="AI Clip Search" centerTitle>
@@ -130,21 +133,26 @@ const Search = observer(() => {
                     <Title c="elv-gray.8" order={3} size="1.5rem">
                       Videos
                     </Title>
-                    {
-                      searchStore.results?.video?.contents.length > colCount.video ?
-                        (
-                          <UnstyledButton onClick={() => setViewVideoCount(prevState => prevState === -1 ? colCount.video : -1)} classNames={{root: styles.textButton}}>
-                            <Group gap={8}>
-                              <Text size="sm" c="elv-neutral.3" tt="uppercase">
-                                { viewVideoCount === colCount.video ? "View All" : "View Less" }
-                              </Text>
-                              <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />
-                            </Group>
-                          </UnstyledButton>
-                        ) : null
-                    }
+                    {/* TODO: Add limited view when multi search is supported */}
+                    {/*{*/}
+                    {/*  searchStore.results?.video?.contents.length > colCount.video ?*/}
+                    {/*    (*/}
+                    {/*      <UnstyledButton onClick={() => setViewVideoCount(prevState => prevState === -1 ? colCount.video : -1)} classNames={{root: styles.textButton}}>*/}
+                    {/*        <Group gap={8}>*/}
+                    {/*          <Text size="sm" c="elv-neutral.3" tt="uppercase">*/}
+                    {/*            { viewVideoCount === colCount.video ? "View All" : "View Less" }*/}
+                    {/*          </Text>*/}
+                    {/*          <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />*/}
+                    {/*        </Group>*/}
+                    {/*      </UnstyledButton>*/}
+                    {/*    ) : null*/}
+                    {/*}*/}
                   </Group>
-                <ClipsGrid view={resultType} clips={searchStore.results?.video?.contents} viewCount={viewVideoCount} />
+                <ClipsGrid
+                  view={resultType}
+                  clips={searchStore.results?.video?.contents}
+                  viewCount={viewVideoCount}
+                />
                 </>
               }
               {
@@ -155,21 +163,27 @@ const Search = observer(() => {
                     <Title c="elv-gray.8" order={3} size="1.5rem">
                       Images
                     </Title>
-                    {
-                      searchStore.results?.images?.contents.length > colCount.image ?
-                        (
-                          <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? colCount.image : -1)} classNames={{root: styles.textButton}}>
-                            <Group gap={8}>
-                              <Text size="sm" c="elv-neutral.3" tt="uppercase">
-                                { viewImageCount === colCount.image ? "View All" : "View Less" }
-                              </Text>
-                              <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />
-                            </Group>
-                          </UnstyledButton>
-                        ) : null
-                    }
+                    {/* TODO: Add limited view when multi search is supported */}
+                    {/*{*/}
+                    {/*  searchStore.results?.images?.contents.length > colCount.image ?*/}
+                    {/*    (*/}
+                    {/*      <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? colCount.image : -1)} classNames={{root: styles.textButton}}>*/}
+                    {/*        <Group gap={8}>*/}
+                    {/*          <Text size="sm" c="elv-neutral.3" tt="uppercase">*/}
+                    {/*            { viewImageCount === colCount.image ? "View All" : "View Less" }*/}
+                    {/*          </Text>*/}
+                    {/*          <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />*/}
+                    {/*        </Group>*/}
+                    {/*      </UnstyledButton>*/}
+                    {/*    ) : null*/}
+                    {/*}*/}
                   </Group>
-                <ClipsGrid view={resultType} clips={searchStore.results?.image?.contents} viewCount={viewImageCount} cols={colCount.image} />
+                <ClipsGrid
+                  view={resultType}
+                  clips={searchStore.results?.image?.contents}
+                  viewCount={viewImageCount}
+                  cols={colCount.image}
+                />
                 </>
               }
             </>
