@@ -171,7 +171,7 @@ const ResultDetailsMain = observer(({
       </Box>
 
       <VideoTitleSection
-        title={clip.meta?.public?.asset_metadata?.title || clip.id}
+        title={clip.meta?.public?.asset_metadata?.title || clip.meta?.public?.name || clip.id}
         openModal={openModal}
         HandleRating={SubmitRating}
         currentStars={currentStars}

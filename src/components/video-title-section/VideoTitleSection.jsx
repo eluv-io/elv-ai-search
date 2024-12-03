@@ -93,18 +93,21 @@ const VideoTitleSection = observer(({
         {
           title ?
             (
-              <Group>
-                <Title order={2} c="elv-gray.8" lineClamp={1} maw="70%" style={{wordBreak: "break-all"}}>
+              <Group w="70%">
+                <Title order={2} c="elv-gray.8" lineClamp={1} style={{wordBreak: "break-all"}}>
                   { title }
                 </Title>
-                <Button
-                  ml={8}
-                  rightSection={showInfoCard ? <IconChevronUp /> : <IconChevronDown />}
-                  onClick={() => setShowInfoCard(prevState => !prevState)}
-                  color="elv-neutral.4"
-                >
-                  Info
-                </Button>
+                {
+                  !searchStore.selectedSearchResult?._assetType &&
+                  <Button
+                    ml={8}
+                    rightSection={showInfoCard ? <IconChevronUp /> : <IconChevronDown />}
+                    onClick={() => setShowInfoCard(prevState => !prevState)}
+                    color="elv-neutral.4"
+                  >
+                    Info
+                  </Button>
+                }
               </Group>
             ) : null
         }
@@ -127,7 +130,7 @@ const VideoTitleSection = observer(({
         </Group>
       </Group>
       <InfoCard
-        show={showInfoCard}
+        show={showInfoCard && !searchStore.selectedSearchResult?._assetType}
         info={info}
       />
     </>

@@ -305,7 +305,7 @@ class SearchStore {
           debug: true,
           clips_max_duration: 55,
           max_total: 40,
-          select: "/public/asset_metadata/title"
+          select: "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
         };
       }
 
@@ -579,7 +579,7 @@ class SearchStore {
         };
       }
 
-      const highScoreResults = (results.contents || []).filter(item => {
+      const highScoreResults = (results.contents || results.results || []).filter(item => {
         return (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
       });
 
@@ -643,7 +643,7 @@ class SearchStore {
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({url: imageUrl.url, searchType: "IMAGES"}));
     } else if(this.searchType === "IMAGES") {
       imageUrl = yield ImageRequest;
-      ({imageResults, highScoreResults: highScoreVideo} = yield this.ParseResults({url: imageUrl.url, searchType: "IMAGES"}));
+      ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({url: imageUrl.url, searchType: "IMAGES"}));
     } else if(this.searchType === "VIDEOS") {
       videoUrl = yield VideoRequest;
       ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({url: videoUrl.url, searchType: "VIDEOS"}));

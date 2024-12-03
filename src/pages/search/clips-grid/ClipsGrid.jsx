@@ -51,7 +51,7 @@ const Clip = observer(({
         >
           <ImageContent
             imageSrc={clip._imageSrc}
-            title={clip.meta?.public?.asset_metadata?.title || id}
+            title={clip.meta?.public?.asset_metadata?.title || clip.meta?.public?.name || id}
           />
         </AspectRatio>
         <Flex wrap="nowrap" mt={10} align="center" justify="space-between">
@@ -117,7 +117,6 @@ const ClipsGrid = observer(({
       }
     } else {
       return view === "ALL" ? clips : highScoreResults;
-        // .filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
         // .slice(0, viewCount);
     }
   };
