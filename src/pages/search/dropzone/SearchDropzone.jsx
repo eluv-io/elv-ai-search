@@ -1,7 +1,6 @@
 import {Dropzone, IMAGE_MIME_TYPE} from "@mantine/dropzone";
 import {Button, Flex, Stack, Text} from "@mantine/core";
 import {UploadIcon} from "@/assets/icons/index.js";
-import {searchStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 
 const SearchDropzone = observer(({loadingSearch}) => {
