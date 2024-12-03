@@ -508,11 +508,9 @@ class SearchStore {
       // Score is provided as an array of scores
       const scores = clip?.sources?.map(source => source.score);
       highScore = Math.max(...scores);
-
-      highScore = highScore * 100;
     }
 
-    return highScore ? highScore.toFixed(1) : "";
+    return highScore ? (highScore * 100).toFixed(1) : "";
   };
 
   ParseResults = flow(function * ({url, searchType}) {
