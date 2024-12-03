@@ -28,14 +28,12 @@ const MediaItem = ({
 }) => {
   if(clip._assetType) {
     return (
-      <AspectRatio ratio={16 / 9}>
-        <Image
-          src={clip._imageSrc}
-          fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
-          fit="cover"
-          style={{objectPosition: "top"}}
-        />
-      </AspectRatio>
+      <Image
+        src={clip._imageSrc}
+        fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+        fit="contain"
+        mah={800}
+      />
     );
   } else {
     return (
