@@ -18,7 +18,7 @@ const InfoCard = observer(({show=false, info}) => {
         <Grid.Col span={8} pr={32}>
           <Group gap={36} mb={8}>
             <Text c="elv-neutral.3" size="xl" fw={700}>
-              { info.genre.join(", ") }
+              { (info.genre || []).join(", ") }
             </Text>
             <Text c="elv-neutral.3" size="xl" fw={700}>{ FormatRuntime({timeMins: info.duration}) }</Text>
             <Text c="elv-neutral.3" size="xl" fw={700}>{ info.year_of_production }</Text>
@@ -47,7 +47,7 @@ const InfoCard = observer(({show=false, info}) => {
               <Text c="elv-gray.9">Language:</Text>
             </Grid.Col>
             <Grid.Col span={8}>
-              <Text c="elv-gray.9">{ info.language.join(", ") }</Text>
+              <Text c="elv-gray.9">{ (info.language || []).join(", ") }</Text>
             </Grid.Col>
           </Grid>
           <Grid gutter={0}>
@@ -86,6 +86,7 @@ const VideoTitleSection = observer(({
   }
 
   const info = searchStore.selectedSearchResult?._info;
+  const isVideoType = !searchStore.selectedSearchResult?._assetType && !searchStore.musicSettingEnabled;
 
   return (
     <>
@@ -98,7 +99,7 @@ const VideoTitleSection = observer(({
                   { title }
                 </Title>
                 {
-                  !searchStore.selectedSearchResult?._assetType &&
+                  isVideoType &&
                   <Button
                     ml={8}
                     rightSection={showInfoCard ? <IconChevronUp /> : <IconChevronDown />}
@@ -130,7 +131,7 @@ const VideoTitleSection = observer(({
         </Group>
       </Group>
       <InfoCard
-        show={showInfoCard && !searchStore.selectedSearchResult?._assetType}
+        show={showInfoCard && isVideoType}
         info={info}
       />
     </>

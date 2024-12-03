@@ -284,7 +284,6 @@ class SearchStore {
             text: false,
             clips: true,
             clips_include_source_tags: true,
-            clips_max_duration: 55,
             max_total: searchPhrase ? 30 : -1
           };
 
@@ -561,6 +560,7 @@ class SearchStore {
           }
 
           result["_index"] = i;
+          result["_title"] = result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
 
           return result;
         })

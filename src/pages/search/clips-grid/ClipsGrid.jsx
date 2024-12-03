@@ -51,12 +51,12 @@ const Clip = observer(({
         >
           <ImageContent
             imageSrc={clip._imageSrc}
-            title={clip.meta?.public?.asset_metadata?.title || clip.meta?.public?.name || id}
+            title={clip._title}
           />
         </AspectRatio>
         <Flex wrap="nowrap" mt={10} align="center" justify="space-between">
           <Title order={4} lineClamp={1} lh={1.25} style={{wordBreak: "break-word"}} mr={4}>
-            { clip.meta?.public?.asset_metadata?.title || id }
+            { clip._title }
           </Title>
           {
             clip._score &&

@@ -108,7 +108,12 @@ class RootStore {
       metadataSubtree: "offerings",
     });
 
-    const offering = offerings["default"];
+    if(!offerings) {
+      console.error(`No offerings available for ${objectId}`);
+      return "";
+    }
+
+    const offering = offerings?.default;
     const representations = offering.playout.streams.video.representations;
     let playoutKey = null;
     let maxHeight = 0;
