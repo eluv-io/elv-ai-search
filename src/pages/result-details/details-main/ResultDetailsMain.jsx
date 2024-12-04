@@ -51,14 +51,6 @@ const MediaItem = ({
   if(clip._assetType) {
     return (
       <ContainerElement>
-        {/*<Flex*/}
-        {/*  direction="column"*/}
-        {/*  w="100%"*/}
-        {/*  h="100%"*/}
-        {/*  pos="absolute"*/}
-        {/*  // flex="1 1 auto"*/}
-        {/*>*/}
-        {/*  <AspectRatio ratio={16 / 9}>*/}
         <Box w="100%">
           <Image
             ref={mediaRef}
@@ -66,11 +58,8 @@ const MediaItem = ({
             fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
             fit="contain"
             w="100%"
-            // mah={800}
           />
         </Box>
-          {/*</AspectRatio>*/}
-        {/*</Flex>*/}
       </ContainerElement>
     );
   } else {
@@ -206,9 +195,7 @@ const ResultDetailsMain = observer(({
             )}
           </Transition>
         }
-        <Flex>
-          <MediaItem clip={clip} mediaRef={mediaRef} />
-        </Flex>
+        <MediaItem clip={clip} mediaRef={mediaRef} />
       </Box>
 
       <VideoTitleSection

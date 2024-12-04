@@ -27,9 +27,13 @@ const Rows = observer(({rows=[], playable=true}) => {
           </Table.Td>
         }
         <Table.Td>
-          <UnstyledButton onClick={row.tagClickCallback}>
-            <Text size="xs" c="dimmed">{ row.tags }</Text>
-          </UnstyledButton>
+          {
+            row.tagClickCallback ?
+            <UnstyledButton onClick={row.tagClickCallback}>
+              <Text size="xs" c="dimmed">{ row.tags }</Text>
+            </UnstyledButton> :
+              <Text size="xs" c="dimmed">{ row.tags }</Text>
+          }
         </Table.Td>
         {
           playable &&
@@ -54,13 +58,13 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
       image: tagItem?._coverImage,
       timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),
       tags: tagText,
-      tagClickCallback: () => overlayStore.SetEntry({
+      tagClickCallback: tagItem?.box ? () => overlayStore.SetEntry({
         entry: {
           box: tagItem?.box,
           confidence: tagItem?.confidence,
           text: tagItem?.text
         }
-      }),
+      }) : null,
       id: `tag-${tagItem.id || i}-${tagItem?.start_time}-${tagItem?.end_time}`,
       action: {
         icon: (

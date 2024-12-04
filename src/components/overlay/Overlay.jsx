@@ -5,9 +5,7 @@ import {videoStore, overlayStore} from "@/stores/index.js";
 import {Flex, Tooltip} from "@mantine/core";
 
 const Overlay = observer(({
-  element,
-  asset,
-  highlightEntry
+  element
 }) => {
   const [hoverEntries, setHoverEntries] = useState([]);
   const [dimensions, setDimensions] = useState({width: 0, height: 0});
@@ -56,7 +54,8 @@ const Overlay = observer(({
 
     const toHex = n => n.toString(16).padStart(2, "0");
 
-    ctx.strokeStyle = `#${toHex(entry.color.r)}${toHex(entry.color.g)}${toHex(entry.color.b)}`;
+    // ctx.strokeStyle = `#${toHex(entry.color.r)}${toHex(entry.color.g)}${toHex(entry.color.b)}`;
+    ctx.strokeStyle = "#BD6DFF";
 
     ctx.beginPath();
     ctx.moveTo(points[0][0], points[0][1]);

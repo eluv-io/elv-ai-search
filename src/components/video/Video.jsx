@@ -40,68 +40,49 @@ const Video = observer(({
   }
 
   return (
-    <Flex
-      justify="center"
-      mah="100%"
-      h="100%"
-      align="center"
-      style={{flexGrow: 1}}
-      pos="relative"
-    >
-      {
-        elementRef?.current &&
-        <Overlay element={elementRef.current} />
-      }
-      <Box
-        bg="black"
-        pos="absolute"
-        h="100%"
-        mah="100%"
-        maw="100%"
-        flex="1 1 auto"
-        display="block"
-        ref={element => {
-          elementRef.current = element;
-          if(!element || player) { return; }
+    <Box
+      bg="black"
+      ref={element => {
+        elementRef.current = element;
+        if(!element || player) { return; }
 
-          InitializeEluvioPlayer(
-            element,
-            {
-              clientOptions: {
-                client: rootStore.client,
-                network: EluvioPlayerParameters.networks[rootStore.networkInfo.name === "main" ? "MAIN" : "DEMO"],
-                ...clientOptions
-              },
-              sourceOptions: {
-                protocols: [EluvioPlayerParameters.protocols.HLS, EluvioPlayerParameters.protocols.DASH],
-                ...sourceOptions,
-                playoutParameters: {
-                  versionHash,
-                  objectId,
-                  ...playoutParameters
-                }
-              },
-              playerOptions: {
-                watermark: EluvioPlayerParameters.watermark.OFF,
-                muted: EluvioPlayerParameters.muted.ON,
-                autoplay: EluvioPlayerParameters.autoplay.OFF,
-                controls: EluvioPlayerParameters.controls.AUTO_HIDE,
-                loop: EluvioPlayerParameters.loop.OFF,
-                playerProfile: EluvioPlayerParameters.playerProfile.LOW_LATENCY,
-                capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
-                ...playerOptions
+        InitializeEluvioPlayer(
+          element,
+          {
+            clientOptions: {
+              client: rootStore.client,
+              network: EluvioPlayerParameters.networks[rootStore.networkInfo.name === "main" ? "MAIN" : "DEMO"],
+              ...clientOptions
+            },
+            sourceOptions: {
+              protocols: [EluvioPlayerParameters.protocols.HLS, EluvioPlayerParameters.protocols.DASH],
+              ...sourceOptions,
+              playoutParameters: {
+                versionHash,
+                objectId,
+                ...playoutParameters
               }
             },
-          ).then(newPlayer => {
-            window.player = newPlayer;
-            setPlayer(newPlayer);
-            if(Callback && typeof Callback === "function") {
-              Callback({video: element, player: newPlayer});
+            playerOptions: {
+              watermark: EluvioPlayerParameters.watermark.OFF,
+              muted: EluvioPlayerParameters.muted.ON,
+              autoplay: EluvioPlayerParameters.autoplay.OFF,
+              controls: EluvioPlayerParameters.controls.AUTO_HIDE,
+              loop: EluvioPlayerParameters.loop.OFF,
+              playerProfile: EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+              capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
+              ...playerOptions
             }
-          });
-        }}
-      />
-    </Flex>
+          },
+        ).then(newPlayer => {
+          window.player = newPlayer;
+          setPlayer(newPlayer);
+          if(Callback && typeof Callback === "function") {
+            Callback({video: element, player: newPlayer});
+          }
+        });
+      }}
+    />
   );
 });
 
