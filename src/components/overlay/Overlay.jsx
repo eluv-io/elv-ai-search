@@ -30,9 +30,6 @@ const Overlay = observer(({
     ctx.canvas.width = width;
     ctx.canvas.height = height;
 
-    canvas.style.width = width;
-    canvas.style.height = height;
-
     // Draw
     ctx.clearRect(0, 0, width, height);
     ctx.globalAlpha = 1;
@@ -204,13 +201,14 @@ const Overlay = observer(({
       pos="absolute"
       ref={boxRef}
     >
-      <Tooltip label={TooltipContent()}>
+      <Tooltip.Floating label={TooltipContent()}>
         <canvas
+          key={overlayStore.pageVersion}
           // onClick={Click}
           ref={canvasRef}
           // style={{height: "100%", width: "100%"}}
         />
-      </Tooltip>
+      </Tooltip.Floating>
     </Flex>
   );
 });

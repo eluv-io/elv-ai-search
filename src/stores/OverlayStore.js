@@ -9,11 +9,8 @@ class OverlayStore {
   enabledOverlayTracks = {};
   trackInfo = {};
   activeTrack;
-  clientX;
-  clientY;
-
-  box = {};
   entry;
+  pageVersion = 0;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -41,7 +38,12 @@ class OverlayStore {
   };
 
   SetEntry = ({entry}) => {
+    this.entry = null;
     this.entry = entry;
+  };
+
+  IncrementPageVersion = () => {
+    this.pageVersion = this.pageVersion + 1;
   };
 
   TrackInfo = (trackKey) => {
