@@ -24,7 +24,7 @@ const InfoCard = observer(({show=false, info, loading}) => {
             <Text c="elv-neutral.3" size="xl" fw={700}>{ FormatRuntime({timeMins: info.duration}) }</Text>
             <Text c="elv-neutral.3" size="xl" fw={700}>{ info.year_of_production }</Text>
           </Group>
-          <Text lh={1.45} c="elv-gray.9" size="md">{ info.synopsisDisplay }</Text>
+          <Text lh={1.45} c="elv-gray.9" size="md" lineClamp={0}>{ info.synopsisDisplay }</Text>
         </Grid.Col>
         <Grid.Col span={4}>
           <Grid gutter={0}>
