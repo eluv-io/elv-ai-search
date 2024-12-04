@@ -152,7 +152,7 @@ const HighlightsPanel = observer(() => {
       });
 
       if(!clip._assetType) {
-        await searchStore.GetTags(true);
+        await searchStore.GetTags({dedupe: true});
       }
     } finally {
       setLoading(false);

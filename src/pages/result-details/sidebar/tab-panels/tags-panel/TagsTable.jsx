@@ -44,12 +44,15 @@ const Rows = ({rows=[], playable=true}) => {
 };
 
 const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
-  const rows = (tags || []).map((tagItem, i) => (
-    {
-      image: tagItem._coverImage,
+  const rows = (tags || []).map((tagItem, i) => {
+    const tagText = Array.isArray(tagItem?.text) ? tagItem?.text?.length > 0 ? tagItem?.text.join(", ") : "" :
+      tagItem.text;
+
+    return {
+      image: tagItem?._coverImage,
       timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),
-      tags: tagItem.text.length > 0 ? tagItem.text.join(", ") : "",
-      id: `tag-${tagItem.id || i}-${tagItem.start_time}-${tagItem.end_time}`,
+      tags: tagText,
+      id: `tag-${tagItem.id || i}-${tagItem?.start_time}-${tagItem?.end_time}`,
       action: {
         icon: (
           <ActionIcon
@@ -58,12 +61,12 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
             title="Play Segment"
             onClick={() => videoStore.PlaySegment({startTime: tagItem.start_time, endTime: tagItem.end_time})}
           >
-            <PlayIcon width={18} height={18} color="var(--mantine-color-elv-neutral-5)" style={{verticalAlign: "middle"}} />
+            <PlayIcon width={18} height={18} color="var(--mantine-color-elv-neutral-5)" style={{verticalAlign: "middle"}}/>
           </ActionIcon>
         )
       }
-    }
-  ));
+    };
+  });
 
   const [pagination, setPagination] = useState({
     total: rows.length,

@@ -55,12 +55,16 @@ const TagsPanel = observer(() => {
     const LoadData = async() => {
       setLoading(true);
 
-      await searchStore.GetTags(false);
+      await searchStore.GetTags({
+        dedupe: false,
+        assetType: searchStore.selectedSearchResult._assetType,
+        prefix: searchStore.selectedSearchResult.prefix
+      });
 
       setLoading(false);
     };
 
-    if(!searchStore.selectedSearchResult?._tags && !searchStore.selectedSearchResult._assetType) {
+    if(!searchStore.selectedSearchResult?._tags) {
       LoadData();
     }
   }, [searchStore.selectedSearchResult?._tags, searchStore.selectedSearchResult._assetType]);

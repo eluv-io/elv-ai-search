@@ -425,9 +425,14 @@ class SearchStore {
     }
   });
 
-  GetTags = flow(function * (dedupe=false) {
+  GetTags = flow(function * ({
+    dedupe=false,
+    assetType=false,
+    prefix
+  }={}) {
     const {id: objectId, start_time: startTime, end_time: endTime} = this.selectedSearchResult;
     const libraryId = yield this.client.ContentObjectLibraryId({objectId});
+    let requestRep;
 
     const queryParams = {
       start_time: startTime,
@@ -439,22 +444,44 @@ class SearchStore {
       queryParams["dedupe"] = true;
     }
 
+    if(assetType) {
+      requestRep = "image_tags";
+      queryParams["path"] = prefix.toString();
+    } else {
+      requestRep = "tags";
+    }
+
     const url = yield this.client.Rep({
       libraryId,
       objectId,
-      rep: "tags",
+      rep: requestRep,
       service: "search",
       makeAccessRequest: true,
       queryParams
     });
 
-    const _pos = url.indexOf("/tags?");
+    const _pos = url.indexOf(`/${requestRep}?`);
     const newUrl = `https://${this.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
       .concat(url.slice(_pos));
 
     try {
-      const results = yield this.client.Request({url: newUrl});
+      let results = yield this.client.Request({url: newUrl});
       const topics = results?.["Sports Topic"];
+
+      if(assetType) {
+        results = Object.fromEntries(
+          Object.entries(results).map(([key, value]) => {
+            const TransformKey = (key) => {
+              return key
+                .split("_")
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(" ");
+            };
+
+            return [TransformKey(key), value];
+          })
+        );
+      }
 
       if(!dedupe && !results?.error) {
         this.UpdateSelectedSearchResult({
@@ -551,9 +578,9 @@ class SearchStore {
             });
 
             result["_imageSrc"] = url;
-            result["_tags"] = this.ParseTags({
-              sources: result?.fields
-            });
+            // result["_tags"] = this.ParseTags({
+            //   sources: result?.fields
+            // });
             result["_title"] = result.prefix.replace("/assets/", "");
           } else {
             try {
@@ -748,7 +775,7 @@ class SearchStore {
     const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
   }).slice(0, 5).join(", ");
 
-    const synopsisDisplay = (meta.info?.add_ons?.Synopsis || [])
+    const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
       .filter(i => i.language_iso_code === "GBR")
       .map(i => i.content)
       .join("");
@@ -756,8 +783,8 @@ class SearchStore {
     this.UpdateSelectedSearchResult({
       key: "_info",
       value: {
-        ...meta.info,
-        title: meta.title,
+        ...meta?.info,
+        title: meta?.title,
         synopsisDisplay,
         directorDisplay,
         writerDisplay,
