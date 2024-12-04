@@ -45,7 +45,7 @@ class SummaryStore {
       }
 
       if(!cache) {
-        queryParams.set("regenerate", "true");
+        queryParams["regenerate"] = true;
       }
 
       const url = yield this.client.Rep({
