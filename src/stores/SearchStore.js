@@ -502,6 +502,10 @@ class SearchStore {
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to load tags", error);
+      this.UpdateSelectedSearchResult({
+        key: "_tags",
+        value: null
+      });
     }
   });
 
