@@ -6,11 +6,12 @@ import {IconChevronDown, IconChevronUp} from "@tabler/icons-react";
 import {searchStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime} from "@/utils/helpers.js";
+import {useEffect, useState} from "react";
 
-const InfoCard = observer(({show=false, info}) => {
-  if(!show) { return null; }
+const InfoCard = observer(({show=false, info, loading}) => {
+  if(!show || !info) { return null; }
 
-  if(!info) { return <Loader />; }
+  if(loading) { return <Loader />; }
 
   return (
     <Box mt={20} mb={20}>
@@ -73,6 +74,7 @@ const VideoTitleSection = observer(({
   showInfoCard,
   setShowInfoCard
 }) => {
+  const [loading, setLoading] = useState(false);
   let star1icon = HollowStarIcon;
   let star2icon = HollowStarIcon;
   let star3icon = HollowStarIcon;
@@ -85,8 +87,23 @@ const VideoTitleSection = observer(({
     star1icon = star2icon = star3icon = FilledStarIcon;
   }
 
-  const info = searchStore.selectedSearchResult?._info;
   const isVideoType = !searchStore.selectedSearchResult?._assetType && !searchStore.musicSettingEnabled;
+  const hasInfoData = !!searchStore.selectedSearchResult?._info?.actorDisplay && !!searchStore.selectedSearchResult?._info?.synopsisDisplay;
+
+  useEffect(() => {
+    const LoadData = async() => {
+      try {
+        setLoading(true);
+        await searchStore.GetTitleInfo();
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if(!searchStore.selectedSearchResult._info) {
+      LoadData();
+    }
+  }, [searchStore.selectedSearchResult]);
 
   return (
     <>
@@ -94,12 +111,12 @@ const VideoTitleSection = observer(({
         {
           title ?
             (
-              <Group w="70%">
+              <Group wrap="nowrap" style={{flexGrow: 1}}>
                 <Title order={2} c="elv-gray.8" lineClamp={1} style={{wordBreak: "break-all"}}>
                   { title }
                 </Title>
                 {
-                  isVideoType &&
+                  isVideoType && hasInfoData &&
                   <Button
                     ml={8}
                     rightSection={showInfoCard ? <IconChevronUp /> : <IconChevronDown />}
@@ -116,7 +133,7 @@ const VideoTitleSection = observer(({
           subtitle ?
             <Text fz="xs">{ subtitle }</Text> : null
         }
-        <Group style={{flexShrink: 0, marginLeft: "auto"}}>
+        <Group style={{flexShrink: 0, flexGrow: 0, marginLeft: "auto"}}>
           <Group gap="1" classNames={{root: styles.starBackground}}>
             <SecondaryButton size="lg" iconOnly Icon={star1icon} hoverText="Irrelevant" onClick={() => HandleRating("RELEVANCY_1_STAR")}/>
             <SecondaryButton size="lg" iconOnly Icon={star2icon} hoverText="Relevant" onClick={() => HandleRating("RELEVANCY_2_STAR")}/>
@@ -131,8 +148,9 @@ const VideoTitleSection = observer(({
         </Group>
       </Group>
       <InfoCard
-        show={showInfoCard && isVideoType}
-        info={info}
+        show={showInfoCard && isVideoType && hasInfoData}
+        info={searchStore.selectedSearchResult?._info}
+        loading={loading}
       />
     </>
   );
