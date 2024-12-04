@@ -1,4 +1,4 @@
-import {Box, Button, Grid, Group, Loader, Text, Title} from "@mantine/core";
+import {ActionIcon, Box, Grid, Group, Loader, Text, Title} from "@mantine/core";
 import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/assets/icons/index.js";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import styles from "@/components/video-title-section/VideoTitleSection.module.css";
@@ -111,20 +111,23 @@ const VideoTitleSection = observer(({
         {
           title ?
             (
-              <Group wrap="nowrap" style={{flexGrow: 1}}>
+              <Group wrap="nowrap" style={{flexGrow: 1}} align="center" gap={6}>
                 <Title order={2} c="elv-gray.8" lineClamp={1} style={{wordBreak: "break-all"}}>
                   { title }
                 </Title>
                 {
                   isVideoType && hasInfoData &&
-                  <Button
-                    ml={8}
-                    rightSection={showInfoCard ? <IconChevronUp /> : <IconChevronDown />}
+                  <ActionIcon
+                    size="md"
+                    variant="subtle"
                     onClick={() => setShowInfoCard(prevState => !prevState)}
-                    color="elv-neutral.4"
+                    color="elv-neutral.6"
+                    display="flex"
                   >
-                    Info
-                  </Button>
+                    {
+                      showInfoCard ? <IconChevronUp stroke={3} /> : <IconChevronDown stroke={3} />
+                    }
+                  </ActionIcon>
                 }
               </Group>
             ) : null
