@@ -1,10 +1,10 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, AspectRatio, Box, Button, Image, Table, Text} from "@mantine/core";
+import {ActionIcon, AspectRatio, Box, Button, Image, Table, Text, UnstyledButton} from "@mantine/core";
 import {useState} from "react";
-import {searchStore, videoStore} from "@/stores/index.js";
+import {searchStore, videoStore, overlayStore} from "@/stores/index.js";
 import {PlayIcon} from "@/assets/icons/index.js";
 
-const Rows = ({rows=[], playable=true}) => {
+const Rows = observer(({rows=[], playable=true}) => {
   return (
     rows.map(row => (
       <Table.Tr key={row.id}>
@@ -27,7 +27,9 @@ const Rows = ({rows=[], playable=true}) => {
           </Table.Td>
         }
         <Table.Td>
-          <Text size="xs" c="dimmed">{ row.tags }</Text>
+          <UnstyledButton onClick={row.tagClickCallback}>
+            <Text size="xs" c="dimmed">{ row.tags }</Text>
+          </UnstyledButton>
         </Table.Td>
         {
           playable &&
@@ -41,7 +43,7 @@ const Rows = ({rows=[], playable=true}) => {
       </Table.Tr>
     ))
   );
-};
+});
 
 const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
   const rows = (tags || []).map((tagItem, i) => {
@@ -52,6 +54,13 @@ const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
       image: tagItem?._coverImage,
       timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),
       tags: tagText,
+      tagClickCallback: () => overlayStore.SetEntry({
+        entry: {
+          box: tagItem?.box,
+          confidence: tagItem?.confidence,
+          text: tagItem?.text
+        }
+      }),
       id: `tag-${tagItem.id || i}-${tagItem?.start_time}-${tagItem?.end_time}`,
       action: {
         icon: (

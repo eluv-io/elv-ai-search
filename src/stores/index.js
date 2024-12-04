@@ -7,6 +7,7 @@ import VideoStore from "@/stores/VideoStore.js";
 import SummaryStore from "@/stores/SummaryStore.js";
 import HighlightsStore from "@/stores/HighlightsStore.js";
 import RatingStore from "@/stores/RatingStore.js";
+import OverlayStore from "@/stores/OverlayStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -22,6 +23,7 @@ class RootStore {
     this.tenantStore = new TenantStore(this);
     this.searchStore = new SearchStore(this);
     this.videoStore = new VideoStore(this);
+    this.overlayStore = new OverlayStore(this);
     this.summaryStore = new SummaryStore(this);
     this.highlightsStore = new HighlightsStore(this);
     this.ratingStore = new RatingStore(this);
@@ -176,6 +178,7 @@ export const rootStore = new RootStore();
 export const tenantStore = rootStore.tenantStore;
 export const searchStore = rootStore.searchStore;
 export const uiStore = rootStore.uiStore;
+export const overlayStore = rootStore.overlayStore;
 export const videoStore = rootStore.videoStore;
 export const summaryStore = rootStore.summaryStore;
 export const highlightsStore = rootStore.highlightsStore;

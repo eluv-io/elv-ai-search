@@ -1,9 +1,10 @@
 import {observer} from "mobx-react-lite";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
 import {rootStore} from "@/stores/index.js";
-import {Box} from "@mantine/core";
+import {Box, Flex} from "@mantine/core";
 import "@eluvio/elv-player-js/dist/elv-player-js.css";
+import Overlay from "@/components/overlay/Overlay.jsx";
 
 const Video = observer(({
   versionHash,
@@ -12,9 +13,11 @@ const Video = observer(({
   sourceOptions={},
   playoutParameters={},
   playerOptions={},
+  showOverlay,
   Callback
 }) => {
   const [player, setPlayer] = useState(null);
+  const elementRef = useRef(null);
 
   useEffect(() => {
     return () => {
@@ -37,48 +40,68 @@ const Video = observer(({
   }
 
   return (
-    <Box
-      bg="black"
-      ref={element => {
-        if(!element || player) { return; }
+    <Flex
+      justify="center"
+      mah="100%"
+      h="100%"
+      align="center"
+      style={{flexGrow: 1}}
+      pos="relative"
+    >
+      {
+        elementRef?.current &&
+        <Overlay element={elementRef.current} />
+      }
+      <Box
+        bg="black"
+        pos="absolute"
+        h="100%"
+        mah="100%"
+        maw="100%"
+        flex="1 1 auto"
+        display="block"
+        ref={element => {
+          elementRef.current = element;
+          if(!element || player) { return; }
 
-        InitializeEluvioPlayer(
-          element,
-          {
-            clientOptions: {
-              client: rootStore.client,
-              network: EluvioPlayerParameters.networks[rootStore.networkInfo.name === "main" ? "MAIN" : "DEMO"],
-              ...clientOptions
-            },
-            sourceOptions: {
-              protocols: [EluvioPlayerParameters.protocols.HLS, EluvioPlayerParameters.protocols.DASH],
-              ...sourceOptions,
-              playoutParameters: {
-                versionHash,
-                objectId,
-                ...playoutParameters
+          InitializeEluvioPlayer(
+            element,
+            {
+              clientOptions: {
+                client: rootStore.client,
+                network: EluvioPlayerParameters.networks[rootStore.networkInfo.name === "main" ? "MAIN" : "DEMO"],
+                ...clientOptions
+              },
+              sourceOptions: {
+                protocols: [EluvioPlayerParameters.protocols.HLS, EluvioPlayerParameters.protocols.DASH],
+                ...sourceOptions,
+                playoutParameters: {
+                  versionHash,
+                  objectId,
+                  ...playoutParameters
+                }
+              },
+              playerOptions: {
+                watermark: EluvioPlayerParameters.watermark.OFF,
+                muted: EluvioPlayerParameters.muted.ON,
+                autoplay: EluvioPlayerParameters.autoplay.OFF,
+                controls: EluvioPlayerParameters.controls.AUTO_HIDE,
+                loop: EluvioPlayerParameters.loop.OFF,
+                playerProfile: EluvioPlayerParameters.playerProfile.LOW_LATENCY,
+                capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
+                ...playerOptions
               }
             },
-            playerOptions: {
-              watermark: EluvioPlayerParameters.watermark.OFF,
-              muted: EluvioPlayerParameters.muted.ON,
-              autoplay: EluvioPlayerParameters.autoplay.OFF,
-              controls: EluvioPlayerParameters.controls.AUTO_HIDE,
-              loop: EluvioPlayerParameters.loop.OFF,
-              playerProfile: EluvioPlayerParameters.playerProfile.LOW_LATENCY,
-              capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
-              ...playerOptions
+          ).then(newPlayer => {
+            window.player = newPlayer;
+            setPlayer(newPlayer);
+            if(Callback && typeof Callback === "function") {
+              Callback({video: element, player: newPlayer});
             }
-          },
-        ).then(newPlayer => {
-          window.player = newPlayer;
-          setPlayer(newPlayer);
-          if(Callback && typeof Callback === "function") {
-            Callback({video: element, player: newPlayer});
-          }
-        });
-      }}
-    />
+          });
+        }}
+      />
+    </Flex>
   );
 });
 

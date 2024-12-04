@@ -6,7 +6,7 @@ import TextCard from "@/components/text-card/TextCard.jsx";
 import {TimeInterval} from "@/utils/helpers.js";
 import VideoTitleSection from "@/components/video-title-section/VideoTitleSection.jsx";
 import {useDisclosure} from "@mantine/hooks";
-import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
+import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
 const TitleGroup = ({title, loading}) => {

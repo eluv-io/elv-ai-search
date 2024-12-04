@@ -14,26 +14,64 @@ import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import {TimeInterval} from "@/utils/helpers.js";
 import {useDisclosure} from "@mantine/hooks";
-import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
+import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import VideoTitleSection from "@/components/video-title-section/VideoTitleSection.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {ratingStore, searchStore, summaryStore, videoStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import Overlay from "@/components/overlay/Overlay.jsx";
 
 const MediaItem = ({
   clip
 }) => {
+  const mediaRef = useRef(null);
+
+  const ContainerElement = ({children}) => {
+    return (
+      <Flex
+        justify="center"
+        mah="100%"
+        h="100%"
+        align="center"
+        style={{flexGrow: 1}}
+        pos="relative"
+      >
+        {
+          mediaRef?.current &&
+          <Overlay element={mediaRef.current} />
+        }
+        { children }
+      </Flex>
+    );
+  };
+
   if(clip._assetType) {
     return (
-      <Image
-        src={clip._imageSrc}
-        fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
-        fit="contain"
-        mah={800}
-      />
+      <ContainerElement>
+        {/*<Flex*/}
+        {/*  direction="column"*/}
+        {/*  w="100%"*/}
+        {/*  h="100%"*/}
+        {/*  pos="absolute"*/}
+        {/*  // flex="1 1 auto"*/}
+        {/*>*/}
+        {/*  <AspectRatio ratio={16 / 9}>*/}
+        <Box w="100%">
+          <Image
+            ref={mediaRef}
+            src={clip._imageSrc}
+            fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+            fit="contain"
+            w="100%"
+            // mah={800}
+          />
+        </Box>
+          {/*</AspectRatio>*/}
+        {/*</Flex>*/}
+      </ContainerElement>
     );
   } else {
     return (
@@ -83,6 +121,7 @@ const ResultDetailsMain = observer(({
 
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
+  const mediaRef = useRef(null);
 
   const SubmitRating = async(starRating) => {
     // set UI immediately
@@ -167,7 +206,9 @@ const ResultDetailsMain = observer(({
             )}
           </Transition>
         }
-        <MediaItem clip={clip} />
+        <Flex>
+          <MediaItem clip={clip} mediaRef={mediaRef} />
+        </Flex>
       </Box>
 
       <VideoTitleSection
