@@ -199,7 +199,13 @@ class RootStore {
     return url;
   });
 
-  GetVideoEditorUrl = ({objectId, libraryId, prefix}) => {
+  GetVideoEditorUrl = ({
+    objectId,
+    libraryId,
+    prefix,
+    startTime,
+    endTime
+  }) => {
     // eslint-disable-next-line no-undef
     const videoEditorKey = Object.keys(EluvioConfiguration.apps || {})
       .find(key => key.toLowerCase().includes("video editor") || key.toLowerCase().includes("video-editor"));
@@ -214,6 +220,14 @@ class RootStore {
     const url = new URL(EluvioConfiguration.coreUrl);
     url.pathname = corePath;
     url.hash = UrlJoin(libraryId, objectId, prefix || "");
+
+    if(startTime) {
+      url.searchParams.set("st", startTime);
+    }
+
+    if(endTime) {
+      url.searchParams.set("et", endTime);
+    }
 
     return url;
   };
