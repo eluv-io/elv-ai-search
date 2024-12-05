@@ -208,14 +208,14 @@ const Overlay = observer(({
       pos="absolute"
       ref={boxRef}
     >
-      <Tooltip.Floating label={TooltipContent()}>
+      {/*<Tooltip.Floating label={TooltipContent()}>*/}
         <canvas
           key={overlayStore.pageVersion}
           // onClick={Click}
           ref={canvasRef}
           // style={{height: "100%", width: "100%"}}
         />
-      </Tooltip.Floating>
+      {/*</Tooltip.Floating>*/}
     </Flex>
   );
 });
