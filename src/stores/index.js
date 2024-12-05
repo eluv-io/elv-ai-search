@@ -199,17 +199,9 @@ class RootStore {
     return url;
   });
 
-  GetVideoEditorUrl = flow(function * ({objectId, libraryId, prefix}){
-    const location = new URL(window.location.toString());
-    const config = yield this.client.Request({
-      url: UrlJoin(location.origin, "configuration.js")
-    });
-
-    if(!config) {
-      throw Error("Unable to determine URL");
-    }
-
-    const videoEditorKey = Object.keys(config.apps)
+  GetVideoEditorUrl = ({objectId, libraryId, prefix}) => {
+    // eslint-disable-next-line no-undef
+    const videoEditorKey = Object.keys(EluvioConfiguration.apps || {})
       .find(key => key.toLowerCase().includes("video editor") || key.toLowerCase().includes("video-editor"));
 
     if(!videoEditorKey) {
@@ -218,12 +210,13 @@ class RootStore {
 
     const corePath = `/apps/${videoEditorKey}`;
 
-    const url = new URL(window.location.toString());
+    // eslint-disable-next-line no-undef
+    const url = new URL(EluvioConfiguration.coreUrl);
     url.pathname = corePath;
     url.hash = UrlJoin(libraryId, objectId, prefix);
 
     return url;
-  });
+  };
 }
 
 export const rootStore = new RootStore();

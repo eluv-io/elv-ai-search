@@ -108,7 +108,7 @@ const VideoTitleSection = observer(({
   const HandleOpenInVideoEditor = async() => {
     const {id: objectId, qlib_id: libraryId, prefix} = searchStore.selectedSearchResult;
 
-    const url = await rootStore.GetVideoEditorUrl({
+    const url = rootStore.GetVideoEditorUrl({
       libraryId,
       objectId,
       prefix
