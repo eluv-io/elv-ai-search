@@ -8,11 +8,12 @@ import {searchStore} from "@/stores/index.js";
 const AccordionItems = (({tagData={}}) => {
   if(Object.keys(tagData).length === 0) { return null; }
 
-  const PanelContent = ({tags=[]}) => {
+  const PanelContent = ({tags=[], id}) => {
     if(tags.length > 0) {
       return (
         <TagsTable
           tags={tags}
+          tableId={id}
         />
       );
     } else {
@@ -33,7 +34,7 @@ const AccordionItems = (({tagData={}}) => {
               { tagName }
             </AccordionControl>
             <Accordion.Panel>
-              <PanelContent tags={tagData[tagName]} />
+              <PanelContent tags={tagData[tagName]} id={tagName} />
             </Accordion.Panel>
           </Accordion.Item>
         ))

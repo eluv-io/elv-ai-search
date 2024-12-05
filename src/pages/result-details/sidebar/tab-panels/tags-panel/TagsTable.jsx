@@ -49,22 +49,69 @@ const Rows = observer(({rows=[], playable=true}) => {
   );
 });
 
-const TagsTable = observer(({resultsPerPage=10, tags=[]}) => {
+const TagsTable = observer(({resultsPerPage=10, tags=[], tableId}) => {
   const rows = (tags || []).map((tagItem, i) => {
     const tagText = Array.isArray(tagItem?.text) ? tagItem?.text?.length > 0 ? tagItem?.text.join(", ") : "" :
       tagItem.text;
+
+    const rowId = `${tableId}-${i}`;
+    let tagClickCallback;
+    // const [tagOverlayEnabledMap, setTagOverlayEnabledMap] = useState({});
+    const tagOverlayEnabledMap = {};
+
+    if(tagItem?.box) {
+      tagClickCallback = () => {
+        if(tagOverlayEnabledMap[rowId]) {
+          overlayStore.ResetEntry();
+        } else {
+          overlayStore.SetEntry({
+            entry: {
+              box: tagItem?.box,
+              confidence: tagItem?.confidence,
+              text: tagItem?.text
+            }
+          });
+        }
+
+        tagOverlayEnabledMap[rowId] = !tagOverlayEnabledMap[rowId];
+        // const newTagMap = {...tagOverlayEnabledMap};
+        // newTagMap[rowId] = !newTagMap[rowId];
+        // setTagOverlayEnabledMap(newTagMap);
+      };
+      // console.log("tagOverlayEnabledMap", tagOverlayEnabledMap)
+      // if(tagOverlayEnabledMap[rowId]) {
+      //   tagClickCallback = () => {
+      //     overlayStore.ResetEntry();
+      //
+      //     const newTagMap = {...tagOverlayEnabledMap};
+      //     newTagMap[rowId] = false;
+      //     console.log("new tag map", newTagMap)
+      //     setTagOverlayEnabledMap(newTagMap);
+      //   };
+      // } else {
+      //   tagClickCallback = () => {
+      //     overlayStore.SetEntry({
+      //       entry: {
+      //         box: tagItem?.box,
+      //         confidence: tagItem?.confidence,
+      //         text: tagItem?.text
+      //       }
+      //     });
+      //
+      //     const newTagMap = {...tagOverlayEnabledMap};
+      //     newTagMap[rowId] = true;
+      //     setTagOverlayEnabledMap(newTagMap);
+      //   };
+      // }
+    } else {
+      tagClickCallback = null;
+    }
 
     return {
       image: tagItem?._coverImage,
       timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),
       tags: tagText,
-      tagClickCallback: tagItem?.box ? () => overlayStore.SetEntry({
-        entry: {
-          box: tagItem?.box,
-          confidence: tagItem?.confidence,
-          text: tagItem?.text
-        }
-      }) : null,
+      tagClickCallback,
       id: `tag-${tagItem.id || i}-${tagItem?.start_time}-${tagItem?.end_time}`,
       action: {
         icon: (

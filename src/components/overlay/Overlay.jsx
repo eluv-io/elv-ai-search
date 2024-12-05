@@ -33,12 +33,12 @@ const Overlay = observer(({
     ctx.globalAlpha = 1;
     ctx.lineWidth = 3;
 
-    entry.color = {
-      r: 200,
-      g: 200,
-      b: 50,
-      a: 150
-    };
+    // entry.color = {
+    //   r: 200,
+    //   g: 200,
+    //   b: 50,
+    //   a: 150
+    // };
 
     if(!x1 || !y1) {
       ({x1, x2, y1, y2, x3, y3, x4, y4} = entry.box);
@@ -55,7 +55,7 @@ const Overlay = observer(({
     const toHex = n => n.toString(16).padStart(2, "0");
 
     // ctx.strokeStyle = `#${toHex(entry.color.r)}${toHex(entry.color.g)}${toHex(entry.color.b)}`;
-    ctx.strokeStyle = "#BD6DFF";
+    ctx.strokeStyle = "#FF00FF";
 
     ctx.beginPath();
     ctx.moveTo(points[0][0], points[0][1]);
@@ -157,7 +157,15 @@ const Overlay = observer(({
   }, []);
 
   useEffect(() => {
-    if(overlayStore.entry === undefined) {
+    if([null, undefined].includes(overlayStore.entry)) {
+      const {width, height} = dimensions;
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext("2d");
+      ctx.canvas.width = width;
+      ctx.canvas.height = height;
+
+      // Draw
+      ctx.clearRect(0, 0, width, height);
       return;
     } else {
       Draw({entry: overlayStore.entry});

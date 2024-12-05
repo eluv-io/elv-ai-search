@@ -25,7 +25,7 @@ class OverlayStore {
   }
 
   get coordinates() {
-    return this.entry ? this.entry.box : null;
+    return this.entry ? this.entry.box : {};
   }
 
   Reset() {
@@ -37,14 +37,18 @@ class OverlayStore {
     this.activeTrack = track;
   };
 
-  SetEntry = ({entry}) => {
-    this.entry = null;
+  SetEntry({entry}) {
+    this.ResetEntry();
     this.entry = entry;
-  };
+  }
 
-  IncrementPageVersion = () => {
+  ResetEntry() {
+    this.entry = null;
+  }
+
+  IncrementPageVersion(){
     this.pageVersion = this.pageVersion + 1;
-  };
+  }
 
   TrackInfo = (trackKey) => {
     if(!this.trackInfo[trackKey]) {
