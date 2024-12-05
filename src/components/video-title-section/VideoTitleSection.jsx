@@ -105,6 +105,15 @@ const VideoTitleSection = observer(({
     }
   }, [searchStore.selectedSearchResult]);
 
+  const HandleOpenInVideoEditor = () => {
+    const {id: objectId, qlib_id: libraryId, prefix} = searchStore.selectedSearchResult;
+    const url = new URL(window.location.toString());
+    url.pathname = "apps/Video%20Editor";
+    url.hash = `${libraryId}/${objectId}${prefix}`;
+
+    window.open(url.toString(), "_blank");
+  };
+
   return (
     <>
       <Group mb={8} wrap="nowrap">
@@ -142,7 +151,7 @@ const VideoTitleSection = observer(({
             <SecondaryButton size="lg" iconOnly Icon={star2icon} hoverText="Relevant" onClick={() => HandleRating("RELEVANCY_2_STAR")}/>
             <SecondaryButton size="lg" iconOnly Icon={star3icon} hoverText="Highly Relevant" onClick={() => HandleRating("RELEVANCY_3_STAR")}/>
           </Group>
-          <SecondaryButton LeftIcon={VideoEditorIcon}>
+          <SecondaryButton LeftIcon={VideoEditorIcon} onClick={HandleOpenInVideoEditor} disabled={!searchStore.selectedSearchResult._assetType}>
             Open in Video Editor
           </SecondaryButton>
           <SecondaryButton LeftIcon={ShareIcon} onClick={openModal}>
