@@ -154,7 +154,7 @@ const VideoTitleSection = observer(({
             <SecondaryButton size="lg" iconOnly Icon={star2icon} hoverText="Relevant" onClick={() => HandleRating("RELEVANCY_2_STAR")}/>
             <SecondaryButton size="lg" iconOnly Icon={star3icon} hoverText="Highly Relevant" onClick={() => HandleRating("RELEVANCY_3_STAR")}/>
           </Group>
-          <SecondaryButton LeftIcon={VideoEditorIcon} onClick={HandleOpenInVideoEditor} disabled={!searchStore.selectedSearchResult._assetType}>
+          <SecondaryButton LeftIcon={VideoEditorIcon} onClick={HandleOpenInVideoEditor}>
             Open in Video Editor
           </SecondaryButton>
           <SecondaryButton LeftIcon={ShareIcon} onClick={openModal}>
