@@ -8,6 +8,7 @@ import SummaryStore from "@/stores/SummaryStore.js";
 import HighlightsStore from "@/stores/HighlightsStore.js";
 import RatingStore from "@/stores/RatingStore.js";
 import OverlayStore from "@/stores/OverlayStore.js";
+import UrlJoin from "url-join";
 
 // Store for loading data on app load
 class RootStore {
@@ -194,6 +195,32 @@ class RootStore {
         "header-x_set_content_disposition": `attachment;filename=${filename}`,
       },
     });
+
+    return url;
+  });
+
+  GetVideoEditorUrl = flow(function * ({objectId, libraryId, prefix}){
+    const location = new URL(window.location.toString());
+    const config = yield this.client.Request({
+      url: UrlJoin(location.origin, "configuration.js")
+    });
+
+    if(!config) {
+      throw Error("Unable to determine URL");
+    }
+
+    const videoEditorKey = Object.keys(config.apps)
+      .find(key => key.toLowerCase().includes("video editor") || key.toLowerCase().includes("video-editor"));
+
+    if(!videoEditorKey) {
+      throw Error("Unable to determine fabric browser URL");
+    }
+
+    const corePath = `/apps/${videoEditorKey}`;
+
+    const url = new URL(window.location.toString());
+    url.pathname = corePath;
+    url.hash = UrlJoin(libraryId, objectId, prefix);
 
     return url;
   });

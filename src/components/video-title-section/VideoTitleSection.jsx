@@ -3,7 +3,7 @@ import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/asse
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import styles from "@/components/video-title-section/VideoTitleSection.module.css";
 import {IconChevronDown, IconChevronUp} from "@tabler/icons-react";
-import {searchStore} from "@/stores/index.js";
+import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
@@ -105,11 +105,14 @@ const VideoTitleSection = observer(({
     }
   }, [searchStore.selectedSearchResult]);
 
-  const HandleOpenInVideoEditor = () => {
+  const HandleOpenInVideoEditor = async() => {
     const {id: objectId, qlib_id: libraryId, prefix} = searchStore.selectedSearchResult;
-    const url = new URL(window.location.toString());
-    url.pathname = "apps/Video%20Editor";
-    url.hash = `${libraryId}/${objectId}${prefix}`;
+
+    const url = await rootStore.GetVideoEditorUrl({
+      libraryId,
+      objectId,
+      prefix
+    });
 
     window.open(url.toString(), "_blank");
   };
