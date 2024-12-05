@@ -95,6 +95,30 @@ class RootStore {
     });
   });
 
+  GetDownloadUrlImage = flow(function * ({
+    libraryId,
+    objectId,
+    prefix
+  }) {
+    const token = yield this.client.CreateSignedToken({
+      objectId,
+      duration: 24 * 60 * 60 * 1000,
+    });
+    const fileName = prefix.replace("/assets/", "");
+
+    const url = yield this.GetFilePath({
+      libraryId,
+      objectId,
+      path: prefix,
+      queryParams: {
+        authorization: token,
+        "header-x_set_content_disposition": `attachment;filename=Image: ${fileName}`
+      }
+    });
+
+    return url;
+  });
+
   GetDownloadUrlWithMaxResolution = flow (function * ({
     libraryId,
     objectId,
@@ -129,6 +153,7 @@ class RootStore {
         maxWidth = playout.width;
       }
     }
+
     const title_name = yield this.client.ContentObjectMetadata({
       objectId,
       libraryId,

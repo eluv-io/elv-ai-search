@@ -730,9 +730,18 @@ class SearchStore {
         clipEnd: this.selectedSearchResult.end_time / 1000
       }
     });
-    const {id: objectId, start_time: startTime, end_time: endTime, qlib_id: libraryId} = this.selectedSearchResult;
+    const {id: objectId, start_time: startTime, end_time: endTime, qlib_id: libraryId, _assetType, prefix} = this.selectedSearchResult;
+    let downloadUrl;
 
-    const downloadUrl = yield this.rootStore.GetDownloadUrlWithMaxResolution({objectId, startTime, endTime, libraryId});
+    if(_assetType) {
+      downloadUrl = yield this.rootStore.GetDownloadUrlImage({
+        libraryId,
+        objectId,
+        prefix
+      });
+    } else {
+      downloadUrl = yield this.rootStore.GetDownloadUrlWithMaxResolution({objectId, startTime, endTime, libraryId});
+    }
 
     return {
       embedUrl,

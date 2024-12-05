@@ -56,7 +56,6 @@ const TagsTable = observer(({resultsPerPage=10, tags=[], tableId}) => {
 
     const rowId = `${tableId}-${i}`;
     let tagClickCallback;
-    // const [tagOverlayEnabledMap, setTagOverlayEnabledMap] = useState({});
     const tagOverlayEnabledMap = {};
 
     if(tagItem?.box) {
@@ -74,35 +73,7 @@ const TagsTable = observer(({resultsPerPage=10, tags=[], tableId}) => {
         }
 
         tagOverlayEnabledMap[rowId] = !tagOverlayEnabledMap[rowId];
-        // const newTagMap = {...tagOverlayEnabledMap};
-        // newTagMap[rowId] = !newTagMap[rowId];
-        // setTagOverlayEnabledMap(newTagMap);
       };
-      // console.log("tagOverlayEnabledMap", tagOverlayEnabledMap)
-      // if(tagOverlayEnabledMap[rowId]) {
-      //   tagClickCallback = () => {
-      //     overlayStore.ResetEntry();
-      //
-      //     const newTagMap = {...tagOverlayEnabledMap};
-      //     newTagMap[rowId] = false;
-      //     console.log("new tag map", newTagMap)
-      //     setTagOverlayEnabledMap(newTagMap);
-      //   };
-      // } else {
-      //   tagClickCallback = () => {
-      //     overlayStore.SetEntry({
-      //       entry: {
-      //         box: tagItem?.box,
-      //         confidence: tagItem?.confidence,
-      //         text: tagItem?.text
-      //       }
-      //     });
-      //
-      //     const newTagMap = {...tagOverlayEnabledMap};
-      //     newTagMap[rowId] = true;
-      //     setTagOverlayEnabledMap(newTagMap);
-      //   };
-      // }
     } else {
       tagClickCallback = null;
     }
