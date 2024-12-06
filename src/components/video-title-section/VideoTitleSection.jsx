@@ -116,7 +116,7 @@ const VideoTitleSection = observer(({
       endTime: end_time === undefined ? undefined : (end_time / 1000)
     });
 
-    window.open(url.toString(), "_blank");
+    window.open(url, "_blank");
   };
 
   return (
