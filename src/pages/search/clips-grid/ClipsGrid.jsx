@@ -33,7 +33,7 @@ const Clip = observer(({
   song
  }) => {
   const navigate = useNavigate();
-  const {id, start_time: startTime, end_time: endTime} = clip;
+  const {id, start_time: startTime, end_time: endTime, _assetType} = clip;
 
   return (
     <UnstyledButton
@@ -46,17 +46,17 @@ const Clip = observer(({
     >
       <Flex direction="column" gap={6}>
         <AspectRatio
-          ratio={16 / 9}
+          ratio={clip._assetType ? (1 / 1) : (16 / 9)}
           style={{borderRadius: "14px", overflow: "hidden"}}
         >
           <ImageContent
             imageSrc={clip._imageSrc}
-            title={clip.meta?.public?.asset_metadata?.title || id}
+            title={clip._title}
           />
         </AspectRatio>
         <Flex wrap="nowrap" mt={10} align="center" justify="space-between">
-          <Title order={4} lineClamp={1} lh={1} style={{wordBreak: "break-word"}} mr={4}>
-            { clip.meta?.public?.asset_metadata?.title || id }
+          <Title order={4} lineClamp={1} lh={1.25} style={{wordBreak: "break-word"}} mr={4}>
+            { clip._title }
           </Title>
           {
             clip._score &&
@@ -67,11 +67,14 @@ const Clip = observer(({
             </Box>
           }
         </Flex>
-        <Box>
-          <Text size="sm">
-            { TimeInterval({startTime, endTime}) }
-          </Text>
-        </Box>
+        {
+          !_assetType &&
+          <Box>
+            <Text size="sm">
+              { TimeInterval({startTime, endTime}) }
+            </Text>
+          </Box>
+        }
         <Group gap={4} wrap="nowrap">
           <EyeIcon color="var(--mantine-color-elv-gray-3)" />
           {/* TODO: Replace hardcoded value with api response */}
@@ -91,22 +94,26 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
+const ClipsGrid = observer(({
+  clips=[],
+  highScoreResults=[],
+  song,
+  view="HIGH_SCORE",
+  // viewCount,
+  cols=4
+}) => {
   if(!clips) {
-    clips = searchStore.currentSearch?.results?.contents || [];
+    clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
   }
 
   const musicEnabled = searchStore.musicSettingEnabled;
 
   const FilterClips = ({clips}) => {
     if(musicEnabled) {
-      if(view === "ALL") {
-        return clips;
-      } else {
-        return searchStore.highScoreResults;
-      }
+      return clips;
     } else {
-      return clips.filter(item => view === "ALL" ? true : parseInt(item._score || "") >= 60);
+      return view === "ALL" ? clips : highScoreResults;
+        // .slice(0, viewCount);
     }
   };
 
@@ -120,7 +127,7 @@ const ClipsGrid = observer(({clips, song, view="HIGH_SCORE"}) => {
           { song }
         </Title>
       }
-      <SimpleGrid cols={4} spacing="lg">
+      <SimpleGrid cols={cols} spacing="lg">
         {
           filteredClips.map((clip, i) => (
             <Clip

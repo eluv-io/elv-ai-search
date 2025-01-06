@@ -63,6 +63,22 @@ export const FormatDuration = ({
   }
 };
 
+export const FormatRuntime = ({timeMins}) => {
+  const hours = Math.floor(timeMins / 60);
+  const minutes = timeMins % 60;
+
+  return `${hours}h ${minutes}m`;
+};
+
+// Format kebab-/snake-case name
+export const FormatName = (name) => {
+  return (name || "")
+    .replace("-", " ")
+    .split(/[_, \s]/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 export const TimeInterval = ({startTime, endTime}) => {
   const startTimeFormatted = FormatTime({time: startTime});
   const endTimeFormatted = FormatTime({time: endTime});

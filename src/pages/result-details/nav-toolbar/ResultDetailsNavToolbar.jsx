@@ -3,18 +3,20 @@ import {ArrowLeftIcon, ArrowRightIcon} from "@/assets/icons/index.js";
 import {useNavigate} from "react-router-dom";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {observer} from "mobx-react-lite";
-import {searchStore} from "@/stores/index.js";
+import {searchStore, overlayStore} from "@/stores/index.js";
 
-const VideoDetailsNavToolbar = observer(() => {
+const ResultDetailsNavToolbar = observer(() => {
   const navigate = useNavigate();
 
   const HandleNavClip = (prev) => {
     const currentClip = searchStore.selectedSearchResult;
     const newIndex = prev ? (currentClip._index - 1) : (currentClip._index + 1);
-    const newClip = searchStore.currentSearch?.results?.contents?.[newIndex];
+    const clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
+    const newClip = clips?.[newIndex];
 
     if(newClip) {
       searchStore.SetSelectedSearchResult({result: newClip});
+      overlayStore.IncrementPageVersion();
       navigate(`/search/${newClip.id}`);
     }
   };
@@ -37,4 +39,4 @@ const VideoDetailsNavToolbar = observer(() => {
   );
 });
 
-export default VideoDetailsNavToolbar;
+export default ResultDetailsNavToolbar;

@@ -2,17 +2,18 @@ import {useEffect, useState} from "react";
 import {observer} from "mobx-react-lite";
 import {Box, Accordion, AccordionControl, Text, Loader, Flex} from "@mantine/core";
 import {CollapseIcon} from "@/assets/icons/index.js";
-import TagsTable from "@/pages/video-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
+import TagsTable from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import {searchStore} from "@/stores/index.js";
 
 const AccordionItems = (({tagData={}}) => {
   if(Object.keys(tagData).length === 0) { return null; }
 
-  const PanelContent = ({tags=[]}) => {
+  const PanelContent = ({tags=[], id}) => {
     if(tags.length > 0) {
       return (
         <TagsTable
           tags={tags}
+          tableId={id}
         />
       );
     } else {
@@ -33,7 +34,7 @@ const AccordionItems = (({tagData={}}) => {
               { tagName }
             </AccordionControl>
             <Accordion.Panel>
-              <PanelContent tags={tagData[tagName]} />
+              <PanelContent tags={tagData[tagName]} id={tagName} />
             </Accordion.Panel>
           </Accordion.Item>
         ))
@@ -55,7 +56,11 @@ const TagsPanel = observer(() => {
     const LoadData = async() => {
       setLoading(true);
 
-      await searchStore.GetTags(false);
+      await searchStore.GetTags({
+        dedupe: false,
+        assetType: searchStore.selectedSearchResult._assetType,
+        prefix: searchStore.selectedSearchResult.prefix
+      });
 
       setLoading(false);
     };
@@ -63,7 +68,7 @@ const TagsPanel = observer(() => {
     if(!searchStore.selectedSearchResult?._tags) {
       LoadData();
     }
-  }, [searchStore.selectedSearchResult?._tags]);
+  }, [searchStore.selectedSearchResult?._tags, searchStore.selectedSearchResult._assetType]);
 
   if(loading) {
     return (

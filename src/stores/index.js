@@ -7,6 +7,8 @@ import VideoStore from "@/stores/VideoStore.js";
 import SummaryStore from "@/stores/SummaryStore.js";
 import HighlightsStore from "@/stores/HighlightsStore.js";
 import RatingStore from "@/stores/RatingStore.js";
+import OverlayStore from "@/stores/OverlayStore.js";
+import UrlJoin from "url-join";
 
 // Store for loading data on app load
 class RootStore {
@@ -18,10 +20,11 @@ class RootStore {
   constructor() {
     makeAutoObservable(this);
 
+    this.uiStore = new UiStore(this);
     this.tenantStore = new TenantStore(this);
     this.searchStore = new SearchStore(this);
-    this.uiStore = new UiStore(this);
     this.videoStore = new VideoStore(this);
+    this.overlayStore = new OverlayStore(this);
     this.summaryStore = new SummaryStore(this);
     this.highlightsStore = new HighlightsStore(this);
     this.ratingStore = new RatingStore(this);
@@ -75,6 +78,48 @@ class RootStore {
     }
   });
 
+  GetFilePath = flow(function * ({
+    libraryId,
+    objectId,
+    path,
+    queryParams={}
+  }){
+    if(!libraryId) {
+      libraryId = yield this.client.ContentObjectLibraryId({objectId});
+    }
+
+    return this.client.FileUrl({
+      libraryId,
+      objectId,
+      filePath: path,
+      queryParams
+    });
+  });
+
+  GetDownloadUrlImage = flow(function * ({
+    libraryId,
+    objectId,
+    prefix
+  }) {
+    const token = yield this.client.CreateSignedToken({
+      objectId,
+      duration: 24 * 60 * 60 * 1000,
+    });
+    const fileName = prefix.replace("/assets/", "");
+
+    const url = yield this.GetFilePath({
+      libraryId,
+      objectId,
+      path: prefix,
+      queryParams: {
+        authorization: token,
+        "header-x_set_content_disposition": `attachment;filename=Image: ${fileName}`
+      }
+    });
+
+    return url;
+  });
+
   GetDownloadUrlWithMaxResolution = flow (function * ({
     libraryId,
     objectId,
@@ -90,7 +135,12 @@ class RootStore {
       metadataSubtree: "offerings",
     });
 
-    const offering = offerings["default"];
+    if(!offerings) {
+      console.error(`No offerings available for ${objectId}`);
+      return "";
+    }
+
+    const offering = offerings?.default;
     const representations = offering.playout.streams.video.representations;
     let playoutKey = null;
     let maxHeight = 0;
@@ -104,6 +154,7 @@ class RootStore {
         maxWidth = playout.width;
       }
     }
+
     const title_name = yield this.client.ContentObjectMetadata({
       objectId,
       libraryId,
@@ -147,12 +198,44 @@ class RootStore {
 
     return url;
   });
+
+  GetVideoEditorUrl = ({
+    objectId,
+    libraryId,
+    prefix,
+    startTime,
+    endTime
+  }) => {
+    // eslint-disable-next-line no-undef
+    const videoEditorKey = Object.keys(EluvioConfiguration.apps || {})
+      .find(key => key.toLowerCase().includes("video editor") || key.toLowerCase().includes("video-editor"));
+
+    if(!videoEditorKey) {
+      throw Error("Unable to determine fabric browser URL");
+    }
+
+    const corePath = `/apps/${videoEditorKey}`;
+
+    // eslint-disable-next-line no-undef
+    const baseUrl = UrlJoin(EluvioConfiguration.coreUrl, corePath);
+    let url = new URL(baseUrl);
+    url.hash = UrlJoin(libraryId, objectId, prefix || "");
+
+    url = url.toString();
+
+    if(startTime || endTime) {
+      url = `${url}?${startTime ? `st=${startTime}` : ""}${endTime ? `&et=${endTime}` : ""}`;
+    }
+
+    return url;
+  };
 }
 
 export const rootStore = new RootStore();
 export const tenantStore = rootStore.tenantStore;
 export const searchStore = rootStore.searchStore;
 export const uiStore = rootStore.uiStore;
+export const overlayStore = rootStore.overlayStore;
 export const videoStore = rootStore.videoStore;
 export const summaryStore = rootStore.summaryStore;
 export const highlightsStore = rootStore.highlightsStore;

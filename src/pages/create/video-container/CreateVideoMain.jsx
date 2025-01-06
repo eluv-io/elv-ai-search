@@ -4,9 +4,9 @@ import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import {TimeInterval} from "@/utils/helpers.js";
-import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
+import VideoTitleSection from "@/components/video-title-section/VideoTitleSection.jsx";
 import {useDisclosure} from "@mantine/hooks";
-import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
+import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
 const TitleGroup = ({title, loading}) => {
@@ -81,7 +81,7 @@ const CreateVideoMain = observer(({
         </AspectRatio>
       </Box>
 
-      <VideoActionsBar
+      <VideoTitleSection
         openModal={openModal}
         subtitle={`${loading ? "Request in progress" : "Request completed"} - Create Summary & Highlights`}
       />

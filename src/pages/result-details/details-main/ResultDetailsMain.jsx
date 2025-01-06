@@ -4,6 +4,8 @@ import {
   Box,
   Button,
   Flex,
+  Grid,
+  Image,
   Loader,
   SimpleGrid,
   Transition
@@ -12,16 +14,89 @@ import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import {TimeInterval} from "@/utils/helpers.js";
 import {useDisclosure} from "@mantine/hooks";
-import ShareModal from "@/pages/search/share-modal/ShareModal.jsx";
+import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
-import VideoActionsBar from "@/components/video-actions-bar/VideoActionsBar.jsx";
+import VideoTitleSection from "@/components/video-title-section/VideoTitleSection.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
-import {useEffect, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {ratingStore, searchStore, summaryStore, videoStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
+import Overlay from "@/components/overlay/Overlay.jsx";
 
-const VideoDetailsMain = observer(({
+const MediaItem = ({
+  clip
+}) => {
+  const mediaRef = useRef(null);
+
+  const ContainerElement = ({children}) => {
+    return (
+      <Flex
+        justify="center"
+        mah="100%"
+        h="100%"
+        align="center"
+        style={{flexGrow: 1}}
+        pos="relative"
+      >
+        {
+          mediaRef?.current &&
+          <Overlay element={mediaRef.current} />
+        }
+        { children }
+      </Flex>
+    );
+  };
+
+  if(clip._assetType) {
+    return (
+      <ContainerElement>
+        <Box w="100%">
+          <Image
+            ref={mediaRef}
+            src={clip._imageSrc}
+            fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+            fit="contain"
+            w="100%"
+          />
+        </Box>
+      </ContainerElement>
+    );
+  } else {
+    return (
+      <AspectRatio ratio={16 / 9}>
+        <Video
+          objectId={clip.id}
+          playerOptions={{
+            posterUrl: clip._imageSrc,
+            autoplay: EluvioPlayerParameters.autoplay.OFF,
+            hlsjsOptions: {
+              fragLoadingTimeOut: 30000,
+              maxBufferHole: 1.5
+            },
+          }}
+          playoutParameters={{
+            clipStart: clip.start_time / 1000,
+            clipEnd: clip.end_time / 1000,
+            ignoreTrimming: true,
+            permanentPoster: PlayerParameters.permanentPoster.ON
+          }}
+          Callback={({video, player}) => {
+            videoStore.SetVideo({
+              video,
+              player,
+              objectId: clip.id,
+              startTime: clip.start_time,
+              endTime: clip.end_time
+            });
+          }}
+        />
+      </AspectRatio>
+    );
+  }
+};
+
+const ResultDetailsMain = observer(({
   clip,
   openedSidebar,
   open
@@ -31,12 +106,13 @@ const VideoDetailsMain = observer(({
   const [currentStars, setCurrentStars] = useState(null);
   const [embedUrl, setEmbedUrl] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);
+  const [showInfoCard, setShowInfoCard] = useState(false);
 
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
+  const mediaRef = useRef(null);
 
-  const submitStars = async (starRating) => {
-
+  const SubmitRating = async(starRating) => {
     // set UI immediately
     setCurrentStars(starRating);
 
@@ -55,6 +131,12 @@ const VideoDetailsMain = observer(({
         // eslint-disable-next-line no-console
         console.log("Did not update rating store, reverting to previous state");
         setCurrentStars(currentStars);
+    }
+  };
+
+  const GetInfo = async() => {
+    if(!searchStore.selectedSearchResult?.info) {
+      await searchStore.GetTitleInfo();
     }
   };
 
@@ -84,6 +166,7 @@ const VideoDetailsMain = observer(({
 
       setEmbedUrl(embed || "");
       setDownloadUrl(download || "");
+      await GetInfo();
     };
 
     LoadData();
@@ -112,65 +195,52 @@ const VideoDetailsMain = observer(({
             )}
           </Transition>
         }
-        <AspectRatio ratio={16 / 9}>
-          <Video
-            objectId={clip.id}
-            playerOptions={{
-              posterUrl: clip._imageSrc,
-              autoplay: EluvioPlayerParameters.autoplay.OFF,
-              hlsjsOptions: {
-                fragLoadingTimeOut: 30000,
-                maxBufferHole: 1.5
-              },
-            }}
-            playoutParameters={{
-              clipStart: clip.start_time / 1000,
-              clipEnd: clip.end_time / 1000,
-              ignoreTrimming: true,
-              permanentPoster: PlayerParameters.permanentPoster.ON
-            }}
-            Callback={({video, player}) => {
-              videoStore.SetVideo({
-                video,
-                player,
-                objectId: clip.id,
-                startTime: clip.start_time,
-                endTime: clip.end_time
-              });
-            }}
-          />
-        </AspectRatio>
+        <MediaItem clip={clip} mediaRef={mediaRef} />
       </Box>
 
-      <VideoActionsBar
-        title={clip.meta?.public?.asset_metadata?.title || clip.id}
+      <VideoTitleSection
+        title={clip._title}
         openModal={openModal}
-        onClick={submitStars}
+        HandleRating={SubmitRating}
         currentStars={currentStars}
+        showInfoCard={showInfoCard}
+        setShowInfoCard={setShowInfoCard}
       />
 
-      <SimpleGrid cols={3} mb={8} gap={8}>
-        <TextCard
-          text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
-        />
-        <TextCard
-          text={clip.id}
-          copyText={clip.id}
-          lineClamp={1}
-        />
-        <SimpleGrid cols={2} gap={16}>
+      <Grid gap={8} mb={8}>
+        {
+          clip._assetType ? null :
+          <Grid.Col span={4}>
+            <TextCard
+              text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
+            />
+          </Grid.Col>
+        }
+        <Grid.Col span={clip._assetType ? 10 : 4}>
           <TextCard
-            text="Streaming"
-            centerText
-            copyText={embedUrl}
+            text={clip.id}
+            copyText={clip.id}
+            lineClamp={1}
           />
-          <TextCard
-            text="Download"
-            centerText
-            copyText={downloadUrl}
-          />
-        </SimpleGrid>
-      </SimpleGrid>
+        </Grid.Col>
+        <Grid.Col span={clip._assetType ? 2 : 4}>
+          <SimpleGrid cols={clip._assetType ? 1 : 2}>
+            {
+              clip._assetType ? null :
+                <TextCard
+                  text="Streaming"
+                  centerText
+                  copyText={embedUrl}
+                />
+            }
+              <TextCard
+                text="Download"
+                centerText
+                copyText={downloadUrl}
+              />
+          </SimpleGrid>
+        </Grid.Col>
+      </Grid>
 
       <TextCard
         title={searchStore.selectedSearchResult?._summary ? searchStore.selectedSearchResult?._summary?.title || "Summary" : ""}
@@ -188,6 +258,8 @@ const VideoDetailsMain = observer(({
                   objectId: clip.id,
                   startTime: clip.start_time,
                   endTime: clip.end_time,
+                  prefix: clip.prefix,
+                  assetType: clip._assetType,
                   cache: false
                 });
               } finally {
@@ -212,7 +284,9 @@ const VideoDetailsMain = observer(({
                         await summaryStore.GetSummaryResults({
                           objectId: clip.id,
                           startTime: clip.start_time,
-                          endTime: clip.end_time
+                          endTime: clip.end_time,
+                          prefix: clip.prefix,
+                          assetType: clip._assetType,
                         });
                       } finally {
                         setLoadingSummary(false);
@@ -239,4 +313,4 @@ const VideoDetailsMain = observer(({
   );
 });
 
-export default VideoDetailsMain;
+export default ResultDetailsMain;

@@ -3,11 +3,11 @@ import {AspectRatio, Box, CopyButton, Flex, Modal, Stack, Tabs, Text, Tooltip} f
 import styles from "./ShareModal.module.css";
 import {LinkIcon, MailIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
-import ShareDetailsPanel from "@/pages/search/share-modal/tab-panels/ShareDetailsPanel.jsx";
-import SharePlaybackPanel from "@/pages/search/share-modal/tab-panels/SharePlaybackPanel.jsx";
-import ShareFormatPanel from "@/pages/search/share-modal/tab-panels/ShareFormatPanel.jsx";
-import ShareAccessPanel from "@/pages/search/share-modal/tab-panels/ShareAccessPanel.jsx";
-import ShareSocialPanel from "@/pages/search/share-modal/tab-panels/ShareSocialPanel.jsx";
+import ShareDetailsPanel from "@/pages/result-details/share-modal/tab-panels/ShareDetailsPanel.jsx";
+import SharePlaybackPanel from "@/pages/result-details/share-modal/tab-panels/SharePlaybackPanel.jsx";
+import ShareFormatPanel from "@/pages/result-details/share-modal/tab-panels/ShareFormatPanel.jsx";
+import ShareAccessPanel from "@/pages/result-details/share-modal/tab-panels/ShareAccessPanel.jsx";
+import ShareSocialPanel from "@/pages/result-details/share-modal/tab-panels/ShareSocialPanel.jsx";
 import {useEffect, useState} from "react";
 import {searchStore} from "@/stores/index.js";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";

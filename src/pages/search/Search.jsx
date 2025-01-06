@@ -1,6 +1,6 @@
 import PageContainer from "@/components/page-container/PageContainer.jsx";
 import {observer} from "mobx-react-lite";
-import {Group, SegmentedControl, Select, Text, UnstyledButton, VisuallyHidden} from "@mantine/core";
+import {Group, SegmentedControl, Select, Text, Title, UnstyledButton, VisuallyHidden} from "@mantine/core";
 import SearchBar from "@/components/search-bar/SearchBar.jsx";
 import {useState} from "react";
 import {searchStore} from "@/stores/index.js";
@@ -9,25 +9,25 @@ import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
 
-const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
+const FilterToolbar = observer(({loadingSearch}) => {
   const iconProps = {
     style: {width: "20px", height: "20px", display: "block"}
   };
 
   const [view, setView] = useState("grid");
 
-  if(!searchStore.currentSearch.results || loadingSearch) { return null; }
+  if(!(searchStore.results?.video?.contents || searchStore.results?.image?.contents) || loadingSearch) { return null; }
 
   const ToggleResultType = () => {
     let newValue;
 
-    if(resultType === "ALL") {
+    if(searchStore.resultsViewType === "ALL") {
       newValue = "HIGH_SCORE";
     } else {
       newValue = "ALL";
     }
 
-    setResultType(newValue);
+    searchStore.SetResultsViewType({value: newValue});
   };
 
   return (
@@ -35,7 +35,13 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
       <Group>
         <Select
           placeholder="View By Category"
-          data={["All Content", "Full Length Videos", "Clips", "Images", "Reels"]}
+          data={[
+            {label: "All Content", value: "ALL", disabled: true},
+            {label: "Images", value: "IMAGES", disabled: true},
+            {label: "Videos", value: "VIDEOS", disabled: true}
+          ]}
+          value={searchStore.searchContentType}
+          onChange={(value) => searchStore.SetSearchContentType({type: value})}
           defaultValue="All Content"
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
@@ -52,20 +58,12 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
         />
-        {/*<Text size="sm">*/}
-        {/*  {*/}
-        {/*    Pluralize({*/}
-        {/*      baseWord: "Result",*/}
-        {/*      count: searchStore.currentSearch?.results?.contents?.length*/}
-        {/*    })*/}
-        {/*  }*/}
-        {/*</Text>*/}
         {
           (searchStore.currentSearch?.terms) &&
           <UnstyledButton onClick={ToggleResultType} classNames={{root: styles.textButton}}>
             <Text size="sm" c="elv-neutral.5">
               {
-                resultType === "ALL" ?
+                searchStore.resultsViewType === "ALL" ?
                   "Show Only High Score Results" :
                   "Show All Results"
               }
@@ -103,12 +101,15 @@ const FilterToolbar = observer(({loadingSearch, resultType, setResultType}) => {
 
 const Search = observer(() => {
   const [loadingSearch, setLoadingSearch] = useState(false);
-  // Show all results vs top results that have a high score
-  const [resultType, setResultType] = useState((searchStore.highScoreResults || []).length ? "HIGH_SCORE" : "ALL");
-
-  // useEffect(() => {
-  //   setResultType("ALL");
-  // }, [searchStore.musicSettingEnabled]);
+  const colCount = {
+    video: 4,
+    image: 7
+  };
+  const viewVideoCount = -1;
+  const viewImageCount = -1;
+  // TODO: When multi-search is supported, use limited view
+  // const [viewVideoCount, setViewVideoCount] = useState(-1);
+  // const [viewImageCount, setViewImageCount] = useState(-1);
 
   return (
     <PageContainer title="AI Clip Search" centerTitle>
@@ -116,12 +117,77 @@ const Search = observer(() => {
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}
       />
-      {/*<SearchDropzone loadingSearch={loadingSearch} />*/}
-      <FilterToolbar loadingSearch={loadingSearch} resultType={resultType} setResultType={setResultType} />
+      <FilterToolbar loadingSearch={loadingSearch} />
       {
         searchStore.musicSettingEnabled ?
-          <MusicGrid view={resultType} /> :
-          <ClipsGrid view={resultType} />
+          <MusicGrid /> :
+          (
+            <>
+              {
+                ["ALL", "VIDEOS"].includes(searchStore.searchContentType) &&
+                searchStore.results?.video?.contents &&
+                <>
+                  <Group mb={16}>
+                    <Title c="elv-gray.8" order={3} size="1.5rem">
+                      Videos
+                    </Title>
+                    {/* TODO: Add limited view when multi search is supported */}
+                    {/*{*/}
+                    {/*  searchStore.results?.video?.contents.length > colCount.video ?*/}
+                    {/*    (*/}
+                    {/*      <UnstyledButton onClick={() => setViewVideoCount(prevState => prevState === -1 ? colCount.video : -1)} classNames={{root: styles.textButton}}>*/}
+                    {/*        <Group gap={8}>*/}
+                    {/*          <Text size="sm" c="elv-neutral.3" tt="uppercase">*/}
+                    {/*            { viewVideoCount === colCount.video ? "View All" : "View Less" }*/}
+                    {/*          </Text>*/}
+                    {/*          <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />*/}
+                    {/*        </Group>*/}
+                    {/*      </UnstyledButton>*/}
+                    {/*    ) : null*/}
+                    {/*}*/}
+                  </Group>
+                <ClipsGrid
+                  view={searchStore.resultsViewType}
+                  clips={searchStore.results?.video?.contents}
+                  highScoreResults={searchStore.results?.videoHighScore}
+                  viewCount={viewVideoCount}
+                />
+                </>
+              }
+              {
+                ["ALL", "IMAGES"].includes(searchStore.searchContentType) &&
+                searchStore.results?.image?.contents &&
+                <>
+                  <Group mb={16} mt={16}>
+                    <Title c="elv-gray.8" order={3} size="1.5rem">
+                      Images
+                    </Title>
+                    {/* TODO: Add limited view when multi search is supported */}
+                    {/*{*/}
+                    {/*  searchStore.results?.images?.contents.length > colCount.image ?*/}
+                    {/*    (*/}
+                    {/*      <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? colCount.image : -1)} classNames={{root: styles.textButton}}>*/}
+                    {/*        <Group gap={8}>*/}
+                    {/*          <Text size="sm" c="elv-neutral.3" tt="uppercase">*/}
+                    {/*            { viewImageCount === colCount.image ? "View All" : "View Less" }*/}
+                    {/*          </Text>*/}
+                    {/*          <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />*/}
+                    {/*        </Group>*/}
+                    {/*      </UnstyledButton>*/}
+                    {/*    ) : null*/}
+                    {/*}*/}
+                  </Group>
+                <ClipsGrid
+                  view={searchStore.resultsViewType}
+                  clips={searchStore.results?.image?.contents}
+                  viewCount={viewImageCount}
+                  cols={colCount.image}
+                  highScoreResults={searchStore.results?.imageHighScore}
+                />
+                </>
+              }
+            </>
+          )
       }
     </PageContainer>
   );

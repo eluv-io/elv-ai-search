@@ -65,7 +65,7 @@ const TextContent = ({
         textTitle &&
         <Text size="sm" c="elv-gray.8" fw={400} mb={8}>{ textTitle }</Text>
       }
-      <Group wrap="nowrap" gap={8} justify={centerText ? "center" : "flex-start"}>
+      <Group wrap="nowrap" gap={8} justify={centerText ? "center" : "space-between"}>
         <Text size="sm" c="elv-gray.8" fw={400} lineClamp={lineClamp}>{ text || "" }</Text>
         {
           !!copyText &&
