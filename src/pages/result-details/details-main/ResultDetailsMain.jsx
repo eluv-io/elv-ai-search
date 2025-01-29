@@ -2,12 +2,11 @@ import {observer} from "mobx-react-lite";
 import {
   AspectRatio,
   Box,
-  Button,
   Flex,
   Grid,
   Image,
-  Loader,
   SimpleGrid,
+  Title,
   Transition
 } from "@mantine/core";
 import {ArrowLeftIcon} from "@/assets/icons/index.js";
@@ -16,18 +15,20 @@ import {TimeInterval} from "@/utils/helpers.js";
 import {useDisclosure} from "@mantine/hooks";
 import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
-import VideoTitleSection from "@/components/video-title-section/VideoTitleSection.jsx";
+import MediaTitleSection from "@/pages/result-details/details-main/media-title-section/MediaTitleSection.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {useEffect, useRef, useState} from "react";
-import {ratingStore, searchStore, summaryStore, videoStore} from "@/stores/index.js";
+import {ratingStore, searchStore, videoStore} from "@/stores/index.js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import Overlay from "@/components/overlay/Overlay.jsx";
+import AIContentSection from "@/pages/result-details/details-main/ai-content-section/AIContentSection.jsx";
 
 const MediaItem = ({
   clip
 }) => {
   const mediaRef = useRef(null);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const ContainerElement = ({children}) => {
     return (
@@ -35,9 +36,11 @@ const MediaItem = ({
         justify="center"
         mah="100%"
         h="100%"
+        mih={350}
         align="center"
         style={{flexGrow: 1}}
         pos="relative"
+        bg="var(--mantine-color-elv-gray-2)"
       >
         {
           mediaRef?.current &&
@@ -51,14 +54,26 @@ const MediaItem = ({
   if(clip._assetType) {
     return (
       <ContainerElement>
-        <Box w="100%">
-          <Image
-            ref={mediaRef}
-            src={clip._imageSrc}
-            fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
-            fit="contain"
-            w="100%"
-          />
+        <Box w="100%" h="100%" style={{flexGrow: 1}}>
+          {
+            imageFailed ?
+              (
+                <Flex h="auto" w="100%" justify="center">
+                  <Title c="elv-gray.7" order={1}>
+                    { clip.meta?.public?.asset_metadata?.title || clip.id }
+                  </Title>
+                </Flex>
+              ) :
+              <Image
+                ref={mediaRef}
+                src={clip._imageSrc}
+                fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+                fit="contain"
+                w="100%"
+                h="auto"
+                onError={() => setImageFailed(true)}
+              />
+          }
         </Box>
       </ContainerElement>
     );
@@ -102,7 +117,6 @@ const ResultDetailsMain = observer(({
   open
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
-  const [loadingSummary, setLoadingSummary] = useState(false);
   const [currentStars, setCurrentStars] = useState(null);
   const [embedUrl, setEmbedUrl] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);
@@ -111,6 +125,14 @@ const ResultDetailsMain = observer(({
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
   const mediaRef = useRef(null);
+
+  const TYPE_DATA = {
+    "MUSIC": null,
+    "IMAGE": searchStore.selectedSearchResult?._info_image,
+    "VIDEO": searchStore.selectedSearchResult?._info_video
+  };
+
+  const mediaType = searchStore.musicSettingEnabled ? "MUSIC" : searchStore.selectedSearchResult?._assetType ? "IMAGE" : "VIDEO";
 
   const SubmitRating = async(starRating) => {
     // set UI immediately
@@ -198,13 +220,15 @@ const ResultDetailsMain = observer(({
         <MediaItem clip={clip} mediaRef={mediaRef} />
       </Box>
 
-      <VideoTitleSection
+      <MediaTitleSection
         title={clip._title}
         openModal={openModal}
         HandleRating={SubmitRating}
         currentStars={currentStars}
         showInfoCard={showInfoCard}
         setShowInfoCard={setShowInfoCard}
+        mediaType={mediaType}
+        TYPE_DATA={TYPE_DATA}
       />
 
       <Grid gap={8} mb={8}>
@@ -242,66 +266,10 @@ const ResultDetailsMain = observer(({
         </Grid.Col>
       </Grid>
 
-      <TextCard
-        title={searchStore.selectedSearchResult?._summary ? searchStore.selectedSearchResult?._summary?.title || "Summary" : ""}
-        text={searchStore.selectedSearchResult?._summary?.summary || ""}
-        lineClamp={15}
-        topActions={searchStore.selectedSearchResult?._summary ? [
-          {
-            text: "Regenerate Summary",
-            onClick: async () => {
-              try {
-                setLoadingSummary(true);
-                searchStore.UpdateSelectedSearchResult({key: "_summary", value: null});
-
-                await summaryStore.GetSummaryResults({
-                  objectId: clip.id,
-                  startTime: clip.start_time,
-                  endTime: clip.end_time,
-                  prefix: clip.prefix,
-                  assetType: clip._assetType,
-                  cache: false
-                });
-              } finally {
-                setLoadingSummary(false);
-              }
-            }
-          }
-        ] : []}
-      >
-        {
-          !searchStore.selectedSearchResult?._summary &&
-          (
-            <Flex justify="center" mb={16} mt={12}>
-              {
-                loadingSummary ? <Loader /> :
-                (
-                  <Button
-                    onClick={async() => {
-                      try {
-                        setLoadingSummary(true);
-
-                        await summaryStore.GetSummaryResults({
-                          objectId: clip.id,
-                          startTime: clip.start_time,
-                          endTime: clip.end_time,
-                          prefix: clip.prefix,
-                          assetType: clip._assetType,
-                        });
-                      } finally {
-                        setLoadingSummary(false);
-                      }
-                    }}
-                  >
-                    Generate Summary
-                  </Button>
-                )
-              }
-            </Flex>
-          )
-        }
-      </TextCard>
-
+      <AIContentSection
+        clip={clip}
+        mediaType={mediaType}
+      />
       <ShareModal
         opened={openedShareModal}
         onClose={closeModal}

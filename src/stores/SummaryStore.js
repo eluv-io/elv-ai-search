@@ -1,7 +1,7 @@
 import {flow, makeAutoObservable} from "mobx";
 import {searchStore} from "@/stores/index.js";
 
-// Store for managing clip generated summaries
+// Store for managing clip generated summaries and captions
 class SummaryStore {
   loadingSummary = false;
 
@@ -18,6 +18,35 @@ class SummaryStore {
   ToggleLoading = () => {
     this.loadingSummary = !this.loadingSummary;
   };
+
+  GetCaptionUrl = flow(function * ({
+    objectId,
+    fileName
+  }) {
+    try {
+      const queryParams = {
+        asset: fileName
+      };
+
+      const url = yield this.client.Rep({
+        libraryId: yield this.client.ContentObjectLibraryId({objectId}),
+        objectId,
+        rep: "caption",
+        service: "search",
+        makeAccessRequest: true,
+        queryParams: queryParams
+      });
+
+      const _pos = url.indexOf("/rep/");
+      const newUrl = `https://ai-02.contentfabric.io/caption/q/${objectId}`
+        .concat(url.slice(_pos));
+
+      return newUrl;
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to get caption URL", error);
+    }
+  });
 
   GetSummaryUrl = flow(function * ({
     objectId,
@@ -66,6 +95,34 @@ class SummaryStore {
       // eslint-disable-next-line no-console
       console.error("Failed to get summary URL", error);
     }
+  });
+
+  GetCaptionResults = flow(function * ({objectId, fileName}) {
+    let url;
+    try {
+      url = yield this.GetCaptionUrl({
+        objectId,
+        fileName
+      });
+
+      const results = yield this.client.Request({url});
+
+      searchStore.UpdateSelectedSearchResult({
+        key: "_caption",
+        value: results
+      });
+
+      return results;
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to get caption", error);
+    }
+    searchStore.UpdateSelectedSearchResult({
+      key: "_caption",
+      value: {
+        caption: "A caption for the image"
+      }
+    });
   });
 
   GetSummaryResults = flow(function * ({

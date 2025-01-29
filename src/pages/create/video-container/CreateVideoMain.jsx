@@ -4,7 +4,7 @@ import {ArrowLeftIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import {TimeInterval} from "@/utils/helpers.js";
-import VideoTitleSection from "@/components/video-title-section/VideoTitleSection.jsx";
+import VideoTitleSection from "@/pages/result-details/details-main/media-title-section/MediaTitleSection.jsx";
 import {useDisclosure} from "@mantine/hooks";
 import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";

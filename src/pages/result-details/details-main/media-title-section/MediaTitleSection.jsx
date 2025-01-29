@@ -1,18 +1,40 @@
-import {ActionIcon, Box, Grid, Group, Loader, Text, Title} from "@mantine/core";
+import {ActionIcon, Box, Grid, Group, Loader, Stack, Text, Title} from "@mantine/core";
 import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/assets/icons/index.js";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
-import styles from "@/components/video-title-section/VideoTitleSection.module.css";
+import styles from "@/pages/result-details/details-main/media-title-section/MediaTitleSection.module.css";
 import {IconChevronDown, IconChevronUp} from "@tabler/icons-react";
 import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
 
-const InfoCard = observer(({show=false, info, loading}) => {
-  if(!show || !info) { return null; }
+const ImageInfo = observer(({info}) => {
+  return (
+    <Box mt={20} mb={20}>
+      <Stack gap={0}>
+        {
+          [
+            {keyName: "Location", value: info.Location},
+            {keyName: "Headline", value: info.Headline},
+            {keyName: "File Name", value: info.filename},
+            {keyName: "City", value: info.City},
+            {keyName: "State", value: info.State},
+            {keyName: "Source", value: info.Source},
+          ]
+            .filter(item => !!item.value)
+            .map(item => (
+            <Group key={item.keyName}>
+              <Text c="elv-gray.9">{ item.keyName }:</Text>
+              <Text c="elv-gray.9">{ item.value }</Text>
+            </Group>
+          ))
+        }
+      </Stack>
+    </Box>
+  );
+});
 
-  if(loading) { return <Loader />; }
-
+const VideoInfo = observer(({info}) => {
   return (
     <Box mt={20} mb={20}>
       <Grid gutter="lg">
@@ -27,52 +49,56 @@ const InfoCard = observer(({show=false, info, loading}) => {
           <Text lh={1.45} c="elv-gray.9" size="md">{ info.synopsisDisplay }</Text>
         </Grid.Col>
         <Grid.Col span={4}>
-          <Grid gutter={0}>
-            <Grid.Col span={4}>
-              <Text c="elv-gray.9">Réalisateur:</Text>
-            </Grid.Col>
-            <Grid.Col span={8}>
-              <Text c="elv-gray.9">{ info.directorDisplay }</Text>
-            </Grid.Col>
-          </Grid>
-          <Grid gutter={0}>
-            <Grid.Col span={4}>
-              <Text c="elv-gray.9">Scénariste: </Text>
-            </Grid.Col>
-            <Grid.Col span={8}>
-              <Text c="elv-gray.9">{ info.writerDisplay }</Text>
-            </Grid.Col>
-          </Grid>
-          <Grid gutter={0}>
-            <Grid.Col span={4}>
-              <Text c="elv-gray.9">Language:</Text>
-            </Grid.Col>
-            <Grid.Col span={8}>
-              <Text c="elv-gray.9">{ (info.language || []).join(", ") }</Text>
-            </Grid.Col>
-          </Grid>
-          <Grid gutter={0}>
-            <Grid.Col span={4}>
-              <Text c="elv-gray.9">Acteur:</Text>
-            </Grid.Col>
-            <Grid.Col span={8}>
-              <Text c="elv-gray.9">{ info.actorDisplay }</Text>
-            </Grid.Col>
-          </Grid>
+          {
+            [
+              {keyName: "Réalisateur", value: info.directorDisplay},
+              {keyName: "Scénariste", value: info.writerDisplay},
+              {keyName: "Language", value: info.language},
+              {keyName: "Acteur", value: info.actorDisplay},
+            ]
+              .filter(item => !!item.value)
+              .map(item => (
+              <Grid gutter={0} key={item.keyName}>
+                <Grid.Col span={4}>
+                  <Text c="elv-gray.9">{ item.keyName }:</Text>
+                </Grid.Col>
+                <Grid.Col span={8}>
+                  <Text c="elv-gray.9">{ item.value }</Text>
+                </Grid.Col>
+              </Grid>
+            ))
+          }
         </Grid.Col>
       </Grid>
     </Box>
   );
 });
 
-const VideoTitleSection = observer(({
+const InfoCard = observer(({show=false, info, loading, type}) => {
+  const CARD_TYPES = {
+    "VIDEO": <VideoInfo info={info} />,
+    "IMAGE": <ImageInfo info={info} />
+  };
+
+  if(!show || !info) { return null; }
+
+  if(loading) { return <Loader />; }
+
+  if(Object.hasOwn(CARD_TYPES, type)) {
+    return CARD_TYPES[type];
+  }
+});
+
+const MediaTitleSection = observer(({
   title,
   subtitle,
   openModal,
   HandleRating,
   currentStars,
   showInfoCard,
-  setShowInfoCard
+  setShowInfoCard,
+  mediaType,
+  TYPE_DATA
 }) => {
   const [loading, setLoading] = useState(false);
   let star1icon = HollowStarIcon;
@@ -87,8 +113,7 @@ const VideoTitleSection = observer(({
     star1icon = star2icon = star3icon = FilledStarIcon;
   }
 
-  const isVideoType = !searchStore.selectedSearchResult?._assetType && !searchStore.musicSettingEnabled;
-  const hasInfoData = !!searchStore.selectedSearchResult?._info?.actorDisplay && !!searchStore.selectedSearchResult?._info?.synopsisDisplay;
+  const hasInfoData = Object.keys((TYPE_DATA[mediaType]) || {}).length > 0;
 
   useEffect(() => {
     const LoadData = async() => {
@@ -100,7 +125,7 @@ const VideoTitleSection = observer(({
       }
     };
 
-    if(!searchStore.selectedSearchResult._info) {
+    if(!TYPE_DATA[mediaType]) {
       LoadData();
     }
   }, [searchStore.selectedSearchResult]);
@@ -130,7 +155,7 @@ const VideoTitleSection = observer(({
                   { title }
                 </Title>
                 {
-                  isVideoType && hasInfoData &&
+                  hasInfoData &&
                   <ActionIcon
                     size="md"
                     variant="subtle"
@@ -165,12 +190,13 @@ const VideoTitleSection = observer(({
         </Group>
       </Group>
       <InfoCard
-        show={showInfoCard && isVideoType && hasInfoData}
-        info={searchStore.selectedSearchResult?._info}
+        show={showInfoCard && hasInfoData}
+        info={TYPE_DATA[mediaType]}
         loading={loading}
+        type={mediaType}
       />
     </>
   );
 });
 
-export default VideoTitleSection;
+export default MediaTitleSection;

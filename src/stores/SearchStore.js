@@ -752,58 +752,84 @@ class SearchStore {
   GetTitleInfo = flow(function * () {
     const result = this.selectedSearchResult;
 
-    const meta = yield this.client.ContentObjectMetadata({
-      objectId: result.id,
-      libraryId: result.qlib_id,
-      metadataSubtree: "/public/asset_metadata",
-      select: [
-        "title",
-        "info/add_ons/Synopsis",
-        "info/duration",
-        "info/genre",
-        "info/language",
-        "info/talent/Acteur", // Actors
-        "info/talent/Producteur", // Producer
-        "info/talent/Réalisateur", // Director
-        "info/talent/Scénariste", // Screenwriter
-        "info/year_of_production"
-      ]
-    });
+    if(this.musicSettingEnabled) { return; }
 
-    const SortedArray = ({data=[], commaSeparated=false}) => {
-      const sorted = data
-        .sort((a, b) => a.order_in_function - b.order_in_function)
-        .map(i => `${i.first_name} ${i.last_name}`);
+    if(result._assetType) {
+      // Set image info
+      const meta = yield this.client.ContentObjectMetadata({
+        objectId: result.id,
+        libraryId: result.qlib_id,
+        metadataSubtree: `/assets/${result._title}/display_metadata`,
+        select: [
+          "City",
+          "Headline",
+          "Location",
+          "Source",
+          "State"
+        ]
+      });
 
-      if(commaSeparated) {
-        return sorted.join(", ");
-      } else {
-        return sorted;
-      }
-    };
+      this.UpdateSelectedSearchResult({
+        key: "_info_image",
+        value: {
+          ...meta
+        }
+      });
+    } else {
+      // Set video info
+      const meta = yield this.client.ContentObjectMetadata({
+        objectId: result.id,
+        libraryId: result.qlib_id,
+        metadataSubtree: "/public/asset_metadata",
+        select: [
+          "title",
+          "info/add_ons/Synopsis",
+          "info/duration",
+          "info/genre",
+          "info/language",
+          "info/talent/Acteur", // Actors
+          "info/talent/Producteur", // Producer
+          "info/talent/Réalisateur", // Director
+          "info/talent/Scénariste", // Screenwriter
+          "info/year_of_production"
+        ]
+      });
 
-    const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
+      const SortedArray = ({data=[], commaSeparated=false}) => {
+        const sorted = data
+          .sort((a, b) => a.order_in_function - b.order_in_function)
+          .map(i => `${i.first_name} ${i.last_name}`);
 
-    const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
-    const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
-  }).slice(0, 5).join(", ");
+        if(commaSeparated) {
+          return sorted.join(", ");
+        } else {
+          return sorted;
+        }
+      };
 
-    const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
-      .filter(i => i.language_iso_code === "GBR")
-      .map(i => i.content)
-      .join("");
+      const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
 
-    this.UpdateSelectedSearchResult({
-      key: "_info",
-      value: {
-        ...meta?.info,
-        title: meta?.title,
-        synopsisDisplay,
-        directorDisplay,
-        writerDisplay,
-        actorDisplay
-      }
-    });
+      const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
+      const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
+    }).slice(0, 5).join(", ");
+
+      const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
+        .filter(i => i.language_iso_code === "GBR")
+        .map(i => i.content)
+        .join("");
+
+      this.UpdateSelectedSearchResult({
+        key: "_info_video",
+        value: {
+          ...meta?.info,
+          title: meta?.title,
+          synopsisDisplay,
+          directorDisplay,
+          writerDisplay,
+          actorDisplay
+        }
+      });
+    }
   });
 }
 
