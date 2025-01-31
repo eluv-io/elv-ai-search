@@ -22,19 +22,16 @@ const CaptionEditView = observer(({
     initialValues
   });
 
-  const HandleEdit = async(values) => {
+  const HandleSubmit = async(values) => {
     try {
       setSaving(true);
 
-      // TODO: Replace empty promise with call
-      // await summaryStore.UpdateCaptions({
-      //   libraryId: searchStore.selectedSearchResult.qlib_id,
-      //   objectId: searchStore.selectedSearchResult.objectId,
-      //   fileName: searchStore.selectedSearchResult._title,
-      //   values
-      // });
-
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await summaryStore.UpdateCaptions({
+        libraryId: searchStore.selectedSearchResult.qlib_id,
+        objectId: searchStore.selectedSearchResult.objectId,
+        fileName: searchStore.selectedSearchResult._title,
+        values
+      });
 
       DisableEditView();
     } finally {
@@ -44,17 +41,17 @@ const CaptionEditView = observer(({
 
   return (
     <Flex w="100%">
-      <form onSubmit={form.onSubmit(HandleEdit)} style={{width: "100%"}}>
+      <form onSubmit={form.onSubmit(HandleSubmit)} style={{width: "100%"}}>
         {/* 2-column layout */}
         <Group align="flex-start">
           {/* Form items */}
           <Box flex={2}>
             {
-              CAPTION_KEYS.map(item => ({keyName: item.keyName, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
+              CAPTION_KEYS.map(item => ({keyName: item.keyName, name: item.name, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
                 .map(item => (
                   <Grid key={item.keyName} align="center" w="100%">
                     <Grid.Col span={4}>
-                      <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.keyName }:</Text>
+                      <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.name }:</Text>
                     </Grid.Col>
                     <Grid.Col span={8}>
                       <TextInput
@@ -62,7 +59,6 @@ const CaptionEditView = observer(({
                         lh={1.25}
                         name={item.keyName}
                         defaultValue={item.value}
-                        maw="80%"
                       />
                     </Grid.Col>
                   </Grid>

@@ -132,7 +132,7 @@ class SummaryStore {
     values
   }) {
     try {
-      const url = "";
+      // const url = "";
 
       yield this.client.ReplaceMetadata({
         libraryId,
@@ -143,7 +143,7 @@ class SummaryStore {
         }
       });
 
-      yield this.client.Request({url});
+      // yield this.client.Request({url});
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to update caption values", error);
