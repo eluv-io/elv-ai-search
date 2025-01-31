@@ -1,5 +1,6 @@
 import {makeAutoObservable, flow} from "mobx";
 import {ToTitleCase} from "@/utils/helpers.js";
+import {CAPTION_KEYS} from "@/utils/data.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -95,7 +96,7 @@ class SearchStore {
     this.searchHostname = host;
   };
 
-  SetSearchSummaryType = ({type="synopsis"}) => {
+  SetSearchSummaryType = ({type}) => {
     this.searchSummaryType = type;
   };
 
@@ -766,13 +767,7 @@ class SearchStore {
         objectId: result.id,
         libraryId: result.qlib_id,
         metadataSubtree: `/assets/${result._title}/display_metadata`,
-        select: [
-          "City",
-          "Headline",
-          "Location",
-          "Source",
-          "State"
-        ]
+        select: CAPTION_KEYS.map(item => item.keyName)
       });
 
       this.UpdateSelectedSearchResult({

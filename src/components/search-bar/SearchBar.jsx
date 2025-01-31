@@ -106,7 +106,9 @@ const AdvancedSection = observer(({
       <Radio.Group
         value={searchStore.searchSummaryType}
         defaultValue="synopsis"
-        onChange={value => searchStore.SetSearchSummaryType({type: value})}
+        onChange={(value) => {
+          searchStore.SetSearchSummaryType({type: value});
+        }}
       >
         <Radio
           label="Synopsis"

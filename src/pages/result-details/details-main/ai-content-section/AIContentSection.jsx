@@ -5,20 +5,21 @@ import {searchStore, summaryStore} from "@/stores/index.js";
 import {ActionIcon, Box, Button, Flex, Grid, Group, Loader, Paper, Stack, Text, TextInput, Title} from "@mantine/core";
 import {IconPencil, IconReload} from "@tabler/icons-react";
 import {useForm} from "@mantine/form";
+import {CAPTION_KEYS} from "@/utils/data.js";
 
 const CaptionEditView = observer(({
   DisableEditView,
   HandleReload
 }) => {
   const [saving, setSaving] = useState(false);
+  const initialValues = {};
+
+  CAPTION_KEYS.forEach(item => {
+    initialValues[item.name] = searchStore.selectedSearchResult?._info_image?.[item.keyName];
+  });
   const form = useForm({
     mode: "uncontrolled",
-    initialValues: {
-      "Location": searchStore.selectedSearchResult?._info_image?.Location,
-      "City": searchStore.selectedSearchResult?._info_image.City,
-      "State": searchStore.selectedSearchResult?._info_image.State,
-      "Source": searchStore.selectedSearchResult?._info_image.Source
-    }
+    initialValues
   });
 
   const HandleEdit = async(values) => {
@@ -49,18 +50,13 @@ const CaptionEditView = observer(({
           {/* Form items */}
           <Box flex={2}>
             {
-              [
-                {keyName: "Location", value: searchStore.selectedSearchResult?._info_image?.Location},
-                {keyName: "City", value: searchStore.selectedSearchResult?._info_image.City},
-                {keyName: "State", value: searchStore.selectedSearchResult?._info_image.State},
-                {keyName: "Source", value: searchStore.selectedSearchResult?._info_image.Source},
-              ]
+              CAPTION_KEYS.map(item => ({keyName: item.keyName, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
                 .map(item => (
                   <Grid key={item.keyName} align="center" w="100%">
-                    <Grid.Col span={2}>
+                    <Grid.Col span={4}>
                       <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.keyName }:</Text>
                     </Grid.Col>
-                    <Grid.Col span={10}>
+                    <Grid.Col span={8}>
                       <TextInput
                         size="xs"
                         lh={1.25}
@@ -136,13 +132,7 @@ const CaptionDisplayView = observer(({title, editEnabled, setEditEnabled, Handle
       </Group>
       <Stack gap={0} lh={1} mt={8}>
         {
-          [
-            {keyName: "Location", value: searchStore.selectedSearchResult?._info_image?.Location},
-            {keyName: "File Name", value: searchStore.selectedSearchResult?._info_image.filename},
-            {keyName: "City", value: searchStore.selectedSearchResult?._info_image.City},
-            {keyName: "State", value: searchStore.selectedSearchResult?._info_image.State},
-            {keyName: "Source", value: searchStore.selectedSearchResult?._info_image.Source},
-          ]
+          CAPTION_KEYS.map(item => ({keyName: item.keyName, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
             .filter(item => !!item.value)
             .map(item => (
               <Group key={item.keyName} gap={5}>

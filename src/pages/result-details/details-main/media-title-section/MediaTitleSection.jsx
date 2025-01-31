@@ -7,20 +7,14 @@ import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
+import {CAPTION_KEYS} from "@/utils/data.js";
 
 const ImageInfo = observer(({info}) => {
   return (
     <Box mt={20} mb={20}>
       <Stack gap={0}>
         {
-          [
-            {keyName: "Location", value: info.Location},
-            {keyName: "Headline", value: info.Headline},
-            {keyName: "File Name", value: info.filename},
-            {keyName: "City", value: info.City},
-            {keyName: "State", value: info.State},
-            {keyName: "Source", value: info.Source},
-          ]
+          CAPTION_KEYS.map(item => ({keyName: item.keyName, value: info[item.keyName]}))
             .filter(item => !!item.value)
             .map(item => (
             <Group key={item.keyName}>
