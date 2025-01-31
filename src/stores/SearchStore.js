@@ -11,6 +11,7 @@ class SearchStore {
   };
   customIndex = "";
   searchHostname = "ai";
+  searchSummaryType = "synopsis";
   searchContentType; // ALL, IMAGES, VIDEOS
   resultsViewType; // Show all results vs results that have a high score.
   // Values: HIGH_SCORE | ALL
@@ -39,7 +40,8 @@ class SearchStore {
   get currentSearchData() {
     return {
       searchContentType: this.searchContentType,
-      searchHostname: this.searchHostname
+      searchHostname: this.searchHostname,
+      searchSummaryType: this.searchSummaryType
     };
   }
 
@@ -91,6 +93,10 @@ class SearchStore {
 
   SetSearchHostname = ({host="ai"}) => {
     this.searchHostname = host;
+  };
+
+  SetSearchSummaryType = ({type="synopsis"}) => {
+    this.searchSummaryType = type;
   };
 
   SetCustomIndex = ({index}) => {

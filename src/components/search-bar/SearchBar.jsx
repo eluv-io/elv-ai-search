@@ -102,6 +102,24 @@ const AdvancedSection = observer(({
           )
       }
 
+      <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Summary Style</Text>
+      <Radio.Group
+        value={searchStore.searchSummaryType}
+        defaultValue="synopsis"
+        onChange={value => searchStore.SetSearchSummaryType({type: value})}
+      >
+        <Radio
+          label="Synopsis"
+          value="synopsis"
+          mb={16}
+        />
+        <Radio
+          label="Caption"
+          value="caption"
+          mb={16}
+        />
+      </Radio.Group>
+
       <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Version</Text>
       <Radio.Group
         value={searchStore.searchHostname}

@@ -4,28 +4,50 @@ import TextCard from "@/components/text-card/TextCard.jsx";
 import {searchStore, summaryStore} from "@/stores/index.js";
 import {ActionIcon, Box, Button, Flex, Grid, Group, Loader, Paper, Stack, Text, TextInput, Title} from "@mantine/core";
 import {IconPencil, IconReload} from "@tabler/icons-react";
+import {useForm} from "@mantine/form";
 
 const CaptionEditView = observer(({
-  CancelEdit,
+  DisableEditView,
   HandleReload
 }) => {
   const [saving, setSaving] = useState(false);
-  const HandleEdit = (event) => {
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      "Location": searchStore.selectedSearchResult?._info_image?.Location,
+      "City": searchStore.selectedSearchResult?._info_image.City,
+      "State": searchStore.selectedSearchResult?._info_image.State,
+      "Source": searchStore.selectedSearchResult?._info_image.Source
+    }
+  });
+
+  const HandleEdit = async(values) => {
     try {
       setSaving(true);
-      event.preventDefault();
 
-      // const formData = new FormData(event.target);
+      // TODO: Replace empty promise with call
+      // await summaryStore.UpdateCaptions({
+      //   libraryId: searchStore.selectedSearchResult.qlib_id,
+      //   objectId: searchStore.selectedSearchResult.objectId,
+      //   fileName: searchStore.selectedSearchResult._title,
+      //   values
+      // });
+
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      DisableEditView();
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <Box w="100%">
-      <Group align="flex-start">
-        <Flex flex={2}>
-          <form onSubmit={HandleEdit} style={{width: "100%"}}>
+    <Flex w="100%">
+      <form onSubmit={form.onSubmit(HandleEdit)} style={{width: "100%"}}>
+        {/* 2-column layout */}
+        <Group align="flex-start">
+          {/* Form items */}
+          <Box flex={2}>
             {
               [
                 {keyName: "Location", value: searchStore.selectedSearchResult?._info_image?.Location},
@@ -44,35 +66,39 @@ const CaptionEditView = observer(({
                         lh={1.25}
                         name={item.keyName}
                         defaultValue={item.value}
+                        maw="80%"
                       />
                     </Grid.Col>
                   </Grid>
                 ))
             }
-          </form>
-        </Flex>
+          </Box>
 
-        <Flex gap={6} justify="flex-end" flex={1} direction="row">
-          <Group gap={0} mr={6}>
-            <IconPencil color="var(--mantine-color-elv-gray-5)" height={16} />
-            <Text size="xs" c="dimmed">Editing</Text>
-          </Group>
-          <ActionIcon
-            size="sm"
-            onClick={HandleReload}
-            title="Re-generate"
-          >
-            <IconReload />
-          </ActionIcon>
-        </Flex>
-      </Group>
-      <Group mt={24} gap={6} justify="flex-end">
-        <Button variant="outline" onClick={CancelEdit}>Cancel</Button>
-        <Button type="submit" disabled={saving} loading={saving}>
-          Commit
-        </Button>
-      </Group>
-    </Box>
+          {/* Upper-right actions */}
+          <Flex gap={6} justify="flex-end" flex={1} direction="row">
+            <Group gap={0} mr={6}>
+              <IconPencil color="var(--mantine-color-elv-gray-5)" height={16} />
+              <Text size="xs" c="dimmed">Editing</Text>
+            </Group>
+            <ActionIcon
+              size="sm"
+              onClick={HandleReload}
+              title="Re-generate"
+            >
+              <IconReload />
+            </ActionIcon>
+          </Flex>
+        </Group>
+
+        {/* Actions toolbar */}
+        <Group mt={24} gap={6} justify="flex-end">
+          <Button variant="outline" onClick={DisableEditView}>Cancel</Button>
+          <Button type="submit" disabled={saving} loading={saving}>
+            Commit
+          </Button>
+        </Group>
+      </form>
+    </Flex>
   );
 });
 
@@ -165,7 +191,7 @@ const CaptionSection = observer(({clip}) => {
                 {
                   editEnabled ?
                     <CaptionEditView
-                      CancelEdit={() => setEditEnabled(false)}
+                      DisableEditView={() => setEditEnabled(false)}
                       HandleReload={HandleReload}
                     /> :
                     <CaptionDisplayView
@@ -178,7 +204,7 @@ const CaptionSection = observer(({clip}) => {
               </Box>
             ) :
             (
-              <Flex justify="center" mb={16} mt={12}>
+              <Flex justify="center" mb={16} mt={12} w="100%">
                 {
                   loading ? <Loader /> :
                     (
@@ -275,13 +301,13 @@ const SummarySection = observer(({clip}) => {
 });
 
 const AIContentSection = observer(({clip, mediaType}) => {
-  const CONTENT_TYPES = {
-    "MUSIC": null,
-    "VIDEO": <SummarySection clip={clip} />,
-    "IMAGE": <CaptionSection clip={clip} />
-  };
-
-  return CONTENT_TYPES[mediaType];
+  if(mediaType === "MUSIC") {
+    return null;
+  } else if(mediaType === "IMAGE" && searchStore.searchSummaryType === "caption") {
+    return <CaptionSection clip={clip} />;
+  } else {
+    return <SummarySection clip={clip} />;
+  }
 });
 
 export default AIContentSection;

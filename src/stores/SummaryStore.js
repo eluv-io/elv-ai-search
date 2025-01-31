@@ -125,6 +125,31 @@ class SummaryStore {
     });
   });
 
+  UpdateCaptions = flow(function * ({
+    libraryId,
+    objectId,
+    fileName,
+    values
+  }) {
+    try {
+      const url = "";
+
+      yield this.client.ReplaceMetadata({
+        libraryId,
+        objectId,
+        metadataSubtree: `assets/${fileName}/display_metadata`,
+        metadata: {
+          ...values
+        }
+      });
+
+      yield this.client.Request({url});
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to update caption values", error);
+    }
+  });
+
   GetSummaryResults = flow(function * ({
     objectId,
     startTime,
