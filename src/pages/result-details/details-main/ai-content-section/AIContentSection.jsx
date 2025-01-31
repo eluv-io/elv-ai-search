@@ -163,15 +163,11 @@ const CaptionSection = observer(({clip}) => {
   const HandleReload = async() => {
     try {
       setLoading(true);
-      searchStore.UpdateSelectedSearchResult({key: "_summary", value: null});
+      searchStore.UpdateSelectedSearchResult({key: "_caption", value: null});
 
-      await summaryStore.GetSummaryResults({
+      await summaryStore.GetCaptionResults({
         objectId: clip.id,
-        startTime: clip.start_time,
-        endTime: clip.end_time,
-        prefix: clip.prefix,
-        assetType: clip._assetType,
-        cache: false
+        fileName: clip._title
       });
     } finally {
       setLoading(false);
