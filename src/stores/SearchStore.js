@@ -704,7 +704,7 @@ class SearchStore {
         searchContentType: "IMAGES"
       }));
 
-      resultsViewType = (highScoreImage || []).length > 0 ? "HIGH_SCORE" : "ALL";
+      resultsViewType = ((highScoreImage || []).length > 0 && this.currentSearch.terms) ? "HIGH_SCORE" : "ALL";
     } else if(this.searchContentType === "VIDEOS") {
       videoUrl = yield VideoRequest;
       ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
