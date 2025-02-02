@@ -2,7 +2,21 @@ import {observer} from "mobx-react-lite";
 import {useState} from "react";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import {searchStore, summaryStore} from "@/stores/index.js";
-import {ActionIcon, Box, Button, Flex, Grid, Group, Loader, Paper, Stack, Text, TextInput, Title} from "@mantine/core";
+import {
+  ActionIcon,
+  Box,
+  Button,
+  Flex,
+  Grid,
+  Group,
+  Loader,
+  Paper,
+  Stack,
+  Text,
+  Textarea,
+  TextInput,
+  Title
+} from "@mantine/core";
 import {IconPencil, IconReload} from "@tabler/icons-react";
 import {useForm} from "@mantine/form";
 import {CAPTION_KEYS} from "@/utils/data.js";
@@ -14,15 +28,15 @@ const CaptionEditView = observer(({
   const [saving, setSaving] = useState(false);
   const initialValues = {};
 
-  CAPTION_KEYS
-    .forEach(item => {
-    initialValues[item.keyName] = searchStore.selectedSearchResult?._info_image?.[item.keyName];
+  CAPTION_KEYS.forEach(item => {
+    initialValues[item.keyName] = item.path ?
+      searchStore.selectedSearchResult._caption?.[item.path]?.[item.keyName] :
+      searchStore.selectedSearchResult._caption?.[item.keyName];
   });
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
-      ...initialValues,
-      "Description": searchStore.selectedSearchResult?._caption.summary
+      ...initialValues
     }
   });
 
@@ -52,24 +66,36 @@ const CaptionEditView = observer(({
           <Box flex={4}>
             {
               CAPTION_KEYS
-                .map(item => ({keyName: item.keyName, name: item.name, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
-                .concat([{
-                  keyName: "Description",
-                  name: "Caption",
-                  value: searchStore.selectedSearchResult?._caption.summary
-                }])
+                .map(item => ({
+                  ...item,
+                  value: item.path ? searchStore.selectedSearchResult._caption?.[item.path]?.[item.keyName] : searchStore.selectedSearchResult._caption?.[item.keyName]}))
                 .map(item => (
                   <Grid key={item.keyName} align="center" w="100%">
                     <Grid.Col span={4}>
                       <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.name }:</Text>
                     </Grid.Col>
                     <Grid.Col span={8}>
-                      <TextInput
-                        size="xs"
-                        lh={1.25}
-                        key={item.keyName}
-                        {...form.getInputProps(item.keyName)}
-                      />
+                      {
+                        item.inputType === "textarea" ?
+                          (
+                            <Textarea
+                              size="xs"
+                              autosize
+                              minRows={2}
+                              maxRows={4}
+                              key={item.keyName}
+                              {...form.getInputProps(item.keyName)}
+                            />
+                          ) :
+                          (
+                            <TextInput
+                              size="xs"
+                              lh={1.25}
+                              key={item.keyName}
+                              {...form.getInputProps(item.keyName)}
+                            />
+                          )
+                      }
                     </Grid.Col>
                   </Grid>
                 ))
@@ -104,7 +130,12 @@ const CaptionEditView = observer(({
   );
 });
 
-const CaptionDisplayView = observer(({title, editEnabled, setEditEnabled, HandleReload}) => {
+const CaptionDisplayView = observer(({
+  title,
+  editEnabled,
+  setEditEnabled,
+  HandleReload
+}) => {
   return (
     <Box>
       <Group gap={0} w="100%">
@@ -138,14 +169,27 @@ const CaptionDisplayView = observer(({title, editEnabled, setEditEnabled, Handle
       </Group>
       <Stack gap={0} lh={1} mt={8}>
         {
-          CAPTION_KEYS.map(item => ({name: item.name, keyName: item.keyName, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
+          CAPTION_KEYS.map(item => (
+            {
+              ...item,
+              value: item.path ? searchStore.selectedSearchResult._caption?.[item.path]?.[item.keyName] : searchStore.selectedSearchResult._caption?.[item.keyName]
+            })
+          )
             .filter(item => !!item.value)
-            .concat({keyName: "Description", name: "Caption", value: searchStore.selectedSearchResult?._caption.summary})
             .map(item => (
-              <Group key={item.keyName} gap={5}>
-                <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.name }:</Text>
-                <Text c="elv-gray.9" fz="sm" lh={1.25}>{ item.value }</Text>
-              </Group>
+              <Text
+                key={item.keyName}
+                c="elv-gray.9"
+                lh={1.25}
+                fz="sm"
+              >
+                <span style={{fontWeight: 700, paddingRight: "8px"}}>
+                  { item.name }:
+                </span>
+                <span>
+                  { item.value }
+                </span>
+              </Text>
             ))
         }
       </Stack>
@@ -189,7 +233,7 @@ const CaptionSection = observer(({clip}) => {
                       HandleReload={HandleReload}
                     /> :
                     <CaptionDisplayView
-                      title={clip._caption?.title || clip._info_image?.Headline || clip._title}
+                      title={clip._caption?.title || clip._caption?.display_metadata?.Headline || clip._title}
                       HandleReload={HandleReload}
                       editEnabled={editEnabled}
                       setEditEnabled={setEditEnabled}

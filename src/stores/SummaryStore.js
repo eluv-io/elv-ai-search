@@ -72,7 +72,7 @@ class SummaryStore {
 
         if(caption) {
           // Image Caption
-          requestUrl = "mlcache/summary";
+          requestUrl = "ml/summary";
 
           queryParams["regenerate"] = regenerate;
           queryParams["engine"] = "caption";
@@ -154,13 +154,17 @@ class SummaryStore {
         objectId
       });
 
+      const description = values.summary;
+      delete values.summary;
+
       yield this.client.ReplaceMetadata({
         libraryId,
         objectId,
         writeToken,
         metadataSubtree: `assets/${fileName}/display_metadata`,
         metadata: {
-          ...values
+          ...values,
+          "Description": description
         }
       });
 
@@ -171,23 +175,14 @@ class SummaryStore {
         commitMessage: "Update display_metadata"
       });
 
-      const description = values.Description;
-
       searchStore.UpdateSelectedSearchResult({
         key: "_caption",
         value: {
           ...searchStore.selectedSearchResult._caption,
-          summary: description
+          summary: description,
+          display_metadata: values
         }
       });
-
-      delete values.Description;
-
-      searchStore.UpdateSelectedSearchResult({
-        key: "_info_image",
-        value: values
-      });
-
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to update caption values", error);
