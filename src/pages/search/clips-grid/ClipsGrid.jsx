@@ -2,7 +2,7 @@ import {AspectRatio, Box, Flex, Group, Image, SimpleGrid, Text, Title, UnstyledB
 import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
-import {TimeInterval} from "@/utils/helpers.js";
+import {ScaleImage, TimeInterval} from "@/utils/helpers.js";
 import {EyeIcon, MusicIcon} from "@/assets/icons/index.js";
 import {useState} from "react";
 
@@ -13,7 +13,8 @@ const ImageContent = observer(({imageSrc, title}) => {
     return (
       <Image
         radius="lg"
-        src={imageSrc}
+        loading="lazy"
+        src={ScaleImage({url: imageSrc, width: 400})}
         onError={() => setImageFailed(true)}
       />
     );
