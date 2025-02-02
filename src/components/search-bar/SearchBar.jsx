@@ -105,7 +105,7 @@ const AdvancedSection = observer(({
       <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Summary Style</Text>
       <Radio.Group
         value={searchStore.searchSummaryType}
-        defaultValue="synopsis"
+        defaultValue="caption"
         onChange={(value) => {
           searchStore.SetSearchSummaryType({type: value});
         }}

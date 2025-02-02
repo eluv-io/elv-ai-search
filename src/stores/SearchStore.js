@@ -12,7 +12,7 @@ class SearchStore {
   };
   customIndex = "";
   searchHostname = "ai";
-  searchSummaryType = "synopsis";
+  searchSummaryType = "caption";
   searchContentType; // ALL, IMAGES, VIDEOS
   resultsViewType; // Show all results vs results that have a high score.
   // Values: HIGH_SCORE | ALL
