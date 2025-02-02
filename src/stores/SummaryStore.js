@@ -64,11 +64,23 @@ class SummaryStore {
       };
 
       if(assetType) {
+        // All images
         queryParams["path"] = prefix.toString();
-        queryParams["engine"] = caption ? "caption" : "synopsis";
         requestRep = "image_summarize";
-        requestUrl = caption ? "mlcache/summary" : "summary";
         server = "ai-02";
+
+        if(caption) {
+          // Image Caption
+          requestUrl = "mlcache/summary";
+
+          queryParams["regenerate"] = true;
+          queryParams["engine"] = "caption";
+          queryParams["longform"] = true;
+        } else {
+          // Image Synopsis
+          requestUrl = "summary";
+          queryParams["engine"] = "synopsis";
+        }
       } else {
         queryParams["start_time"] = startTime;
         queryParams["end_time"] = endTime;
