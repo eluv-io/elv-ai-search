@@ -16,7 +16,7 @@ const CaptionEditView = observer(({
 
   CAPTION_KEYS
     .forEach(item => {
-    initialValues[item.name] = searchStore.selectedSearchResult?._info_image?.[item.keyName];
+    initialValues[item.keyName] = searchStore.selectedSearchResult?._info_image?.[item.keyName];
   });
   const form = useForm({
     mode: "uncontrolled",
