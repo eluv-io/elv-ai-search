@@ -132,7 +132,9 @@ class SummaryStore {
     values
   }) {
     try {
-      // const url = "";
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
 
       const {writeToken} = yield this.client.EditContentObject({
         libraryId,
@@ -142,6 +144,7 @@ class SummaryStore {
       yield this.client.ReplaceMetadata({
         libraryId,
         objectId,
+        writeToken,
         metadataSubtree: `assets/${fileName}/display_metadata`,
         metadata: {
           ...values
@@ -155,7 +158,23 @@ class SummaryStore {
         commitMessage: "Update display_metadata"
       });
 
-      // yield this.client.Request({url});
+      const description = values.Description;
+
+      searchStore.UpdateSelectedSearchResult({
+        key: "_caption",
+        value: {
+          ...searchStore.selectedSearchResult._caption,
+          summary: description
+        }
+      });
+
+      delete values.Description;
+
+      searchStore.UpdateSelectedSearchResult({
+        key: "_info_image",
+        value: values
+      });
+
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to update caption values", error);

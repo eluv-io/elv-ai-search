@@ -32,7 +32,7 @@ const CaptionEditView = observer(({
 
       await summaryStore.UpdateCaptions({
         libraryId: searchStore.selectedSearchResult.qlib_id,
-        objectId: searchStore.selectedSearchResult.objectId,
+        objectId: searchStore.selectedSearchResult.id,
         fileName: searchStore.selectedSearchResult._title,
         values
       });
@@ -67,8 +67,8 @@ const CaptionEditView = observer(({
                       <TextInput
                         size="xs"
                         lh={1.25}
-                        name={item.keyName}
-                        defaultValue={item.value}
+                        key={item.keyName}
+                        {...form.getInputProps(item.keyName)}
                       />
                     </Grid.Col>
                   </Grid>
