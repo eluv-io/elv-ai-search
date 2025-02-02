@@ -164,7 +164,8 @@ const CaptionSection = observer(({clip}) => {
 
       await summaryStore.GetCaptionResults({
         objectId: clip.id,
-        fileName: clip._title
+        fileName: clip._title,
+        regenerate: true
       });
     } finally {
       setLoading(false);

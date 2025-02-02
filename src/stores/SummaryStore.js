@@ -55,7 +55,8 @@ class SummaryStore {
     prefix,
     assetType=false,
     cache=true,
-    caption=false
+    caption=false,
+    regenerate=false
   }) {
     try {
       let requestRep, requestUrl, server;
@@ -73,9 +74,8 @@ class SummaryStore {
           // Image Caption
           requestUrl = "mlcache/summary";
 
-          queryParams["regenerate"] = true;
+          queryParams["regenerate"] = regenerate;
           queryParams["engine"] = "caption";
-          queryParams["longform"] = true;
         } else {
           // Image Synopsis
           requestUrl = "summary";
@@ -113,12 +113,13 @@ class SummaryStore {
     }
   });
 
-  GetCaptionResults = flow(function * ({objectId, fileName}) {
+  GetCaptionResults = flow(function * ({objectId, fileName, regenerate=false}) {
     let url;
     try {
       url = yield this.GetSummaryUrl({
         objectId,
         prefix: `assets/${fileName}`,
+        regenerate,
         assetType: true,
         caption: true
       });
