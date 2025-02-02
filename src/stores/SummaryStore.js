@@ -54,23 +54,27 @@ class SummaryStore {
     endTime,
     prefix,
     assetType=false,
-    cache=true
+    cache=true,
+    caption=false
   }) {
     try {
-      let requestRep, requestUrl;
+      let requestRep, requestUrl, server;
       const queryParams = {
         // tracks: "speech_to_text,object_detection,celebrity_detection"
       };
 
       if(assetType) {
         queryParams["path"] = prefix.toString();
+        queryParams["engine"] = caption ? "caption" : "synopsis";
         requestRep = "image_summarize";
-        requestUrl = "summary";
+        requestUrl = caption ? "mlcache/summary" : "summary";
+        server = "ai-02";
       } else {
         queryParams["start_time"] = startTime;
         queryParams["end_time"] = endTime;
         requestRep = "summarize";
         requestUrl = "mlcache/summary";
+        server = "ai-03";
       }
 
       if(!cache) {
@@ -87,7 +91,7 @@ class SummaryStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-03.contentfabric.io/${requestUrl}/q/${objectId}`
+      const newUrl = `https://${server}.contentfabric.io/${requestUrl}/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;
@@ -100,9 +104,11 @@ class SummaryStore {
   GetCaptionResults = flow(function * ({objectId, fileName}) {
     let url;
     try {
-      url = yield this.GetCaptionUrl({
+      url = yield this.GetSummaryUrl({
         objectId,
-        fileName
+        prefix: `assets/${fileName}`,
+        assetType: true,
+        caption: true
       });
 
       const results = yield this.client.Request({url});
@@ -117,12 +123,6 @@ class SummaryStore {
       // eslint-disable-next-line no-console
       console.error("Failed to get caption", error);
     }
-    searchStore.UpdateSelectedSearchResult({
-      key: "_caption",
-      value: {
-        caption: "A caption for the image"
-      }
-    });
   });
 
   UpdateCaptions = flow(function * ({
@@ -134,6 +134,11 @@ class SummaryStore {
     try {
       // const url = "";
 
+      const {writeToken} = yield this.client.EditContentObject({
+        libraryId,
+        objectId
+      });
+
       yield this.client.ReplaceMetadata({
         libraryId,
         objectId,
@@ -141,6 +146,13 @@ class SummaryStore {
         metadata: {
           ...values
         }
+      });
+
+      yield this.client.FinalizeContentObject({
+        libraryId,
+        objectId,
+        writeToken,
+        commitMessage: "Update display_metadata"
       });
 
       // yield this.client.Request({url});

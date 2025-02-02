@@ -14,12 +14,16 @@ const CaptionEditView = observer(({
   const [saving, setSaving] = useState(false);
   const initialValues = {};
 
-  CAPTION_KEYS.forEach(item => {
+  CAPTION_KEYS
+    .forEach(item => {
     initialValues[item.name] = searchStore.selectedSearchResult?._info_image?.[item.keyName];
   });
   const form = useForm({
     mode: "uncontrolled",
-    initialValues
+    initialValues: {
+      ...initialValues,
+      "Description": searchStore.selectedSearchResult?._caption.summary
+    }
   });
 
   const HandleSubmit = async(values) => {
@@ -45,9 +49,15 @@ const CaptionEditView = observer(({
         {/* 2-column layout */}
         <Group align="flex-start">
           {/* Form items */}
-          <Box flex={2}>
+          <Box flex={4}>
             {
-              CAPTION_KEYS.map(item => ({keyName: item.keyName, name: item.name, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
+              CAPTION_KEYS
+                .map(item => ({keyName: item.keyName, name: item.name, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
+                .concat([{
+                  keyName: "Description",
+                  name: "Caption",
+                  value: searchStore.selectedSearchResult?._caption.summary
+                }])
                 .map(item => (
                   <Grid key={item.keyName} align="center" w="100%">
                     <Grid.Col span={4}>
@@ -128,11 +138,12 @@ const CaptionDisplayView = observer(({title, editEnabled, setEditEnabled, Handle
       </Group>
       <Stack gap={0} lh={1} mt={8}>
         {
-          CAPTION_KEYS.map(item => ({keyName: item.keyName, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
+          CAPTION_KEYS.map(item => ({name: item.name, keyName: item.keyName, value: searchStore.selectedSearchResult?._info_image?.[item.keyName]}))
             .filter(item => !!item.value)
+            .concat({keyName: "Description", name: "Caption", value: searchStore.selectedSearchResult?._caption.summary})
             .map(item => (
               <Group key={item.keyName} gap={5}>
-                <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.keyName }:</Text>
+                <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.name }:</Text>
                 <Text c="elv-gray.9" fz="sm" lh={1.25}>{ item.value }</Text>
               </Group>
             ))
@@ -177,7 +188,7 @@ const CaptionSection = observer(({clip}) => {
                       HandleReload={HandleReload}
                     /> :
                     <CaptionDisplayView
-                      title={clip._info_image?.Headline || clip._title}
+                      title={clip._caption?.title || clip._info_image?.Headline || clip._title}
                       HandleReload={HandleReload}
                       editEnabled={editEnabled}
                       setEditEnabled={setEditEnabled}
