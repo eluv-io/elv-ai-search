@@ -51,6 +51,11 @@ const CaptionEditView = observer(({
         values
       });
 
+      await summaryStore.ClearCaptionCache({
+        objectId: searchStore.selectedSearchResult.id,
+        fileName: searchStore.selectedSearchResult._title
+      });
+
       DisableEditView();
     } finally {
       setSaving(false);
@@ -206,10 +211,9 @@ const CaptionSection = observer(({clip}) => {
       setLoading(true);
       searchStore.UpdateSelectedSearchResult({key: "_caption", value: null});
 
-      await summaryStore.GetCaptionResults({
+      await summaryStore.ClearCaptionCache({
         objectId: clip.id,
-        fileName: clip._title,
-        regenerate: true
+        fileName: clip._title
       });
     } finally {
       setLoading(false);

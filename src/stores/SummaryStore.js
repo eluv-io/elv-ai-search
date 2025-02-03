@@ -113,6 +113,22 @@ class SummaryStore {
     }
   });
 
+  ClearCaptionCache = flow(function * ({objectId, fileName}) {
+    const url = yield this.GetSummaryUrl({
+      objectId,
+      prefix: `assets/${fileName}`,
+      caption: true,
+      assetType: true
+    });
+
+    const results = yield this.client.Request({
+      url,
+      method: "DELETE"
+    });
+
+    return results;
+  });
+
   GetCaptionResults = flow(function * ({objectId, fileName, regenerate=false}) {
     let url;
     try {
