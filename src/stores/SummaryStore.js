@@ -77,7 +77,7 @@ class SummaryStore {
           queryParams["regenerate"] = regenerate;
           queryParams["engine"] = "caption";
 
-          if(!regenerate) {
+          if(regenerate) {
             queryParams["cache"] = "none";
           }
         } else {
