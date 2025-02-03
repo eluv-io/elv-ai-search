@@ -225,7 +225,7 @@ const CaptionSection = observer(({clip}) => {
     if(!searchStore.selectedSearchResult._caption) {
       HandleReload(false);
     }
-  }, [searchStore.selectedSearchResult._caption]);
+  }, [searchStore.selectedSearchResult]);
 
   return (
     <Paper
@@ -241,11 +241,11 @@ const CaptionSection = observer(({clip}) => {
                   editEnabled ?
                     <CaptionEditView
                       DisableEditView={() => setEditEnabled(false)}
-                      HandleReload={HandleReload}
+                      HandleReload={() => HandleReload(true)}
                     /> :
                     <CaptionDisplayView
                       title={clip._caption?.title || clip._caption?.display_metadata?.Headline || clip._title}
-                      HandleReload={HandleReload}
+                      HandleReload={() => HandleReload(true)}
                       editEnabled={editEnabled}
                       setEditEnabled={setEditEnabled}
                     />
