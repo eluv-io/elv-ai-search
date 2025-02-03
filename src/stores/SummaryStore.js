@@ -76,6 +76,10 @@ class SummaryStore {
 
           queryParams["regenerate"] = regenerate;
           queryParams["engine"] = "caption";
+
+          if(!regenerate) {
+            queryParams["cache"] = "none";
+          }
         } else {
           // Image Synopsis
           requestUrl = "summary";

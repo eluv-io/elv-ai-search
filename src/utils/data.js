@@ -9,5 +9,5 @@ export const CAPTION_KEYS = [
   {name: "Filename", keyName: "Filename", path: "display_metadata", inputType: "input"},
   {name: "Headline", keyName: "Headline", path: "display_metadata", inputType: "input"},
   {name: "Source", keyName: "Source", path: "display_metadata", inputType: "input"},
-  {name: "Description", keyName: "summary", path: "", inputType: "textarea"}
+  {name: "Summary", keyName: "summary", path: "", inputType: "textarea"}
 ];
