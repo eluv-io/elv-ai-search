@@ -12,6 +12,7 @@ const ImageContent = observer(({imageSrc, title}) => {
   if(imageSrc && !imageFailed) {
     return (
       <Image
+        bg="elv-gray.2"
         radius="lg"
         loading="lazy"
         src={ScaleImage({url: imageSrc, width: 400})}

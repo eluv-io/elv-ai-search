@@ -206,7 +206,7 @@ const CaptionSection = observer(({clip}) => {
   const [loading, setLoading] = useState(false);
   const [editEnabled, setEditEnabled] = useState(false);
 
-  const HandleReload = async() => {
+  const HandleReload = async(regenerate=true) => {
     try {
       setLoading(true);
       searchStore.UpdateSelectedSearchResult({key: "_caption", value: null});
@@ -214,12 +214,18 @@ const CaptionSection = observer(({clip}) => {
       await summaryStore.GetCaptionResults({
         objectId: clip.id,
         fileName: clip._title,
-        regenerate: true
+        regenerate
       });
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if(!searchStore.selectedSearchResult._caption) {
+      HandleReload(false);
+    }
+  }, [searchStore.selectedSearchResult._caption]);
 
   return (
     <Paper
