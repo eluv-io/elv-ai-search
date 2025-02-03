@@ -229,12 +229,15 @@ const CaptionSection = observer(({clip}) => {
     if(!searchStore.selectedSearchResult._caption) {
       HandleReload(false);
     }
+
+    setEditEnabled(false);
   }, [searchStore.selectedSearchResult]);
 
   return (
     <Paper
       bg="elv-gray.4"
       p="16 12"
+      key={searchStore.selectedSearchResult.id}
     >
       <Flex align="center" gap={16} mb={8}>
         {
