@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import TextCard from "@/components/text-card/TextCard.jsx";
 import {searchStore, summaryStore} from "@/stores/index.js";
 import {

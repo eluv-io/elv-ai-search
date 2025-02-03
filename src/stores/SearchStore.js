@@ -316,13 +316,13 @@ class SearchStore {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
           start: 0,
-          limit: 160,
+          limit: searchPhrase ? 160 : 1000,
           display_fields: "all",
           clips: searchContentType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
           debug: true,
           clips_max_duration: 55,
-          max_total: 40,
+          max_total: searchPhrase ? 40 : -1,
           select: "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
         };
       }
