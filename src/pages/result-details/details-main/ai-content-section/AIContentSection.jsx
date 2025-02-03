@@ -216,6 +216,10 @@ const CaptionSection = observer(({clip}) => {
         fileName: clip._title,
         regenerate
       });
+
+      if(regenerate) {
+        setEditEnabled(true);
+      }
     } finally {
       setLoading(false);
     }
