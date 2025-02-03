@@ -211,9 +211,10 @@ const CaptionSection = observer(({clip}) => {
       setLoading(true);
       searchStore.UpdateSelectedSearchResult({key: "_caption", value: null});
 
-      await summaryStore.ClearCaptionCache({
+      await summaryStore.GetCaptionResults({
         objectId: clip.id,
-        fileName: clip._title
+        fileName: clip._title,
+        regenerate: true
       });
     } finally {
       setLoading(false);
