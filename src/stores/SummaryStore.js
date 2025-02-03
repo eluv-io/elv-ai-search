@@ -121,12 +121,11 @@ class SummaryStore {
       assetType: true
     });
 
-    const results = yield this.client.Request({
+    yield this.client.Request({
       url,
+      format: "",
       method: "DELETE"
     });
-
-    return results;
   });
 
   GetCaptionResults = flow(function * ({objectId, fileName, regenerate=false}) {
