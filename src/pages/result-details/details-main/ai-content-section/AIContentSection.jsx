@@ -47,13 +47,13 @@ const CaptionEditView = observer(({
       await summaryStore.UpdateCaptions({
         libraryId: searchStore.selectedSearchResult.qlib_id,
         objectId: searchStore.selectedSearchResult.id,
-        fileName: searchStore.selectedSearchResult._title,
+        prefix: searchStore.selectedSearchResult._prefix,
         values
       });
 
       await summaryStore.ClearCaptionCache({
         objectId: searchStore.selectedSearchResult.id,
-        fileName: searchStore.selectedSearchResult._title
+        prefix: searchStore.selectedSearchResult._prefix
       });
 
       DisableEditView();
@@ -202,7 +202,7 @@ const CaptionDisplayView = observer(({
   );
 });
 
-const CaptionSection = observer(({clip}) => {
+const CaptionSection = observer(({clip, v2=false}) => {
   const [loading, setLoading] = useState(false);
   const [editEnabled, setEditEnabled] = useState(false);
 
@@ -213,8 +213,9 @@ const CaptionSection = observer(({clip}) => {
 
       await summaryStore.GetCaptionResults({
         objectId: clip.id,
-        fileName: clip._title,
-        regenerate
+        prefix: clip._prefix,
+        regenerate,
+        v2
       });
 
       if(regenerate) {
@@ -271,7 +272,7 @@ const CaptionSection = observer(({clip}) => {
 
                             await summaryStore.GetCaptionResults({
                               objectId: clip.id,
-                              fileName: clip._title
+                              prefix: clip._prefix
                             });
                           } finally {
                             setLoading(false);
@@ -359,8 +360,8 @@ const SummarySection = observer(({clip}) => {
 const AIContentSection = observer(({clip, mediaType}) => {
   if(mediaType === "MUSIC") {
     return null;
-  } else if(mediaType === "IMAGE" && searchStore.searchSummaryType === "caption") {
-    return <CaptionSection clip={clip} />;
+  } else if(mediaType === "IMAGE" && searchStore.searchSummaryType.includes("caption")) {
+    return <CaptionSection clip={clip} v2={searchStore.searchSummaryType === "caption2"} />;
   } else {
     return <SummarySection clip={clip} />;
   }

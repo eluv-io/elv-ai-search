@@ -589,9 +589,7 @@ class SearchStore {
             });
 
             result["_imageSrc"] = url;
-            // result["_tags"] = this.ParseTags({
-            //   sources: result?.fields
-            // });
+            result["_prefix"] = result.prefix;
             result["_title"] = result.prefix.replace("/assets/", "");
           } else {
             try {
@@ -766,7 +764,7 @@ class SearchStore {
       const meta = yield this.client.ContentObjectMetadata({
         objectId: result.id,
         libraryId: result.qlib_id,
-        metadataSubtree: `/assets/${result._title}/display_metadata`,
+        metadataSubtree: `${result._prefix}/display_metadata`,
         select: CAPTION_KEYS.map(item => item.keyName)
       });
 

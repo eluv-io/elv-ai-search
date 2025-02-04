@@ -56,7 +56,8 @@ class SummaryStore {
     assetType=false,
     cache=true,
     caption=false,
-    regenerate=false
+    regenerate=false,
+    v2=false
   }) {
     try {
       let requestRep, requestUrl, server;
@@ -75,7 +76,7 @@ class SummaryStore {
           requestUrl = "ml/summary";
 
           queryParams["regenerate"] = regenerate;
-          queryParams["engine"] = "caption";
+          queryParams["engine"] = v2 ? "caption2" : "caption";
 
           if(regenerate) {
             queryParams["cache"] = "none";
@@ -117,10 +118,10 @@ class SummaryStore {
     }
   });
 
-  ClearCaptionCache = flow(function * ({objectId, fileName}) {
+  ClearCaptionCache = flow(function * ({objectId, prefix}) {
     const url = yield this.GetSummaryUrl({
       objectId,
-      prefix: `assets/${fileName}`,
+      prefix,
       caption: true,
       assetType: true
     });
@@ -132,15 +133,21 @@ class SummaryStore {
     });
   });
 
-  GetCaptionResults = flow(function * ({objectId, fileName, regenerate=false}) {
+  GetCaptionResults = flow(function * ({
+    objectId,
+    prefix,
+    regenerate=false,
+    v2=false
+  }) {
     let url;
     try {
       url = yield this.GetSummaryUrl({
         objectId,
-        prefix: `assets/${fileName}`,
+        prefix,
         regenerate,
         assetType: true,
-        caption: true
+        caption: true,
+        v2
       });
 
       const results = yield this.client.Request({url});
@@ -160,7 +167,7 @@ class SummaryStore {
   UpdateCaptions = flow(function * ({
     libraryId,
     objectId,
-    fileName,
+    prefix,
     values
   }) {
     try {
@@ -180,7 +187,7 @@ class SummaryStore {
         libraryId,
         objectId,
         writeToken,
-        metadataSubtree: `assets/${fileName}/display_metadata`,
+        metadataSubtree: `${prefix}/display_metadata`,
         metadata: {
           ...values,
           "Description": description

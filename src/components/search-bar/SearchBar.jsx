@@ -120,6 +120,11 @@ const AdvancedSection = observer(({
           value="caption"
           mb={16}
         />
+        <Radio
+          label="Caption V2"
+          value="caption2"
+          mb={16}
+        />
       </Radio.Group>
 
       <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Version</Text>
