@@ -1,10 +1,24 @@
-import {AspectRatio, Box, Flex, Group, Image, SimpleGrid, Text, Title, UnstyledButton} from "@mantine/core";
+import {
+  AspectRatio,
+  Box,
+  Flex,
+  Group,
+  Image,
+  Loader,
+  Pagination,
+  Select,
+  SimpleGrid,
+  Text,
+  Title,
+  UnstyledButton
+} from "@mantine/core";
 import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import {ScaleImage, TimeInterval} from "@/utils/helpers.js";
 import {EyeIcon, MusicIcon} from "@/assets/icons/index.js";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import styles from "@/pages/search/Search.module.css";
 
 const ImageContent = observer(({imageSrc, title}) => {
   const [imageFailed, setImageFailed] = useState(false);
@@ -102,10 +116,28 @@ const ClipsGrid = observer(({
   song,
   view="HIGH_SCORE",
   // viewCount,
-  cols=4
+  cols=4,
+  HandleNextPage
 }) => {
+  const [loadingNextPage, setLoadingNextPage] = useState(false);
+
+  useEffect(() => {
+    const LoadPage = async() => {
+      try {
+        setLoadingNextPage(true);
+        await HandleNextPage({page: searchStore.pagination.currentPage});
+      } finally {
+        setLoadingNextPage(false);
+      }
+    };
+
+    if(searchStore.pagination.currentPage !== 1) {
+      LoadPage();
+    }
+  }, [searchStore.pagination.currentPage]);
+
   if(!clips) {
-    clips = searchStore.results?.video?.contents || searchStore.results?.image?.contents || [];
+    clips = searchStore.results?.video?.contents || searchStore.results?.image || [];
   }
 
   const musicEnabled = searchStore.musicSettingEnabled;
@@ -120,6 +152,12 @@ const ClipsGrid = observer(({
   };
 
   const filteredClips = FilterClips({clips});
+
+  const SetPage = (page) => {
+    searchStore.SetPagination({page});
+  };
+
+  if(loadingNextPage) { return <Loader />; }
 
   return (
     <>
@@ -140,6 +178,31 @@ const ClipsGrid = observer(({
           ))
         }
       </SimpleGrid>
+
+      <Group gap={24} mt={48}>
+        <Text>
+          {`${searchStore.pagination.firstResult + 1}-${searchStore.pagination.lastResult + 1} / ${searchStore.pagination.totalResults}`}
+        </Text>
+        <Group ml="auto">
+          {/*<Select*/}
+          {/*  placeholder="Results per page"*/}
+          {/*  data={[*/}
+          {/*    {value: "35", label: "35"},*/}
+          {/*    {value: "70", label: "70"},*/}
+          {/*    {value: "105", label: "105"},*/}
+          {/*    {value: "140", label: "140"}*/}
+          {/*  ]}*/}
+          {/*  value={searchStore.pagination.pageSize.toString()}*/}
+          {/*  size="xs"*/}
+          {/*  classNames={{root: styles.selectRoot, input: styles.selectInput}}*/}
+          {/*/>*/}
+          <Pagination
+            total={searchStore.pagination.totalPages}
+            onChange={SetPage}
+            value={searchStore.pagination.currentPage}
+          />
+        </Group>
+      </Group>
     </>
   );
 });

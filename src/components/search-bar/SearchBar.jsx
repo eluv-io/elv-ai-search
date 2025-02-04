@@ -297,43 +297,17 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
 
 const SearchBar = observer(({
   loadingSearch,
-  setLoadingSearch
+  setLoadingSearch,
+  HandleSearch,
+  fuzzySearchValue,
+  setFuzzySearchValue
 }) => {
-  const [fuzzySearchValue, setFuzzySearchValue] = useState("");
-
   useEffect(() => {
     const {terms} = searchStore.currentSearch;
     if(terms) {
       setFuzzySearchValue(terms);
     }
   }, [searchStore.currentSearch.terms]);
-
-  const HandleSearch = async() => {
-    if(!(fuzzySearchValue || searchStore.currentSearch.index)) { return; }
-
-    try {
-      setLoadingSearch(true);
-
-      searchStore.ResetSearch();
-      const fuzzySearchFields = [];
-      Object.keys(searchStore.currentSearch.searchFields || {}).forEach(field => {
-        if(searchStore.currentSearch.searchFields[field].value) {
-          fuzzySearchFields.push(field);
-        }
-      });
-
-      await searchStore.GetSearchResults({
-        fuzzySearchValue,
-        fuzzySearchFields,
-        musicType: "all"
-      });
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
-    } finally {
-      setLoadingSearch(false);
-    }
-  };
 
   const HandleUpdateSearchField = ({field, value}) => {
     let fields = searchStore.currentSearch.searchFields;
@@ -374,7 +348,7 @@ const SearchBar = observer(({
               onChange={event => setFuzzySearchValue(event.target.value)}
               onKeyDown={async (event) => {
                 if(event.key === "Enter") {
-                  await HandleSearch();
+                  await HandleSearch({page: 1});
                 }
               }}
               leftSectionPointerEvents="all"
@@ -392,7 +366,7 @@ const SearchBar = observer(({
                       aria-label="Submit search"
                       variant="transparent"
                       component="button"
-                      onClick={HandleSearch}
+                      onClick={() => HandleSearch({page: 1})}
                       c="gray.7"
                     >
                       <SubmitIcon />

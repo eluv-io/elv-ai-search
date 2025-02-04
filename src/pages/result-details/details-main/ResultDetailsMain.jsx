@@ -150,9 +150,9 @@ const ResultDetailsMain = observer(({
       });
     }
     catch (error) {
-        // eslint-disable-next-line no-console
-        console.log("Did not update rating store, reverting to previous state");
-        setCurrentStars(currentStars);
+      // eslint-disable-next-line no-console
+      console.error("Did not update rating store, reverting to previous state");
+      setCurrentStars(currentStars);
     }
   };
 

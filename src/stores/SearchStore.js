@@ -17,6 +17,13 @@ class SearchStore {
   resultsViewType; // Show all results vs results that have a high score.
   // Values: HIGH_SCORE | ALL
 
+  // Pagination
+  pageSize = 35;
+  totalResults = null;
+  totalPages = null;
+  firstResult = 0;
+  lastResult = 19;
+
   resultsBySong = null;
   resultsVideo = null;
   resultsImage = null;
@@ -46,6 +53,19 @@ class SearchStore {
     };
   }
 
+  get pagination() {
+    const currentPage = this.lastResult / this.pageSize;
+
+    return {
+      pageSize: this.pageSize,
+      firstResult: this.firstResult,
+      lastResult: this.lastResult,
+      totalResults: this.totalResults,
+      totalPages: this.totalPages,
+      currentPage
+    };
+  }
+
   get results() {
     return {
       video: this.resultsVideo,
@@ -62,6 +82,15 @@ class SearchStore {
 
   SetSelectedSearchResult = ({result}) => {
     this.selectedSearchResult = result;
+  };
+
+  SetPagination = ({page}) => {
+    let lastResult = (page * this.pageSize);
+    const firstResult = lastResult - this.pageSize;
+
+    this.firstResult = firstResult;
+    this.lastResult = lastResult;
+    this.currentPage = page;
   };
 
   UpdateSelectedSearchResult = ({key, value}) => {
@@ -312,17 +341,22 @@ class SearchStore {
         }
       } else {
         // Regular search
+        const maxTotal = searchPhrase ? 40 : this.pagination.currentPage === 1 ? -1 : this.pagination.lastResult;
+
         queryParams = {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
-          start: 0,
-          limit: searchPhrase ? 160 : 1000,
+          start: this.pagination.firstResult,
+          limit: this.pagination.lastResult,
+          // start: 0,
+          // limit: searchPhrase ? 160 : 1000,
           display_fields: "all",
           clips: searchContentType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
           debug: true,
           clips_max_duration: 55,
-          max_total: searchPhrase ? 40 : -1,
+          max_total: maxTotal,
+          // max_total: searchPhrase ? 40 : -1,
           select: "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
         };
       }
@@ -647,7 +681,8 @@ class SearchStore {
     fuzzySearchValue,
     fuzzySearchFields,
     musicType,
-    cacheResults=true
+    cacheResults=true,
+    page=1
   }) {
     let objectId, versionHash, imageUrl, videoUrl, imageResults, videoResults, resultsBySong, highScoreImage, highScoreVideo, resultsViewType;
     const indexValue = this.customIndex || this.currentSearch.index;
@@ -664,6 +699,8 @@ class SearchStore {
     });
 
     this.SetSearchContentType({type: searchAssetType ? "IMAGES" : "VIDEOS"});
+
+    this.SetPagination({page});
 
     const ImageRequest = this.CreateVectorSearchUrl({
       objectId,
@@ -702,6 +739,12 @@ class SearchStore {
         searchContentType: "IMAGES"
       }));
 
+      if(page === 1) {
+        this.totalResults = imageResults.pagination?.total;
+      }
+
+      this.totalPages = Math.ceil(this.totalResults / this.pageSize);
+
       resultsViewType = ((highScoreImage || []).length > 0 && this.currentSearch.terms) ? "HIGH_SCORE" : "ALL";
     } else if(this.searchContentType === "VIDEOS") {
       videoUrl = yield VideoRequest;
@@ -710,15 +753,16 @@ class SearchStore {
         searchContentType: "VIDEOS"
       }));
 
+      // this.totalResults = videoResults.pagination?.total;
       resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
     }
 
     if(cacheResults) {
       this.SetCurrentSearch({
         videoResults,
-        imageResults,
+        imageResults: imageResults.contents,
         resultsBySong,
-        highScoreImageResults: highScoreImage,
+        highScoreImageResults: (this.highScoreImageResults || []).concat(highScoreImage),
         highScoreVideoResults: highScoreVideo,
         index: objectId,
         terms: fuzzySearchValue,
