@@ -1,4 +1,5 @@
 export const CAPTION_KEYS = [
+  {name: "Summary", keyName: "summary", path: "", inputType: "textarea"},
   {name: "City", keyName: "City", path: "display_metadata", inputType: "input"},
   {name: "State", keyName: "State", path: "display_metadata", inputType: "input"},
   {name: "Country", keyName: "Country", path: "display_metadata", inputType: "input"},
@@ -8,6 +9,5 @@ export const CAPTION_KEYS = [
   {name: "Date Timestamp", keyName: "DateTimestamp", path: "display_metadata", inputType: "input"},
   {name: "Filename", keyName: "Filename", path: "display_metadata", inputType: "input"},
   {name: "Headline", keyName: "Headline", path: "display_metadata", inputType: "input"},
-  {name: "Source", keyName: "Source", path: "display_metadata", inputType: "input"},
-  {name: "Summary", keyName: "summary", path: "", inputType: "textarea"}
+  {name: "Source", keyName: "Source", path: "display_metadata", inputType: "input"}
 ];
