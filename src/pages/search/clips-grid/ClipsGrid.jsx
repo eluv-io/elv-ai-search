@@ -6,8 +6,8 @@ import {
   Image,
   Loader,
   Pagination,
-  Select,
   SimpleGrid,
+  Skeleton,
   Text,
   Title,
   UnstyledButton
@@ -18,20 +18,26 @@ import {useNavigate} from "react-router-dom";
 import {ScaleImage, TimeInterval} from "@/utils/helpers.js";
 import {EyeIcon, MusicIcon} from "@/assets/icons/index.js";
 import {useEffect, useState} from "react";
-import styles from "@/pages/search/Search.module.css";
 
 const ImageContent = observer(({imageSrc, title}) => {
   const [imageFailed, setImageFailed] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   if(imageSrc && !imageFailed) {
     return (
-      <Image
-        bg="elv-gray.2"
-        radius="lg"
-        loading="lazy"
-        src={ScaleImage({url: imageSrc, width: 400})}
-        onError={() => setImageFailed(true)}
-      />
+      <Skeleton visible={!loaded} w="100%" h="100%">
+        <Image
+          bg="elv-gray.2"
+          key={imageSrc}
+          radius="lg"
+          loading="lazy"
+          w="100%"
+          h="100%"
+          src={ScaleImage({url: imageSrc, width: 400})}
+          onError={() => setImageFailed(true)}
+          onLoad={() => setLoaded(true)}
+        />
+      </Skeleton>
     );
   } else {
     return (
@@ -131,13 +137,13 @@ const ClipsGrid = observer(({
       }
     };
 
-    if(searchStore.pagination.currentPage !== 1) {
+    if(HandleNextPage) {
       LoadPage();
     }
   }, [searchStore.pagination.currentPage]);
 
   if(!clips) {
-    clips = searchStore.results?.video?.contents || searchStore.results?.image || [];
+    clips = searchStore.searchResults || [];
   }
 
   const musicEnabled = searchStore.musicSettingEnabled;
@@ -162,14 +168,14 @@ const ClipsGrid = observer(({
   return (
     <>
       {
-        filteredClips.length > 0 &&
+        clips.length > 0 &&
         <Title c="elv-gray.8" size="1.5rem" mb={16}>
           { song }
         </Title>
       }
       <SimpleGrid cols={cols} spacing="lg">
         {
-          filteredClips.map((clip, i) => (
+          clips.map((clip, i) => (
             <Clip
               key={`clip-result-${clip.id}-${clip.start_time}-${i}`}
               clip={clip}
@@ -179,30 +185,33 @@ const ClipsGrid = observer(({
         }
       </SimpleGrid>
 
-      <Group gap={24} mt={48}>
-        <Text>
-          {`${searchStore.pagination.firstResult + 1}-${searchStore.pagination.lastResult + 1} / ${searchStore.pagination.totalResults}`}
-        </Text>
-        <Group ml="auto">
-          {/*<Select*/}
-          {/*  placeholder="Results per page"*/}
-          {/*  data={[*/}
-          {/*    {value: "35", label: "35"},*/}
-          {/*    {value: "70", label: "70"},*/}
-          {/*    {value: "105", label: "105"},*/}
-          {/*    {value: "140", label: "140"}*/}
-          {/*  ]}*/}
-          {/*  value={searchStore.pagination.pageSize.toString()}*/}
-          {/*  size="xs"*/}
-          {/*  classNames={{root: styles.selectRoot, input: styles.selectInput}}*/}
-          {/*/>*/}
-          <Pagination
-            total={searchStore.pagination.totalPages}
-            onChange={SetPage}
-            value={searchStore.pagination.currentPage}
-          />
+      {
+        searchStore.searchContentType === "IMAGES" &&
+        <Group gap={24} mt={48}>
+          <Text>
+            {`${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.totalResults}`}
+          </Text>
+          <Group ml="auto">
+            {/*<Select*/}
+            {/*  placeholder="Results per page"*/}
+            {/*  data={[*/}
+            {/*    {value: "35", label: "35"},*/}
+            {/*    {value: "70", label: "70"},*/}
+            {/*    {value: "105", label: "105"},*/}
+            {/*    {value: "140", label: "140"}*/}
+            {/*  ]}*/}
+            {/*  value={searchStore.pagination.pageSize.toString()}*/}
+            {/*  size="xs"*/}
+            {/*  classNames={{root: styles.selectRoot, input: styles.selectInput}}*/}
+            {/*/>*/}
+            <Pagination
+              total={searchStore.pagination.totalPages}
+              onChange={SetPage}
+              value={searchStore.pagination.currentPage}
+            />
+          </Group>
         </Group>
-      </Group>
+      }
     </>
   );
 });

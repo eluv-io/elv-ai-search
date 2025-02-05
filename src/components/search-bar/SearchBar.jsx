@@ -348,7 +348,7 @@ const SearchBar = observer(({
               onChange={event => setFuzzySearchValue(event.target.value)}
               onKeyDown={async (event) => {
                 if(event.key === "Enter") {
-                  await HandleSearch({page: 1});
+                  await HandleSearch();
                 }
               }}
               leftSectionPointerEvents="all"
@@ -366,7 +366,7 @@ const SearchBar = observer(({
                       aria-label="Submit search"
                       variant="transparent"
                       component="button"
-                      onClick={() => HandleSearch({page: 1})}
+                      onClick={() => HandleSearch()}
                       c="gray.7"
                     >
                       <SubmitIcon />

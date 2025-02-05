@@ -16,7 +16,7 @@ const FilterToolbar = observer(({loadingSearch}) => {
 
   const [view, setView] = useState("grid");
 
-  if(!(searchStore.results?.video?.contents || searchStore.results?.image) || loadingSearch) { return null; }
+  if(!(searchStore.searchResults || []).length || loadingSearch) { return null; }
 
   const ToggleResultType = () => {
     let newValue;
@@ -113,7 +113,7 @@ const Search = observer(() => {
   // const [viewVideoCount, setViewVideoCount] = useState(-1);
   // const [viewImageCount, setViewImageCount] = useState(-1);
 
-  const HandleSearch = async({page=1}={}) => {
+  const HandleSearch = async() => {
     if(!(fuzzySearchValue || searchStore.currentSearch.index)) { return; }
 
     try {
@@ -131,7 +131,7 @@ const Search = observer(() => {
         fuzzySearchValue,
         fuzzySearchFields,
         musicType: "all",
-        page
+        page: 1
       });
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -143,19 +143,26 @@ const Search = observer(() => {
 
   const HandleNextPage = async({page=1}={}) => {
     try {
-      const fuzzySearchFields = [];
-      Object.keys(searchStore.currentSearch.searchFields || {}).forEach(field => {
-        if(searchStore.currentSearch.searchFields[field].value) {
-          fuzzySearchFields.push(field);
-        }
-      });
+      const cachedResults = searchStore.results?.imagePaginated?.[page];
 
-      await searchStore.GetSearchResults({
-        fuzzySearchValue,
-        fuzzySearchFields,
-        musicType: "all",
-        page
-      });
+      if(cachedResults) {
+        searchStore.SetCurrentSearchResults({imageResults: cachedResults});
+        return;
+      } else {
+        const fuzzySearchFields = [];
+        Object.keys(searchStore.currentSearch.searchFields || {}).forEach(field => {
+          if(searchStore.currentSearch.searchFields[field].value) {
+            fuzzySearchFields.push(field);
+          }
+        });
+
+        await searchStore.GetSearchResults({
+          fuzzySearchValue,
+          fuzzySearchFields,
+          musicType: "all",
+          page
+        });
+      }
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
@@ -179,7 +186,7 @@ const Search = observer(() => {
             <>
               {
                 ["ALL", "VIDEOS"].includes(searchStore.searchContentType) &&
-                searchStore.results?.video?.contents &&
+                searchStore.searchResults &&
                 <>
                   <Group mb={16}>
                     <Title c="elv-gray.8" order={3} size="1.5rem">
@@ -202,15 +209,15 @@ const Search = observer(() => {
                   </Group>
                 <ClipsGrid
                   view={searchStore.resultsViewType}
-                  clips={searchStore.results?.video?.contents}
-                  highScoreResults={searchStore.results?.videoHighScore}
+                  clips={searchStore.searchResults}
+                  highScoreResults={searchStore.searchResults}
                   viewCount={viewVideoCount}
                 />
                 </>
               }
               {
                 ["ALL", "IMAGES"].includes(searchStore.searchContentType) &&
-                searchStore.results?.image &&
+                searchStore.searchResults &&
                 <>
                   <Group mb={16} mt={16}>
                     <Title c="elv-gray.8" order={3} size="1.5rem">
@@ -231,15 +238,15 @@ const Search = observer(() => {
                     {/*    ) : null*/}
                     {/*}*/}
                   </Group>
-                <ClipsGrid
-                  view={searchStore.resultsViewType}
-                  clips={searchStore.results?.image}
-                  viewCount={viewImageCount}
-                  cols={colCount.image}
-                  highScoreResults={searchStore.results?.imageHighScore}
-                  totalResults={searchStore.pagination?.totalResults}
-                  HandleNextPage={HandleNextPage}
-                />
+                  <ClipsGrid
+                    view={searchStore.resultsViewType}
+                    clips={searchStore.searchResults}
+                    viewCount={viewImageCount}
+                    cols={colCount.image}
+                    highScoreResults={searchStore.results?.imageHighScore}
+                    totalResults={searchStore.pagination?.totalResults}
+                    HandleNextPage={HandleNextPage}
+                  />
                 </>
               }
             </>
