@@ -55,6 +55,8 @@ class SearchStore {
         return this.resultsViewType === "HIGH_SCORE" ? this.highScoreImageResults : this.resultsImage;
       case "VIDEOS":
         return this.resultsViewType === "HIGH_SCORE" ? this.highScoreVideoResults : this.resultsVideo;
+      case "MUSIC":
+        return this.resultsVideo;
       default:
         return [];
     }

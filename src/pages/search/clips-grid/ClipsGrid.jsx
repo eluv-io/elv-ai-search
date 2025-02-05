@@ -118,10 +118,7 @@ const Clip = observer(({
 
 const ClipsGrid = observer(({
   clips=[],
-  highScoreResults=[],
   song,
-  view="HIGH_SCORE",
-  // viewCount,
   cols=4,
   HandleNextPage
 }) => {
@@ -145,19 +142,6 @@ const ClipsGrid = observer(({
   if(!clips) {
     clips = searchStore.searchResults || [];
   }
-
-  const musicEnabled = searchStore.musicSettingEnabled;
-
-  const FilterClips = ({clips}) => {
-    if(musicEnabled) {
-      return clips;
-    } else {
-      return view === "ALL" ? clips : highScoreResults;
-        // .slice(0, viewCount);
-    }
-  };
-
-  const filteredClips = FilterClips({clips});
 
   const SetPage = (page) => {
     searchStore.SetPagination({page});
