@@ -24,15 +24,15 @@ const ResultDetailsNavToolbar = observer(() => {
       // Retrieve next page
       try {
         searchStore.ToggleLoadingSearchResult();
+        const newPage = prev ? (searchStore.pagination.currentPage - 1) : (searchStore.pagination.currentPage + 1);
+        newIndex = prev ? (searchStore.pagination.pageSize - 1)  : 0;
 
         await searchStore.GetNextPageResults({
           fuzzySearchValue: searchStore.currentSearch.terms,
-          page: searchStore.pagination.currentPage + 1,
-          // cacheResults: false
+          page: newPage
         });
 
         clips = searchStore.searchResults || [];
-        newIndex = 0;
         let newClip = clips[newIndex];
 
         if(newClip) {
@@ -54,7 +54,7 @@ const ResultDetailsNavToolbar = observer(() => {
         iconOnly
         Icon={ArrowLeftIcon}
         onClick={() => HandleNavClip(true)}
-        disabled={searchStore.selectedSearchResult._index === 0}
+        disabled={searchStore.selectedSearchResult._indexTotalRes === 0}
       />
       <SecondaryButton
         size="lg"
