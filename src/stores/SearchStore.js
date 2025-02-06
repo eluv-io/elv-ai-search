@@ -534,6 +534,64 @@ class SearchStore {
     }
   });
 
+  UpdateTags = flow(function * ({
+    libraryId,
+    objectId,
+    metadataSubtree,
+    copyPath,
+    value,
+    tagIndex,
+    tagKey
+  }){
+    try {
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
+      const {writeToken} = yield this.client.EditContentObject({
+        libraryId,
+        objectId
+      });
+
+      yield this.client.ReplaceMetadata({
+        libraryId,
+        objectId,
+        writeToken,
+        metadataSubtree,
+        metadata: value
+      });
+
+      yield this.client.ReplaceMetadata({
+        libraryId,
+        objectId,
+        writeToken,
+        metadataSubtree: copyPath,
+        metadata: value
+      });
+
+      yield this.client.FinalizeContentObject({
+        libraryId,
+        objectId,
+        writeToken,
+        commitMessage: "Update tags"
+      });
+
+      const newTags = Object.assign({}, this.selectedSearchResult._tags);
+
+      if(newTags[tagKey]?.items?.[tagIndex]?.text) {
+        newTags[tagKey].items[tagIndex].text = value;
+      }
+
+      this.UpdateSelectedSearchResult({
+        key: "_tags",
+        value: newTags
+      });
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to update tag", error);
+    }
+  });
+
   GetTags = flow(function * ({
     dedupe=false,
     assetType=false,
@@ -587,7 +645,7 @@ class SearchStore {
                 .join(" ");
             };
 
-            return [TransformKey(key), value];
+            return [TransformKey(key), {items: value, field: key}];
           })
         );
       }

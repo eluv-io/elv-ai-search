@@ -1,8 +1,104 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, AspectRatio, Box, Button, Image, Table, Text, UnstyledButton} from "@mantine/core";
+import {
+  ActionIcon,
+  AspectRatio,
+  Box,
+  Button,
+  Group,
+  Image,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  UnstyledButton
+} from "@mantine/core";
 import {useState} from "react";
 import {searchStore, videoStore, overlayStore} from "@/stores/index.js";
-import {PlayIcon} from "@/assets/icons/index.js";
+import {PencilIcon, PlayIcon} from "@/assets/icons/index.js";
+
+const EditView = ({
+  tagValue,
+  setTagValue,
+  setEditEnabled,
+  saving,
+  setSaving,
+  EditCallback
+}) => {
+  return (
+    <Stack gap={0}>
+      <TextInput
+        size="xs"
+        mb={8}
+        value={tagValue}
+        onChange={(event) => setTagValue(event.target.value)}
+      />
+      <Group gap={6} justify="flex-end">
+        <Button variant="outline" size="xs" onClick={() => setEditEnabled(false)}>
+          Cancel
+        </Button>
+        <Button
+          type="submit"
+          size="xs"
+          disabled={saving}
+          loading={saving}
+          onClick={async() => {
+            try {
+              setSaving(true);
+              await EditCallback(tagValue);
+            } finally {
+              setSaving(false);
+            }
+          }}
+        >
+          Commit
+        </Button>
+      </Group>
+    </Stack>
+  );
+};
+
+const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback}) => {
+  const [editEnabled, setEditEnabled] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [tagValue, setTagValue] = useState(tagText);
+
+  const DisplayView = () => {
+    return (
+      clickable ?
+        (
+          <Group>
+            <UnstyledButton onClick={ClickCallback} flex={2}>
+              <Text size="xs" c="dimmed">{ tagText }</Text>
+            </UnstyledButton>
+            {
+              searchStore.selectedSearchResult?._assetType &&
+              <ActionIcon variant="transparent" title="Edit Tag" onClick={() => setEditEnabled(true)}>
+                <PencilIcon />
+              </ActionIcon>
+            }
+          </Group>
+        ) :
+        <Text size="xs" c="dimmed">{ tagText }</Text>
+    );
+  };
+
+  return (
+    <Table.Td>
+      {
+        editEnabled ?
+          <EditView
+            tagValue={tagValue}
+            setTagValue={setTagValue}
+            saving={saving}
+            setSaving={setSaving}
+            EditCallback={EditCallback}
+            setEditEnabled={setEditEnabled}
+          /> :
+          <DisplayView />
+      }
+    </Table.Td>
+  );
+});
 
 const Rows = observer(({rows=[], playable=true}) => {
   return (
@@ -26,15 +122,12 @@ const Rows = observer(({rows=[], playable=true}) => {
             <Text size="xs">{ row.timestamp }</Text>
           </Table.Td>
         }
-        <Table.Td>
-          {
-            row.tagClickCallback ?
-            <UnstyledButton onClick={row.tagClickCallback}>
-              <Text size="xs" c="dimmed">{ row.tags }</Text>
-            </UnstyledButton> :
-              <Text size="xs" c="dimmed">{ row.tags }</Text>
-          }
-        </Table.Td>
+        <TagContent
+          clickable={!!row.tagClickCallback}
+          ClickCallback={row.tagClickCallback}
+          tagText={row.tagText}
+          EditCallback={row.EditCallback}
+        />
         {
           playable &&
           <Table.Td align="center" w="50px">
@@ -49,7 +142,12 @@ const Rows = observer(({rows=[], playable=true}) => {
   );
 });
 
-const TagsTable = observer(({resultsPerPage=10, tags=[], tableId}) => {
+const TagsTable = observer(({
+  resultsPerPage=10,
+  tags=[],
+  tableId,
+  field
+}) => {
   const rows = (tags || []).map((tagItem, i) => {
     const tagText = Array.isArray(tagItem?.text) ? tagItem?.text?.length > 0 ? tagItem?.text.join(", ") : "" :
       tagItem.text;
@@ -78,12 +176,28 @@ const TagsTable = observer(({resultsPerPage=10, tags=[], tableId}) => {
       tagClickCallback = null;
     }
 
+    const EditCallback = async(value) => {
+      const path = `${searchStore.selectedSearchResult?._prefix}/image_tags/${field}/tags/${i}/text`;
+      const copyPath = `${searchStore.selectedSearchResult?._prefix}/manual_tags/${field}/tags/${i}/text`;
+
+      await searchStore.UpdateTags({
+        libraryId: searchStore.selectedSearchResult.qlib_id,
+        objectId: searchStore.selectedSearchResult.id,
+        metadataSubtree: path,
+        copyPath,
+        value,
+        tagIndex: i,
+        tagKey: tableId
+      });
+    };
+
     return {
       image: tagItem?._coverImage,
       timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),
-      tags: tagText,
+      tagText,
       tagClickCallback,
       id: `tag-${tagItem.id || i}-${tagItem?.start_time}-${tagItem?.end_time}`,
+      EditCallback,
       action: {
         icon: (
           <ActionIcon
