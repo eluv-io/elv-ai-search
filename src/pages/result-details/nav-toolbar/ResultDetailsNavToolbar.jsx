@@ -11,7 +11,7 @@ const ResultDetailsNavToolbar = observer(() => {
   const HandleNavClip = (prev) => {
     const currentClip = searchStore.selectedSearchResult;
     const newIndex = prev ? (currentClip._index - 1) : (currentClip._index + 1);
-    const clips = searchStore.results?.video?.contents || searchStore.results?.image || [];
+    const clips = searchStore.searchResults || [];
     const newClip = clips?.[newIndex];
 
     if(newClip) {
@@ -28,12 +28,14 @@ const ResultDetailsNavToolbar = observer(() => {
         iconOnly
         Icon={ArrowLeftIcon}
         onClick={() => HandleNavClip(true)}
+        disabled={searchStore.selectedSearchResult._index === 0}
       />
       <SecondaryButton
         size="lg"
         iconOnly
         Icon={ArrowRightIcon}
         onClick={() => HandleNavClip(false)}
+        disabled={searchStore.selectedSearchResult._index === (searchStore.pagination.lastResult - searchStore.pagination.firstResult)}
       />
     </Stack>
   );
