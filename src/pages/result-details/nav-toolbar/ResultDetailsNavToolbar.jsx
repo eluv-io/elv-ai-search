@@ -15,6 +15,7 @@ const ResultDetailsNavToolbar = observer(() => {
     const newClip = clips?.[newIndex];
 
     if(newClip) {
+      searchStore.SetSelectedSearchResult({result: null});
       searchStore.SetSelectedSearchResult({result: newClip});
       overlayStore.IncrementPageVersion();
       navigate(`/search/${newClip.id}`);
