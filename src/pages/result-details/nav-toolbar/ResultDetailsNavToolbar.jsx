@@ -22,21 +22,27 @@ const ResultDetailsNavToolbar = observer(() => {
     } else {
       // Clip is last on page
       // Retrieve next page
-      await searchStore.GetNextPageResults({
-        fuzzySearchValue: searchStore.currentSearch.terms,
-        page: searchStore.pagination.currentPage + 1,
-        // cacheResults: false
-      });
+      try {
+        searchStore.ToggleLoadingSearchResult();
 
-      clips = searchStore.searchResults || [];
-      newIndex = 0;
-      let newClip = clips[newIndex];
+        await searchStore.GetNextPageResults({
+          fuzzySearchValue: searchStore.currentSearch.terms,
+          page: searchStore.pagination.currentPage + 1,
+          // cacheResults: false
+        });
 
-      if(newClip) {
-        searchStore.SetSelectedSearchResult({result: null});
-        searchStore.SetSelectedSearchResult({result: newClip});
-        overlayStore.IncrementPageVersion();
-        navigate(`/search/${newClip.id}`);
+        clips = searchStore.searchResults || [];
+        newIndex = 0;
+        let newClip = clips[newIndex];
+
+        if(newClip) {
+          searchStore.SetSelectedSearchResult({result: null});
+          searchStore.SetSelectedSearchResult({result: newClip});
+          overlayStore.IncrementPageVersion();
+          navigate(`/search/${newClip.id}`);
+        }
+      } finally {
+        searchStore.ToggleLoadingSearchResult();
       }
     }
   };

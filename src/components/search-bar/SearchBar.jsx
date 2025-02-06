@@ -297,7 +297,6 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
 
 const SearchBar = observer(({
   loadingSearch,
-  setLoadingSearch,
   HandleSearch,
   fuzzySearchValue,
   setFuzzySearchValue

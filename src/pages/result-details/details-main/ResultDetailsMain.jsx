@@ -2,7 +2,7 @@ import {observer} from "mobx-react-lite";
 import {
   Box,
   Grid,
-  SimpleGrid,
+  SimpleGrid, Skeleton,
   Transition
 } from "@mantine/core";
 import {ArrowLeftIcon} from "@/assets/icons/index.js";
@@ -126,56 +126,59 @@ const ResultDetailsMain = observer(({
         <MediaItem clip={clip} mediaRef={mediaRef} />
       </Box>
 
-      <MediaTitleSection
-        title={clip._title}
-        openModal={openModal}
-        HandleRating={SubmitRating}
-        currentStars={currentStars}
-        showInfoCard={showInfoCard}
-        setShowInfoCard={setShowInfoCard}
-        mediaType={mediaType}
-        TYPE_DATA={TYPE_DATA}
-      />
+      <Skeleton visible={searchStore.loadingSearchResult}>
+        <MediaTitleSection
+          title={clip._title}
+          openModal={openModal}
+          HandleRating={SubmitRating}
+          currentStars={currentStars}
+          showInfoCard={showInfoCard}
+          setShowInfoCard={setShowInfoCard}
+          mediaType={mediaType}
+          TYPE_DATA={TYPE_DATA}
+        />
 
-      <Grid gap={8} mb={8}>
-        {
-          clip._assetType ? null :
-          <Grid.Col span={4}>
+        <Grid gap={8} mb={8}>
+          {
+            clip._assetType ? null :
+            <Grid.Col span={4}>
+              <TextCard
+                text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
+              />
+            </Grid.Col>
+          }
+          <Grid.Col span={clip._assetType ? 10 : 4}>
             <TextCard
-              text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}
+              text={clip.id}
+              copyText={clip.id}
+              lineClamp={1}
             />
           </Grid.Col>
-        }
-        <Grid.Col span={clip._assetType ? 10 : 4}>
-          <TextCard
-            text={clip.id}
-            copyText={clip.id}
-            lineClamp={1}
-          />
-        </Grid.Col>
-        <Grid.Col span={clip._assetType ? 2 : 4}>
-          <SimpleGrid cols={clip._assetType ? 1 : 2}>
-            {
-              clip._assetType ? null :
+          <Grid.Col span={clip._assetType ? 2 : 4}>
+            <SimpleGrid cols={clip._assetType ? 1 : 2}>
+              {
+                clip._assetType ? null :
+                  <TextCard
+                    text="Streaming"
+                    centerText
+                    copyText={embedUrl}
+                  />
+              }
                 <TextCard
-                  text="Streaming"
+                  text="Download"
                   centerText
-                  copyText={embedUrl}
+                  copyText={downloadUrl}
                 />
-            }
-              <TextCard
-                text="Download"
-                centerText
-                copyText={downloadUrl}
-              />
-          </SimpleGrid>
-        </Grid.Col>
-      </Grid>
+            </SimpleGrid>
+          </Grid.Col>
+        </Grid>
 
-      <AIContentSection
-        clip={clip}
-        mediaType={mediaType}
-      />
+        <AIContentSection
+          clip={clip}
+          mediaType={mediaType}
+        />
+      </Skeleton>
+
       <ShareModal
         opened={openedShareModal}
         onClose={closeModal}

@@ -1,10 +1,10 @@
 import {useRef, useState} from "react";
-import {AspectRatio, Box, Flex, Image, Title} from "@mantine/core";
+import {AspectRatio, Box, Flex, Image, Skeleton, Title} from "@mantine/core";
 import Overlay from "@/components/overlay/Overlay.jsx";
 import Video from "@/components/video/Video.jsx";
 import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
-import {videoStore} from "@/stores/index.js";
+import {searchStore, videoStore} from "@/stores/index.js";
 
 const MediaItem = ({clip}) => {
   const mediaRef = useRef(null);
@@ -33,29 +33,31 @@ const MediaItem = ({clip}) => {
 
   if(clip._assetType) {
     return (
-      <ContainerElement>
-        <Box w="100%" h="100%" style={{flexGrow: 1}}>
-          {
-            imageFailed ?
-              (
-                <Flex h="auto" w="100%" justify="center">
-                  <Title c="elv-gray.7" order={1}>
-                    { clip.meta?.public?.asset_metadata?.title || clip.id }
-                  </Title>
-                </Flex>
-              ) :
-              <Image
-                ref={mediaRef}
-                src={clip._imageSrc}
-                fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
-                fit="contain"
-                w="100%"
-                h="auto"
-                onError={() => setImageFailed(true)}
-              />
-          }
-        </Box>
-      </ContainerElement>
+      <Skeleton visible={searchStore.loadingSearchResult}>
+        <ContainerElement>
+          <Box w="100%" h="100%" style={{flexGrow: 1}}>
+            {
+              imageFailed ?
+                (
+                  <Flex h="auto" w="100%" justify="center">
+                    <Title c="elv-gray.7" order={1}>
+                      { clip.meta?.public?.asset_metadata?.title || clip.id }
+                    </Title>
+                  </Flex>
+                ) :
+                <Image
+                  ref={mediaRef}
+                  src={clip._imageSrc}
+                  fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+                  fit="contain"
+                  w="100%"
+                  h="auto"
+                  onError={() => setImageFailed(true)}
+                />
+            }
+          </Box>
+        </ContainerElement>
+      </Skeleton>
     );
   } else {
     return (

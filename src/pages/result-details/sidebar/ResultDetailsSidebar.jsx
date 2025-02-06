@@ -1,5 +1,5 @@
 import {observer} from "mobx-react-lite";
-import {Box, CloseButton, Flex, Group, ScrollArea, Tabs, Transition} from "@mantine/core";
+import {Box, CloseButton, Flex, Group, ScrollArea, Skeleton, Stack, Tabs, Transition} from "@mantine/core";
 import HighlightsPanel from "@/pages/result-details/sidebar/tab-panels/highlights-panel/HighlightsPanel.jsx";
 import TagsPanel from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsPanel.jsx";
 import styles from "../ResultDetails.module.css";
@@ -16,12 +16,38 @@ const DETAILS_TABS = [
   // {value: "music", label: "Music", Component: MusicPanel, hidden: !searchStore.musicSettingEnabled},
 ];
 
+const SkeletonContent = observer(({sidebarWidth}) => {
+  return (
+    <Box
+      flex={`0 0 ${sidebarWidth}px`}
+      miw={sidebarWidth}
+      maw={sidebarWidth}
+      h="calc(100dvh - 150px)"
+      pos="relative"
+      pl={0}
+    >
+      <Stack w="100%" gap={1}>
+        <Skeleton height={45} mb={6} />
+        {
+          Array(5).fill(null).map((_, i) => (
+            <Skeleton key={i} height={35} />
+          ))
+        }
+      </Stack>
+    </Box>
+  );
+});
+
 const ResultDetailsSidebar = observer(({opened, close}) => {
   const tabRef = useRef(null);
   const HandleTabClick = (tabRef) => {
     tabRef.current.scrollIntoView();
   };
   const sidebarWidth = 415;
+
+  if(searchStore.loadingSearchResult) {
+    return <SkeletonContent sidebarWidth={sidebarWidth} />;
+  }
 
   return (
     <>

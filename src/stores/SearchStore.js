@@ -37,6 +37,7 @@ class SearchStore {
   highScoreImageResults = null;
 
   selectedSearchResult;
+  loadingSearchResult = false;
   musicSettingEnabled = false;
   loadingSearch = false;
 
@@ -93,6 +94,10 @@ class SearchStore {
 
   ToggleLoadingSearch = () => {
     this.loadingSearch = !this.loadingSearch;
+  };
+
+  ToggleLoadingSearchResult = () => {
+    this.loadingSearchResult = !this.loadingSearchResult;
   };
 
   ToggleMusicSetting = () => {
