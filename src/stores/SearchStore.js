@@ -180,7 +180,7 @@ class SearchStore {
     });
   });
 
-  GetNextPageResults = flow(function * ({fuzzySearchValue, page}) {
+  GetNextPageResults = flow(function * ({fuzzySearchValue, page, cacheResults=true}) {
     const fuzzySearchFields = [];
     Object.keys(this.currentSearch.searchFields || {}).forEach(field => {
       if(this.currentSearch.searchFields[field].value) {
@@ -192,7 +192,8 @@ class SearchStore {
       fuzzySearchValue,
       fuzzySearchFields,
       musicType: "all",
-      page
+      page,
+      cacheResults
     });
   });
 
@@ -665,11 +666,16 @@ class SearchStore {
     return highScore ? (highScore * 100).toFixed(1) : "";
   };
 
-  ParseResults = flow(function * ({url, searchContentType}) {
+  ParseResults = flow(function * ({url, searchContentType, page}) {
     try {
       let videoResults, imageResults, resultsBySong;
       let results = yield this.client.Request({url});
       let editedContents;
+
+      if(page === 1) {
+        this.totalResults = results.pagination?.total;
+        this.totalPages = Math.ceil(this.totalResults / this.pageSize);
+      }
 
       editedContents = yield Promise.all(
         (results.contents || results.results).map(async (result, i) => {
@@ -705,6 +711,8 @@ class SearchStore {
           }
 
           result["_index"] = i;
+          // Cache index within total results
+          result["_indexTotalRes"] = (i + 1) + ((page - 1) * this.pagination.pageSize);
 
           return result;
         })
@@ -787,11 +795,15 @@ class SearchStore {
       imageUrl = yield ImageRequest;
       videoUrl = yield VideoRequest;
 
-      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({url: videoUrl.url, searchContentType: "VIDEOS"}));
+      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
+        url: videoUrl.url,
+        searchContentType: "VIDEOS"
+      }));
 
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
         url: imageUrl.url,
-        searchContentType: "IMAGES"
+        searchContentType: "IMAGES",
+        page
       }));
 
       resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
@@ -799,14 +811,9 @@ class SearchStore {
       imageUrl = yield ImageRequest;
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
         url: imageUrl.url,
-        searchContentType: "IMAGES"
+        searchContentType: "IMAGES",
+        page
       }));
-
-      if(page === 1) {
-        this.totalResults = imageResults.pagination?.total;
-      }
-
-      this.totalPages = Math.ceil(this.totalResults / this.pageSize);
 
       resultsViewType = ((highScoreImage || []).length > 0 && fuzzySearchValue) ? "HIGH_SCORE" : "ALL";
     } else if(this.searchContentType === "VIDEOS") {
