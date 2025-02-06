@@ -38,6 +38,7 @@ class SearchStore {
 
   selectedSearchResult;
   musicSettingEnabled = false;
+  loadingSearch = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -90,9 +91,9 @@ class SearchStore {
     };
   }
 
-  get searchTerms() {
-    return this.currentSearch?.terms || "";
-  }
+  ToggleLoadingSearch = () => {
+    this.loadingSearch = !this.loadingSearch;
+  };
 
   ToggleMusicSetting = () => {
     this.musicSettingEnabled = !this.musicSettingEnabled;
@@ -126,7 +127,6 @@ class SearchStore {
     highScoreVideoResults,
     highScoreImageResults,
     resultsViewType,
-    page,
     resultsImagePaginated
   }) => {
     this.highScoreImageResults = highScoreImageResults;
@@ -137,11 +137,7 @@ class SearchStore {
     this.resultsVideo = videoResults;
     this.resultsImage = imageResults;
     this.resultsViewType = resultsViewType;
-    if(resultsImagePaginated) {
-      this.resultsImagePaginated = resultsImagePaginated;
-    } else if(page) {
-      this.resultsImagePaginated[page] = imageResults;
-    }
+    this.resultsImagePaginated = resultsImagePaginated;
   };
 
   SetSearchIndex = ({index}) => {
@@ -171,6 +167,34 @@ class SearchStore {
   SetResultsViewType = ({value}) => {
     this.resultsViewType = value;
   };
+
+  UpdatePageSize = flow(function * ({pageSize}) {
+    this.ResetPagination();
+    this.ResetSearch();
+
+    this.pageSize = pageSize;
+
+    yield this.GetNextPageResults({
+      fuzzySearchValue: this.currentSearch.terms,
+      page: 1
+    });
+  });
+
+  GetNextPageResults = flow(function * ({fuzzySearchValue, page}) {
+    const fuzzySearchFields = [];
+    Object.keys(this.currentSearch.searchFields || {}).forEach(field => {
+      if(this.currentSearch.searchFields[field].value) {
+        fuzzySearchFields.push(field);
+      }
+    });
+
+    yield this.GetSearchResults({
+      fuzzySearchValue,
+      fuzzySearchFields,
+      musicType: "all",
+      page
+    });
+  });
 
   GetSearchFields = flow(function * ({index}) {
     if(!index) { return; }
@@ -459,6 +483,10 @@ class SearchStore {
       resultsImagePaginated: null
     });
 
+    this.ResetPagination();
+  };
+
+  ResetPagination = () => {
     this.pageSize = 35;
     this.totalResults = null;
     this.totalPages = null;
@@ -792,6 +820,9 @@ class SearchStore {
       resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
     }
 
+    const newResultsImagePaginated = Object.assign({}, this.resultsImagePaginated);
+    newResultsImagePaginated[page] = imageResults?.contents;
+
     if(cacheResults) {
       this.SetCurrentSearch({
         videoResults: videoResults?.contents,
@@ -802,7 +833,7 @@ class SearchStore {
         index: objectId,
         terms: fuzzySearchValue,
         resultsViewType,
-        page
+        resultsImagePaginated: newResultsImagePaginated
       });
     }
   });

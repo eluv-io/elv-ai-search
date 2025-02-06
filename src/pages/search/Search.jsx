@@ -217,7 +217,7 @@ const Search = observer(() => {
               }
               {
                 ["ALL", "IMAGES"].includes(searchStore.searchContentType) &&
-                searchStore.searchResults &&
+                (searchStore.searchResults || searchStore.loadingSearch) &&
                 <>
                   <Group mb={16} mt={16}>
                     <Title c="elv-gray.8" order={3} size="1.5rem">

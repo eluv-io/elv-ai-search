@@ -5,7 +5,7 @@ import {
   Group,
   Image,
   Loader,
-  Pagination,
+  Pagination, Select,
   SimpleGrid,
   Skeleton,
   Text,
@@ -17,7 +17,7 @@ import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import {ScaleImage, TimeInterval} from "@/utils/helpers.js";
 import {EyeIcon, MusicIcon} from "@/assets/icons/index.js";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 
 const ImageContent = observer(({imageSrc, title}) => {
   const [imageFailed, setImageFailed] = useState(false);
@@ -122,32 +122,36 @@ const ClipsGrid = observer(({
   cols=4,
   HandleNextPage
 }) => {
-  const [loadingNextPage, setLoadingNextPage] = useState(false);
-
-  useEffect(() => {
-    const LoadPage = async() => {
-      try {
-        setLoadingNextPage(true);
-        await HandleNextPage({page: searchStore.pagination.currentPage});
-      } finally {
-        setLoadingNextPage(false);
-      }
-    };
-
-    if(HandleNextPage) {
-      LoadPage();
-    }
-  }, [searchStore.pagination.currentPage]);
-
   if(!clips) {
     clips = searchStore.searchResults || [];
   }
 
-  const SetPage = (page) => {
-    searchStore.SetPagination({page});
+  const SetPage = async(page) => {
+    try {
+      searchStore.ToggleLoadingSearch();
+      searchStore.SetPagination({page});
+      await HandleNextPage({page: searchStore.pagination.currentPage});
+    } finally {
+      searchStore.ToggleLoadingSearch();
+    }
   };
 
-  if(loadingNextPage) { return <Loader />; }
+  const HandlePageSizeChange = async(value) => {
+    try {
+      searchStore.ToggleLoadingSearch();
+      await searchStore.UpdatePageSize({pageSize: parseInt(value)});
+    } finally {
+      searchStore.ToggleLoadingSearch();
+    }
+  };
+
+  if(searchStore.loadingSearch) {
+    return (
+      <Flex justify="center">
+        <Loader />
+      </Flex>
+    );
+  }
 
   return (
     <>
@@ -170,24 +174,27 @@ const ClipsGrid = observer(({
       </SimpleGrid>
 
       {
-        searchStore.searchContentType === "IMAGES" &&
+        searchStore.searchContentType === "IMAGES" && !searchStore.loadingSearch &&
         <Group gap={24} mt={48}>
           <Text>
             {`${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.totalResults}`}
           </Text>
-          <Group ml="auto">
-            {/*<Select*/}
-            {/*  placeholder="Results per page"*/}
-            {/*  data={[*/}
-            {/*    {value: "35", label: "35"},*/}
-            {/*    {value: "70", label: "70"},*/}
-            {/*    {value: "105", label: "105"},*/}
-            {/*    {value: "140", label: "140"}*/}
-            {/*  ]}*/}
-            {/*  value={searchStore.pagination.pageSize.toString()}*/}
-            {/*  size="xs"*/}
-            {/*  classNames={{root: styles.selectRoot, input: styles.selectInput}}*/}
-            {/*/>*/}
+          <Group ml="auto" align="center" gap={0}>
+            <Text fz="sm" mr={8}>Results Per Page</Text>
+            <Select
+              w={75}
+              disabled={searchStore.pagination.totalResults <= 35}
+              data={[
+                {value: "35", label: "35", disabled: searchStore.pagination.totalResults < 35},
+                {value: "70", label: "70", disabled: searchStore.pagination.totalResults < 70},
+                {value: "105", label: "105", disabled: searchStore.pagination.totalResults < 105},
+                {value: "140", label: "140", disabled: searchStore.pagination.totalResults < 140}
+              ]}
+              value={searchStore.pagination.pageSize.toString()}
+              onChange={HandlePageSizeChange}
+              size="xs"
+              mr={16}
+            />
             <Pagination
               total={searchStore.pagination.totalPages}
               onChange={SetPage}
