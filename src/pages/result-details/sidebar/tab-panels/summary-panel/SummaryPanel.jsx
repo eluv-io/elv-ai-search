@@ -32,7 +32,7 @@ const Card = ({startTime, text}) => {
 const SummaryPanel = observer(() => {
   const clip = searchStore.selectedSearchResult;
   const llavaTagKey = Object.keys(clip?._tags || {}).find(tagKey => tagKey.toLowerCase().includes("llava"));
-  const llavaTags = clip._tags?.[llavaTagKey];
+  const llavaTags = clip._tags?.[llavaTagKey].items;
 
   if(!clip?._tags) { return <Loader />; }
 
@@ -40,7 +40,7 @@ const SummaryPanel = observer(() => {
     <Box>
       {
         llavaTags ?
-        llavaTags.map((item, i) => (
+        (llavaTags || []).map((item, i) => (
           <Card
             key={`llava-tag-${item.start_time}-${i}`}
             startTime={item.start_time}
