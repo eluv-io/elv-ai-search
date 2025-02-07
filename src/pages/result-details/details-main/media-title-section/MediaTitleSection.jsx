@@ -1,6 +1,6 @@
 import {ActionIcon, Box, Button, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
-import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/assets/icons/index.js";
-import {IconChevronDown, IconChevronUp, IconDownload, IconPlayerPlay} from "@tabler/icons-react";
+import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon, StreamIcon} from "@/assets/icons/index.js";
+import {IconChevronDown, IconChevronUp, IconDownload} from "@tabler/icons-react";
 import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime} from "@/utils/helpers.js";
@@ -117,8 +117,8 @@ const MediaTitleSection = observer(({
 
   const iconStyles = {
     bg: "elv-gray.1",
-    color: "var(--mantine-color-elv-neutral-5)",
-    height: 18
+    color: "var(--mantine-color-elv-neutral-8)",
+    width: 18
   };
 
   const hasInfoData = Object.keys((TYPE_DATA[mediaType]) || {}).length > 0;
@@ -191,10 +191,10 @@ const MediaTitleSection = observer(({
                   <Button
                     color={iconStyles.bg}
                     style={{borderRadius: "30px"}}
-                    maw={115}
+                    maw={100}
                     onClick={() => clipboard.copy(searchStore.selectedSearchResult.id)}
                   >
-                    <Text fz="sm" truncate="end" c={tooltipStyles.c}>
+                    <Text fz="xs" truncate="end" c={tooltipStyles.c}>
                       { searchStore.selectedSearchResult.id }
                     </Text>
                   </Button>
@@ -224,7 +224,7 @@ const MediaTitleSection = observer(({
                     radius={30}
                     color={iconStyles.bg}
                   >
-                    <Icon color={iconStyles.color} />
+                    <Icon color={iconStyles.color} width={iconStyles.width} />
                   </ActionIcon>
                 </Tooltip>
               ))
@@ -245,7 +245,7 @@ const MediaTitleSection = observer(({
               radius={30}
               color={iconStyles.bg}
             >
-              <IconDownload color={iconStyles.color} height={iconStyles.height} />
+              <IconDownload color={iconStyles.color} width={iconStyles.width} />
             </ActionIcon>
           </Tooltip>
           {
@@ -262,7 +262,7 @@ const MediaTitleSection = observer(({
                 radius={30}
                 color={iconStyles.bg}
               >
-                <IconPlayerPlay color={iconStyles.color} height={iconStyles.height} />
+                <StreamIcon color={iconStyles.color} width={iconStyles.width} />
               </ActionIcon>
             </Tooltip>
           }
@@ -280,7 +280,7 @@ const MediaTitleSection = observer(({
               radius={30}
               color={iconStyles.bg}
             >
-              <VideoEditorIcon color={iconStyles.color} height={iconStyles.height} />
+              <VideoEditorIcon color={iconStyles.color} width={iconStyles.width} />
             </ActionIcon>
           </Tooltip>
           <Tooltip
@@ -295,7 +295,7 @@ const MediaTitleSection = observer(({
               radius={30}
               color={iconStyles.bg}
             >
-              <ShareIcon color={iconStyles.color} height={iconStyles.height} />
+              <ShareIcon color={iconStyles.color} width={iconStyles.width} />
             </ActionIcon>
           </Tooltip>
         </Group>

@@ -21,6 +21,7 @@ import PlusIcon from "./PlusIcon.jsx";
 import SearchIcon from "./SearchIcon.jsx";
 import ShareIcon from "./ShareIcon.jsx";
 import SparklesIcon from "./SparklesIcon.jsx";
+import StreamIcon from "./StreamIcon.jsx";
 import SubmitIcon from "./SubmitIcon.jsx";
 import ThumbDownIcon from "./ThumbDownIcon.jsx";
 import ThumbUpIcon from "./ThumbUpIcon.jsx";
@@ -51,6 +52,7 @@ export {
   SearchIcon,
   ShareIcon,
   SparklesIcon,
+  StreamIcon,
   SubmitIcon,
   ThumbDownIcon,
   ThumbUpIcon,
