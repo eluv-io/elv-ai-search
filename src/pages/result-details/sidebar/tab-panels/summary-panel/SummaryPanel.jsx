@@ -10,7 +10,7 @@ const Card = ({startTime, text}) => {
       <Box bg="elv-gray.4" w="100%" p={8} mb={12}>
         <Flex direction="row" justify="space-between" align="center">
           <Stack gap={0}>
-            <Text fz="xs" fw={400} c="elv-gray.3">
+            <Text fz="xs" fw={400} c="elv-gray.8">
               Timestamp
             </Text>
             <Text fw={600} fz="md" c="elv-gray.8">
