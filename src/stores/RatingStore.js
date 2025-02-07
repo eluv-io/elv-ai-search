@@ -48,7 +48,14 @@ class RatingStore {
     }
   });
 
-  GetRatingResults = flow(function * ({objectId, startTime, endTime, indexId, query}) {
+  GetRatingResults = flow(function * ({
+    objectId,
+    startTime,
+    endTime,
+    path,
+    indexId,
+    query
+  }) {
     const token = yield this.client.CreateSignedToken({
       objectId,
       duration: 24 * 60 * 60 * 1000,
@@ -56,14 +63,22 @@ class RatingStore {
 
     const userAddr = yield this.client.CurrentAccountAddress();
     const url = `https://appsvc.svc.eluv.io/state/main/app/search_v2/feedback/${userAddr}/get?authorization=${token}`;
+
+    const item = {
+      content: objectId,
+      index: indexId,
+      query: query
+    };
+
+    if(path) {
+      item["path"] = path;
+    } else {
+      item.clip_start = parseInt(startTime);
+      item.end_end = parseInt(endTime);
+    }
+
     const itemBody = {
-      item: {
-        content: objectId,
-        clip_start: parseInt(startTime),
-        clip_end: parseInt(endTime),
-        index: indexId,
-        query: query,
-      }
+      item
     };
     const body = JSON.stringify(itemBody);
 

@@ -1,13 +1,12 @@
-import {ActionIcon, Box, Grid, Group, Loader, Stack, Text, Title} from "@mantine/core";
+import {ActionIcon, Box, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
 import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/assets/icons/index.js";
-import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
-import styles from "@/pages/result-details/details-main/media-title-section/MediaTitleSection.module.css";
-import {IconChevronDown, IconChevronUp} from "@tabler/icons-react";
+import {IconChevronDown, IconChevronUp, IconCube, IconDownload, IconPlayerPlay} from "@tabler/icons-react";
 import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
 import {CAPTION_KEYS} from "@/utils/data.js";
+import {useClipboard} from "@mantine/hooks";
 
 const ImageInfo = observer(({info}) => {
   return (
@@ -95,17 +94,33 @@ const MediaTitleSection = observer(({
   TYPE_DATA
 }) => {
   const [loading, setLoading] = useState(false);
+  const clipboard = useClipboard({timeout: 2000});
+  const [embedUrl, setEmbedUrl] = useState(null);
+  const [downloadUrl, setDownloadUrl] = useState(null);
+
   let star1icon = HollowStarIcon;
   let star2icon = HollowStarIcon;
   let star3icon = HollowStarIcon;
 
-  if (currentStars === "RELEVANCY_1_STAR") {
+  if(currentStars === "RELEVANCY_1_STAR") {
     star1icon = FilledStarIcon;
-  } else if (currentStars === "RELEVANCY_2_STAR") {
+  } else if(currentStars === "RELEVANCY_2_STAR") {
     star1icon = star2icon = FilledStarIcon;
-  } else if (currentStars === "RELEVANCY_3_STAR") {
+  } else if(currentStars === "RELEVANCY_3_STAR") {
     star1icon = star2icon = star3icon = FilledStarIcon;
   }
+
+  const tooltipStyles = {
+    position: "bottom",
+    c: "elv-gray.8",
+    color: "elv-neutral.2"
+  };
+
+  const iconStyles = {
+    bg: "elv-gray.1",
+    color: "var(--mantine-color-elv-neutral-5)",
+    height: 18
+  };
 
   const hasInfoData = Object.keys((TYPE_DATA[mediaType]) || {}).length > 0;
 
@@ -114,6 +129,11 @@ const MediaTitleSection = observer(({
       try {
         setLoading(true);
         await searchStore.GetTitleInfo();
+
+        const {embedUrl: embed, downloadUrl: download} = await searchStore.GetShareUrls();
+
+        setEmbedUrl(embed || "");
+        setDownloadUrl(download || "");
       } finally {
         setLoading(false);
       }
@@ -170,17 +190,115 @@ const MediaTitleSection = observer(({
             <Text fz="xs">{ subtitle }</Text> : null
         }
         <Group style={{flexShrink: 0, flexGrow: 0, marginLeft: "auto"}}>
-          <Group gap="1" classNames={{root: styles.starBackground}}>
-            <SecondaryButton size="lg" iconOnly Icon={star1icon} hoverText="Irrelevant" onClick={() => HandleRating("RELEVANCY_1_STAR")}/>
-            <SecondaryButton size="lg" iconOnly Icon={star2icon} hoverText="Relevant" onClick={() => HandleRating("RELEVANCY_2_STAR")}/>
-            <SecondaryButton size="lg" iconOnly Icon={star3icon} hoverText="Highly Relevant" onClick={() => HandleRating("RELEVANCY_3_STAR")}/>
+          <Group gap="1" bg="elv-gray.1" style={{borderRadius: "30px"}}>
+            {
+              [
+                {Icon: star1icon, tooltipText: "Irrelevant", value: "RELEVANCY_1_STAR"},
+                {Icon: star2icon, tooltipText: "Relevant", value: "RELEVANCY_2_STAR"},
+                {Icon: star3icon, tooltipText: "Highly Relevant", value: "RELEVANCY_3_STAR"},
+              ].map(({value, tooltipText, Icon}) => (
+                <Tooltip
+                  key={value}
+                  label={tooltipText}
+                  position={tooltipStyles.position}
+                  c={tooltipStyles.c}
+                  color={tooltipStyles.color}
+                >
+                  <ActionIcon
+                    size="lg"
+                    onClick={() => HandleRating(value)}
+                    radius={30}
+                    color={iconStyles.bg}
+                  >
+                    <Icon color={iconStyles.color} />
+                  </ActionIcon>
+                </Tooltip>
+              ))
+            }
           </Group>
-          <SecondaryButton LeftIcon={VideoEditorIcon} onClick={HandleOpenInVideoEditor}>
-            Open in Video Editor
-          </SecondaryButton>
-          <SecondaryButton LeftIcon={ShareIcon} onClick={openModal}>
-            Share
-          </SecondaryButton>
+
+          <Tooltip
+            label={clipboard.copied ? "Copied" : "Copy Object ID"}
+            position={tooltipStyles.position}
+            c={tooltipStyles.c}
+            color={tooltipStyles.color}
+          >
+            <ActionIcon
+              size="lg"
+              onClick={() => clipboard.copy(searchStore.selectedSearchResult.id)}
+              radius={30}
+              color={iconStyles.bg}
+            >
+              <IconCube color={iconStyles.color} height={iconStyles.height} />
+            </ActionIcon>
+          </Tooltip>
+
+          {/* Copy URL's*/}
+          <Tooltip
+            label={clipboard.copied ? "Copied" : "Copy Download URL"}
+            position={tooltipStyles.position}
+            c={tooltipStyles.c}
+            color={tooltipStyles.color}
+          >
+            <ActionIcon
+              size="lg"
+              onClick={() => clipboard.copy(downloadUrl)}
+              radius={30}
+              color={iconStyles.bg}
+            >
+              <IconDownload color={iconStyles.color} height={iconStyles.height} />
+            </ActionIcon>
+          </Tooltip>
+          {
+            !searchStore.selectedSearchResult._assetType &&
+            <Tooltip
+              label={clipboard.copied ? "Copied" : "Copy Streaming URL"}
+              position={tooltipStyles.position}
+              c={tooltipStyles.c}
+              color={tooltipStyles.color}
+            >
+              <ActionIcon
+                size="lg"
+                onClick={() => clipboard.copy(embedUrl)}
+                radius={30}
+                color={iconStyles.bg}
+              >
+                <IconPlayerPlay color={iconStyles.color} height={iconStyles.height} />
+              </ActionIcon>
+            </Tooltip>
+          }
+
+          {/* External Links */}
+          <Tooltip
+            label="Open in Video Editor"
+            position={tooltipStyles.position}
+            c={tooltipStyles.c}
+            color={tooltipStyles.color}
+          >
+            <ActionIcon
+              size="lg"
+              onClick={HandleOpenInVideoEditor}
+              radius={30}
+              color={iconStyles.bg}
+            >
+              <VideoEditorIcon color={iconStyles.color} height={iconStyles.height} />
+            </ActionIcon>
+          </Tooltip>
+          <Tooltip
+            label="Share"
+            position={tooltipStyles.position}
+            c={tooltipStyles.c}
+            color={tooltipStyles.color}
+          >
+            <ActionIcon
+              size="lg"
+              onClick={openModal}
+              radius={30}
+              color={iconStyles.bg}
+            >
+              <ShareIcon color={iconStyles.color} height={iconStyles.height} />
+            </ActionIcon>
+          </Tooltip>
         </Group>
       </Group>
       <InfoCard
