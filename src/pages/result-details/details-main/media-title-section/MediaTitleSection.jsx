@@ -1,6 +1,6 @@
-import {ActionIcon, Box, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
+import {ActionIcon, Box, Button, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
 import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/assets/icons/index.js";
-import {IconChevronDown, IconChevronUp, IconCube, IconDownload, IconPlayerPlay} from "@tabler/icons-react";
+import {IconChevronDown, IconChevronUp, IconDownload, IconPlayerPlay} from "@tabler/icons-react";
 import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime} from "@/utils/helpers.js";
@@ -84,7 +84,6 @@ const InfoCard = observer(({show=false, info, loading, type}) => {
 
 const MediaTitleSection = observer(({
   title,
-  subtitle,
   openModal,
   HandleRating,
   currentStars,
@@ -182,13 +181,28 @@ const MediaTitleSection = observer(({
                     }
                   </ActionIcon>
                 }
+
+                <Tooltip
+                  label={clipboard.copied ? "Copied" : "Copy Object ID"}
+                  position={tooltipStyles.position}
+                  c={tooltipStyles.c}
+                  color={tooltipStyles.color}
+                >
+                  <Button
+                    color={iconStyles.bg}
+                    style={{borderRadius: "30px"}}
+                    maw={115}
+                    onClick={() => clipboard.copy(searchStore.selectedSearchResult.id)}
+                  >
+                    <Text fz="sm" truncate="end" c={tooltipStyles.c}>
+                      { searchStore.selectedSearchResult.id }
+                    </Text>
+                  </Button>
+                </Tooltip>
               </Group>
             ) : null
         }
-        {
-          subtitle ?
-            <Text fz="xs">{ subtitle }</Text> : null
-        }
+
         <Group style={{flexShrink: 0, flexGrow: 0, marginLeft: "auto"}}>
           <Group gap="1" bg="elv-gray.1" style={{borderRadius: "30px"}}>
             {
@@ -217,21 +231,6 @@ const MediaTitleSection = observer(({
             }
           </Group>
 
-          <Tooltip
-            label={clipboard.copied ? "Copied" : "Copy Object ID"}
-            position={tooltipStyles.position}
-            c={tooltipStyles.c}
-            color={tooltipStyles.color}
-          >
-            <ActionIcon
-              size="lg"
-              onClick={() => clipboard.copy(searchStore.selectedSearchResult.id)}
-              radius={30}
-              color={iconStyles.bg}
-            >
-              <IconCube color={iconStyles.color} height={iconStyles.height} />
-            </ActionIcon>
-          </Tooltip>
 
           {/* Copy URL's*/}
           <Tooltip
