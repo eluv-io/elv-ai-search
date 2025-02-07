@@ -48,11 +48,6 @@ const TagsPanel = observer(() => {
   const [value, setValue] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const tags = Object.fromEntries(
-    Object.entries(searchStore.selectedSearchResult?._tags || {})
-    .filter(([key]) => !key.toLowerCase().includes("llava"))
-  );
-
   useEffect(() => {
     const LoadData = async() => {
       setLoading(true);
@@ -87,7 +82,7 @@ const TagsPanel = observer(() => {
         onChange={setValue}
         chevron={<CollapseIcon />}
       >
-        <AccordionItems tagData={tags} />
+        <AccordionItems tagData={searchStore.tagsArray} />
       </Accordion>
     </Box>
   );

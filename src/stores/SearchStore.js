@@ -92,6 +92,13 @@ class SearchStore {
     };
   }
 
+  get tagsArray() {
+    return Object.fromEntries(
+      Object.entries(this.selectedSearchResult?._tags || {})
+        .filter(([key]) => !key.toLowerCase().includes("llava"))
+    );
+  }
+
   ToggleLoadingSearch = () => {
     this.loadingSearch = !this.loadingSearch;
   };
