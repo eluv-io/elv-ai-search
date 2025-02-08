@@ -3,14 +3,14 @@ import {Box, CloseButton, Flex, Group, ScrollArea, Skeleton, Stack, Tabs, Transi
 import HighlightsPanel from "@/pages/result-details/sidebar/tab-panels/highlights-panel/HighlightsPanel.jsx";
 import TagsPanel from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsPanel.jsx";
 import styles from "../ResultDetails.module.css";
-import SummaryPanel from "@/pages/result-details/sidebar/tab-panels/summary-panel/SummaryPanel.jsx";
+import DescriptionPanel from "@/pages/result-details/sidebar/tab-panels/description-panel/DescriptionPanel.jsx";
 import {useRef} from "react";
 import {SLIDER_VALUES} from "@/utils/constants.js";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
 import {searchStore} from "@/stores/index.js";
 
 const DETAILS_TABS = [
-  {value: "summary", label: "Description", Component: SummaryPanel},
+  {value: "description", label: "Description", Component: DescriptionPanel},
   {value: "highlights", label: "Highlights", Component: HighlightsPanel},
   {value: "tags", label: "Tags", Component: TagsPanel}
   // {value: "music", label: "Music", Component: MusicPanel, hidden: !searchStore.musicSettingEnabled},
