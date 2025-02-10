@@ -1,4 +1,4 @@
-# AI Clip Search
+# AI Content Search
 
 A versatile tool designed to simplify the process of searching for specific content within a large collection, automatically generating clips from that content. The app also includes feedback collection features, allowing users to participate in tag correction and rate search result rankings.
 

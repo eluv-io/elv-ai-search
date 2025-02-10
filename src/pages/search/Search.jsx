@@ -170,7 +170,7 @@ const Search = observer(() => {
   };
 
   return (
-    <PageContainer title="AI Clip Search" centerTitle>
+    <PageContainer title="AI Content Search" centerTitle>
       <SearchBar
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}
