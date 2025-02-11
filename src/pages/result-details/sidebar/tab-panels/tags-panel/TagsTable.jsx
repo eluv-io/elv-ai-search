@@ -23,8 +23,6 @@ const EditView = ({
   saving,
   setSaving,
   EditCallback,
-  ClickCallback,
-  tagOverlayEnabled,
   CloseOverlayCallback
 }) => {
   return (
@@ -62,7 +60,7 @@ const EditView = ({
   );
 };
 
-const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback, tagOverlayEnabled, CloseOverlayCallback}) => {
+const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback, CloseOverlayCallback}) => {
   const [editEnabled, setEditEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tagValue, setTagValue] = useState(tagText);
@@ -98,8 +96,6 @@ const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback, t
             setSaving={setSaving}
             EditCallback={EditCallback}
             setEditEnabled={setEditEnabled}
-            ClickCallback={ClickCallback}
-            tagOverlayEnabled={tagOverlayEnabled}
             CloseOverlayCallback={CloseOverlayCallback}
           /> :
           <DisplayView />
@@ -109,7 +105,6 @@ const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback, t
 });
 
 const Rows = observer(({rows=[], playable=true}) => {
-  console.log("rows", rows)
   return (
     rows.map(row => (
       <Table.Tr key={row.id}>
@@ -134,7 +129,6 @@ const Rows = observer(({rows=[], playable=true}) => {
         <TagContent
           clickable={!!row.tagClickCallback}
           ClickCallback={row.tagClickCallback}
-          tagOverlayEnabled={row.tagOverlayEnabled}
           tagText={row.tagText}
           EditCallback={row.EditCallback}
           CloseOverlayCallback={row.CloseOverlayCallback}
@@ -201,7 +195,6 @@ const TagsTable = observer(({
         tagKey: tableId
       });
     };
-    console.log("overlay store", overlayStore)
 
     return {
       image: tagItem?._coverImage,
@@ -209,7 +202,6 @@ const TagsTable = observer(({
       tagText,
       tagClickCallback,
       CloseOverlayCallback: overlayStore.ResetEntry(),
-      tagOverlayEnabled: tagOverlayEnabledMap[rowId],
       id: `tag-${tagItem.id || i}-${tagItem?.start_time}-${tagItem?.end_time}`,
       EditCallback,
       action: {
