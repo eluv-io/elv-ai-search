@@ -97,7 +97,7 @@ const Clip = observer(({
             </Text>
           </Box>
         }
-        <Flex gap={4} direction="row" wrap="nowrap" align="center" mih={30}>
+        <Flex gap={4} direction="row" wrap="nowrap" align="center" mih={30.8}>
           <EyeIcon color="var(--mantine-color-elv-gray-3)" />
           {/* TODO: Replace hardcoded value with api response */}
           <Text c="var(--mantine-color-elv-gray-3)" size="xs">527</Text>
