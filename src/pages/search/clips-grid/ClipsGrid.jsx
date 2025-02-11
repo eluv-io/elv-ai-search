@@ -97,7 +97,7 @@ const Clip = observer(({
             </Text>
           </Box>
         }
-        <Group gap={4} wrap="nowrap">
+        <Flex gap={4} direction="row" wrap="nowrap" align="center" mih={30}>
           <EyeIcon color="var(--mantine-color-elv-gray-3)" />
           {/* TODO: Replace hardcoded value with api response */}
           <Text c="var(--mantine-color-elv-gray-3)" size="xs">527</Text>
@@ -113,13 +113,13 @@ const Clip = observer(({
           {
             _assetType &&
             _captionApproved &&
-            <Box ml="auto">
+            <Box ml="auto" mb={0}>
               <Tooltip label="Approved" position="bottom">
                 <ApproveIcon />
               </Tooltip>
             </Box>
           }
-        </Group>
+        </Flex>
       </Flex>
     </UnstyledButton>
   );

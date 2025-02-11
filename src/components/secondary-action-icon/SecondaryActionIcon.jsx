@@ -1,4 +1,4 @@
-import {ActionIcon, Button, HoverCard, Text, Tooltip} from "@mantine/core";
+import {ActionIcon, Button, Text, Tooltip} from "@mantine/core";
 import {forwardRef} from "react";
 
 const SecondaryButton = forwardRef(({

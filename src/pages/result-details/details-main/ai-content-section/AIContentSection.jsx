@@ -128,8 +128,6 @@ const CaptionEditView = observer(({
             >
               <IconReload />
             </ActionIcon>
-            <Divider />
-            <Switch />
           </Flex>
         </Group>
 

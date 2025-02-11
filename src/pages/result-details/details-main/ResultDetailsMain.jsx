@@ -1,15 +1,12 @@
 import {observer} from "mobx-react-lite";
 import {
   Box,
-  Grid,
-  SimpleGrid, Skeleton,
+  Skeleton,
   Transition
 } from "@mantine/core";
 import {ArrowLeftIcon} from "@/assets/icons/index.js";
-import {TimeInterval} from "@/utils/helpers.js";
 import {useDisclosure} from "@mantine/hooks";
 import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
-import TextCard from "@/components/text-card/TextCard.jsx";
 import MediaTitleSection from "@/pages/result-details/details-main/media-title-section/MediaTitleSection.jsx";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {useEffect, useRef, useState} from "react";
@@ -24,8 +21,6 @@ const ResultDetailsMain = observer(({
 }) => {
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
   const [currentStars, setCurrentStars] = useState(null);
-  const [embedUrl, setEmbedUrl] = useState(null);
-  const [downloadUrl, setDownloadUrl] = useState(null);
   const [showInfoCard, setShowInfoCard] = useState(false);
 
   const searchTerm = searchStore.currentSearch.terms;
@@ -98,10 +93,6 @@ const ResultDetailsMain = observer(({
 
   useEffect(() => {
     const LoadData = async () => {
-      const {embedUrl: embed, downloadUrl: download} = await searchStore.GetShareUrls();
-
-      setEmbedUrl(embed || "");
-      setDownloadUrl(download || "");
       await GetInfo();
     };
 

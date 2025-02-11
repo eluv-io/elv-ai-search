@@ -42,6 +42,7 @@ class RootStore {
 
       this.tenantId = yield this.tenantStore.GetTenantData();
 
+      // eslint-disable-next-line no-undef
       if(EluvioConfiguration.imageTenants.includes(this.tenantId)) {
         searchStore.SetSearchSummaryType({type: "caption"});
       }
