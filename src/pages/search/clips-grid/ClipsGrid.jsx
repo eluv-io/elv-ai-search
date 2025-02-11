@@ -82,6 +82,7 @@ const Clip = observer(({
           </Title>
           {
             clip._score &&
+            song &&
             <Box bg="elv-gray.4" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
               <Text fz="xs" c="elv-neutral.5">
                 Score: { clip._score }
@@ -100,12 +101,12 @@ const Clip = observer(({
         <Flex gap={4} direction="row" wrap="nowrap" align="center" mih={30.8}>
           <EyeIcon color="var(--mantine-color-elv-gray-3)" />
           {/* TODO: Replace hardcoded value with api response */}
-          <Text c="var(--mantine-color-elv-gray-3)" size="xs">527</Text>
+          <Text c="var(--mantine-color-elv-gray-3)" size="xxs">527</Text>
           {
             song ?
             <Flex gap={3} ml={16} align="center" wrap="nowrap">
               <MusicIcon color="var(--mantine-color-elv-gray-3)" height={18} width={16} />
-              <Text c="var(--mantine-color-elv-gray-3)" size="xs" lineClamp={1}>
+              <Text c="var(--mantine-color-elv-gray-3)" size="xxs" lineClamp={1}>
                 { song }
               </Text>
             </Flex> : null
@@ -113,11 +114,25 @@ const Clip = observer(({
           {
             _assetType &&
             _captionApproved &&
-            <Box ml="auto" mb={0}>
-              <Tooltip label="Approved" position="bottom">
-                <ApproveIcon />
+            <Group mb={0} gap={4} ml="auto">
+              <Tooltip
+                label="Approved"
+                position="bottom"
+                c="elv-gray.8"
+                color="elv-neutral.2"
+              >
+                <ApproveIcon height={18} />
               </Tooltip>
-            </Box>
+              {
+                clip._score &&
+                !song &&
+                <Box bg="elv-gray.4" p="2px 6px" style={{flexShrink: 0, borderRadius: "4px"}}>
+                  <Text size="xxs" c="elv-neutral.5">
+                    Score: { clip._score }
+                  </Text>
+                </Box>
+              }
+            </Group>
           }
         </Flex>
       </Flex>

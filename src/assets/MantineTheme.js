@@ -129,6 +129,13 @@ const theme = createTheme({
           "--tabs-list-border-size": "1px"
         }
       })
+    },
+    Text: {
+      styles: () => ({
+        root: {
+          "--mantine-font-size-xxs": "calc(0.675rem* var(--mantine-scale))"
+        }
+      })
     }
   }
 });
