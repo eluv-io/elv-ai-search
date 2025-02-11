@@ -124,7 +124,7 @@ const CaptionEditView = observer(({
             <ActionIcon
               size="sm"
               onClick={HandleReload}
-              title="Re-generate"
+              title="Regenerate"
             >
               <IconReload />
             </ActionIcon>
@@ -154,6 +154,12 @@ const CaptionDisplayView = observer(({
   const [submitting, setSubmitting] = useState(false);
   const originalValue = searchStore.selectedSearchResult._captionApproved;
 
+  const tooltipStyles = {
+    position: "bottom",
+    c: "elv-gray.8",
+    color: "elv-neutral.2"
+  };
+
   return (
     <Box>
       <Group gap={0} w="100%">
@@ -168,23 +174,43 @@ const CaptionDisplayView = observer(({
                 </Group>
               ) :
               (
-                <ActionIcon
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setEditEnabled(true)}
+                <Tooltip
+                  label="Edit"
+                  position={tooltipStyles.position}
+                  c={tooltipStyles.c}
+                  color={tooltipStyles.color}
                 >
-                  <IconPencil />
-                </ActionIcon>
+                  <ActionIcon
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setEditEnabled(true)}
+                  >
+                    <IconPencil />
+                  </ActionIcon>
+                </Tooltip>
               )
           }
-          <ActionIcon
-            size="sm"
-            onClick={HandleReload}
+          <Tooltip
+            label="Regenerate"
+            position={tooltipStyles.position}
+            c={tooltipStyles.c}
+            color={tooltipStyles.color}
           >
-            <IconReload />
-          </ActionIcon>
+            <ActionIcon
+              size="sm"
+              onClick={HandleReload}
+            >
+              <IconReload />
+            </ActionIcon>
+          </Tooltip>
           <Divider orientation="vertical" ml={3} mr={3} color="elv-gray.3" />
-          <Tooltip label={"Test"}>
+          <Tooltip
+            label="Set approval"
+            refProp="rootRef"
+            position={tooltipStyles.position}
+            c={tooltipStyles.c}
+            color={tooltipStyles.color}
+          >
             <Switch
               classNames={{track: styles.track}}
               checked={modalData.value}
