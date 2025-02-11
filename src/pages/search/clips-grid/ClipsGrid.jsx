@@ -177,18 +177,20 @@ const ClipsGrid = observer(({
         searchStore.searchContentType === "IMAGES" && !searchStore.loadingSearch &&
         <Group gap={24} mt={48}>
           <Text>
-            {`${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.totalResults}`}
+            {
+              `${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.searchTotal.toLocaleString()}`
+            }
           </Text>
           <Group ml="auto" align="center" gap={0}>
             <Text fz="sm" mr={8}>Results Per Page</Text>
             <Select
               w={75}
-              disabled={searchStore.pagination.totalResults <= 35}
+              disabled={searchStore.pagination.searchTotal <= 35}
               data={[
-                {value: "35", label: "35", disabled: searchStore.pagination.totalResults < 35},
-                {value: "70", label: "70", disabled: searchStore.pagination.totalResults < 70},
-                {value: "105", label: "105", disabled: searchStore.pagination.totalResults < 105},
-                {value: "140", label: "140", disabled: searchStore.pagination.totalResults < 140}
+                {value: "35", label: "35", disabled: searchStore.pagination.searchTotal < 35},
+                {value: "70", label: "70", disabled: searchStore.pagination.searchTotal < 70},
+                {value: "105", label: "105", disabled: searchStore.pagination.searchTotal < 105},
+                {value: "140", label: "140", disabled: searchStore.pagination.searchTotal < 140}
               ]}
               value={searchStore.pagination.pageSize.toString()}
               onChange={HandlePageSizeChange}

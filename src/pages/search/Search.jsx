@@ -239,12 +239,9 @@ const Search = observer(() => {
                     {/*}*/}
                   </Group>
                   <ClipsGrid
-                    view={searchStore.resultsViewType}
                     clips={searchStore.searchResults}
                     viewCount={viewImageCount}
                     cols={colCount.image}
-                    highScoreResults={searchStore.results?.imageHighScore}
-                    totalResults={searchStore.pagination?.totalResults}
                     HandleNextPage={HandleNextPage}
                   />
                 </>

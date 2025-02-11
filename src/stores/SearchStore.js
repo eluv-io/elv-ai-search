@@ -20,7 +20,7 @@ class SearchStore {
 
   // Pagination
   pageSize = 35;
-  totalResults = null;
+  searchTotal = null;
   totalPages = null;
   startResult = 0; // Used for API payload
   endResult = null; // Used for API payload
@@ -66,7 +66,7 @@ class SearchStore {
 
   get pagination() {
     const currentPage = this.endResult / this.pageSize;
-    const totalResults = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.totalResults;
+    const totalResults = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
 
     return {
       pageSize: this.pageSize,
@@ -75,9 +75,10 @@ class SearchStore {
       totalPages: this.totalPages,
       // Calculated values
       currentPage,
-      totalResults,
+      totalResults, // total for current page
+      searchTotal: this.searchTotal,
       firstResult: this.startResult + 1,
-      lastResult: Math.min(totalResults, this.endResult)
+      lastResult: Math.min(this.searchTotal, this.endResult)
     };
   }
 
@@ -405,7 +406,8 @@ class SearchStore {
         }
       } else {
         // Regular search
-        const maxTotal = searchPhrase ? 35 : this.pagination.currentPage === 1 ? -1 : this.pagination.endResult;
+        const desiredTotalResults = searchPhrase ? 100 : -1;
+        const maxTotal = this.pagination.currentPage === 1 ? desiredTotalResults : this.pagination.endResult;
 
         queryParams = {
           terms: searchPhrase,
@@ -501,7 +503,7 @@ class SearchStore {
 
   ResetPagination = () => {
     this.pageSize = 35;
-    this.totalResults = null;
+    this.searchTotal = null;
     this.totalPages = null;
     this.startResult = 0;
     this.endResult = null;
@@ -743,8 +745,8 @@ class SearchStore {
       let editedContents;
 
       if(page === 1) {
-        this.totalResults = results.pagination?.total;
-        this.totalPages = Math.ceil(this.totalResults / this.pageSize);
+        this.searchTotal = results.pagination?.total;
+        this.totalPages = Math.ceil(this.searchTotal / this.pageSize);
       }
 
       editedContents = yield Promise.all(
@@ -905,7 +907,7 @@ class SearchStore {
         videoResults: videoResults?.contents,
         imageResults: imageResults?.contents,
         resultsBySong,
-        highScoreImageResults: (this.highScoreImageResults || []).concat(highScoreImage),
+        highScoreImageResults: highScoreImage,
         highScoreVideoResults: highScoreVideo,
         index: objectId,
         terms: fuzzySearchValue,
