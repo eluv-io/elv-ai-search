@@ -22,7 +22,10 @@ const EditView = ({
   setEditEnabled,
   saving,
   setSaving,
-  EditCallback
+  EditCallback,
+  ClickCallback,
+  tagOverlayEnabled,
+  CloseOverlayCallback
 }) => {
   return (
     <Stack gap={0}>
@@ -45,6 +48,8 @@ const EditView = ({
             try {
               setSaving(true);
               await EditCallback(tagValue);
+
+              CloseOverlayCallback();
             } finally {
               setSaving(false);
             }
@@ -57,7 +62,7 @@ const EditView = ({
   );
 };
 
-const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback}) => {
+const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback, tagOverlayEnabled, CloseOverlayCallback}) => {
   const [editEnabled, setEditEnabled] = useState(false);
   const [saving, setSaving] = useState(false);
   const [tagValue, setTagValue] = useState(tagText);
@@ -93,6 +98,9 @@ const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback}) 
             setSaving={setSaving}
             EditCallback={EditCallback}
             setEditEnabled={setEditEnabled}
+            ClickCallback={ClickCallback}
+            tagOverlayEnabled={tagOverlayEnabled}
+            CloseOverlayCallback={CloseOverlayCallback}
           /> :
           <DisplayView />
       }
@@ -101,6 +109,7 @@ const TagContent = observer(({clickable, ClickCallback, tagText, EditCallback}) 
 });
 
 const Rows = observer(({rows=[], playable=true}) => {
+  console.log("rows", rows)
   return (
     rows.map(row => (
       <Table.Tr key={row.id}>
@@ -125,8 +134,10 @@ const Rows = observer(({rows=[], playable=true}) => {
         <TagContent
           clickable={!!row.tagClickCallback}
           ClickCallback={row.tagClickCallback}
+          tagOverlayEnabled={row.tagOverlayEnabled}
           tagText={row.tagText}
           EditCallback={row.EditCallback}
+          CloseOverlayCallback={row.CloseOverlayCallback}
         />
         {
           playable &&
@@ -190,12 +201,15 @@ const TagsTable = observer(({
         tagKey: tableId
       });
     };
+    console.log("overlay store", overlayStore)
 
     return {
       image: tagItem?._coverImage,
       timestamp: videoStore.TimeToSMPTE({time: tagItem.start_time / 1000}),
       tagText,
       tagClickCallback,
+      CloseOverlayCallback: overlayStore.ResetEntry(),
+      tagOverlayEnabled: tagOverlayEnabledMap[rowId],
       id: `tag-${tagItem.id || i}-${tagItem?.start_time}-${tagItem?.end_time}`,
       EditCallback,
       action: {
