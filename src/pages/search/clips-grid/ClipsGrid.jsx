@@ -9,14 +9,14 @@ import {
   SimpleGrid,
   Skeleton,
   Text,
-  Title,
+  Title, Tooltip,
   UnstyledButton
 } from "@mantine/core";
 import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import {ScaleImage, TimeInterval} from "@/utils/helpers.js";
-import {EyeIcon, MusicIcon} from "@/assets/icons/index.js";
+import {ApproveIcon, EyeIcon, MusicIcon} from "@/assets/icons/index.js";
 import {useState} from "react";
 
 const ImageContent = observer(({imageSrc, title}) => {
@@ -55,7 +55,7 @@ const Clip = observer(({
   song
  }) => {
   const navigate = useNavigate();
-  const {id, start_time: startTime, end_time: endTime, _assetType} = clip;
+  const {id, start_time: startTime, end_time: endTime, _assetType, _captionApproved} = clip;
 
   return (
     <UnstyledButton
@@ -109,6 +109,15 @@ const Clip = observer(({
                 { song }
               </Text>
             </Flex> : null
+          }
+          {
+            _assetType &&
+            _captionApproved &&
+            <Box ml="auto">
+              <Tooltip label="Approved" position="bottom">
+                <ApproveIcon />
+              </Tooltip>
+            </Box>
           }
         </Group>
       </Flex>

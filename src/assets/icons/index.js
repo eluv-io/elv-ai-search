@@ -1,3 +1,4 @@
+import ApproveIcon from "./ApproveIcon.jsx";
 import ArrowLeftIcon from "./ArrowLeftIcon.jsx";
 import ArrowRightIcon from "./ArrowRightIcon.jsx";
 import CameraIcon from "./CameraIcon.jsx";
@@ -29,6 +30,7 @@ import UploadIcon from "./UploadIcon.jsx";
 import VideoEditorIcon from "./VideoEditorIcon.jsx";
 
 export {
+  ApproveIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
   CameraIcon,

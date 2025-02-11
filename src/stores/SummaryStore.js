@@ -133,6 +133,80 @@ class SummaryStore {
     });
   });
 
+  GetCaptionApprovalState = flow(function * ({
+    libraryId,
+    objectId,
+    prefix,
+    cache=true
+  }) {
+    try {
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
+      const metadata = yield this.client.ContentObjectMetadata({
+        libraryId,
+        objectId,
+        metadataSubtree: `${prefix}/manual_metadata/caption_approved`
+      });
+
+      const value = (metadata === undefined) ? false : metadata;
+
+      if(cache) {
+        searchStore.UpdateSelectedSearchResult({
+          key: "_captionApproved",
+          value
+        });
+      }
+
+      return value;
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Unable to get caption approval state", error);
+    }
+  });
+
+  UpdateCaptionApprovalState = flow(function * ({
+    libraryId,
+    objectId,
+    prefix,
+    value
+  }) {
+    try {
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
+      const {writeToken} = yield this.client.EditContentObject({
+        libraryId,
+        objectId
+      });
+
+      yield this.client.ReplaceMetadata({
+        libraryId,
+        objectId,
+        writeToken,
+        metadataSubtree: `${prefix}/manual_metadata/caption_approved`,
+        metadata: value
+      });
+
+      yield this.client.FinalizeContentObject({
+        libraryId,
+        objectId,
+        writeToken,
+        commitMessage: "Set caption_approved state"
+      });
+
+      searchStore.UpdateSelectedSearchResult({
+        key: "_captionApproved",
+        value
+      });
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Unable to update caption approval state", error);
+    }
+  });
+
   GetCaptionResults = flow(function * ({
     objectId,
     prefix,
@@ -151,6 +225,11 @@ class SummaryStore {
       });
 
       const results = yield this.client.Request({url});
+
+      yield this.GetCaptionApprovalState({
+        objectId,
+        prefix
+      });
 
       searchStore.UpdateSelectedSearchResult({
         key: "_caption",

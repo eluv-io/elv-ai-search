@@ -6,20 +6,23 @@ import {
   ActionIcon,
   Box,
   Button,
+  Divider,
   Flex,
   Grid,
   Group,
-  Loader,
+  Loader, Modal,
   Paper,
   Stack,
+  Switch,
   Text,
   Textarea,
   TextInput,
-  Title
+  Title, Tooltip
 } from "@mantine/core";
 import {IconPencil, IconReload} from "@tabler/icons-react";
 import {useForm} from "@mantine/form";
 import {CAPTION_KEYS} from "@/utils/data.js";
+import styles from "./AIContentSection.module.css";
 
 const CaptionEditView = observer(({
   DisableEditView,
@@ -52,6 +55,11 @@ const CaptionEditView = observer(({
       });
 
       await summaryStore.ClearCaptionCache({
+        objectId: searchStore.selectedSearchResult.id,
+        prefix: searchStore.selectedSearchResult._prefix
+      });
+
+      await summaryStore.UpdateCaptionApprovalState({
         objectId: searchStore.selectedSearchResult.id,
         prefix: searchStore.selectedSearchResult._prefix
       });
@@ -120,15 +128,15 @@ const CaptionEditView = observer(({
             >
               <IconReload />
             </ActionIcon>
+            <Divider />
+            <Switch />
           </Flex>
         </Group>
 
         {/* Actions toolbar */}
         <Group mt={24} gap={6} justify="flex-end">
           <Button variant="outline" onClick={DisableEditView}>Cancel</Button>
-          <Button type="submit" disabled={saving} loading={saving}>
-            Commit
-          </Button>
+          <Button type="submit" disabled={saving} loading={saving}>Commit</Button>
         </Group>
       </form>
     </Flex>
@@ -141,6 +149,13 @@ const CaptionDisplayView = observer(({
   setEditEnabled,
   HandleReload
 }) => {
+  const [modalData, setModalData] = useState({
+    open: false,
+    value: searchStore.selectedSearchResult._captionApproved
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const originalValue = searchStore.selectedSearchResult._captionApproved;
+
   return (
     <Box>
       <Group gap={0} w="100%">
@@ -170,6 +185,19 @@ const CaptionDisplayView = observer(({
           >
             <IconReload />
           </ActionIcon>
+          <Divider orientation="vertical" ml={3} mr={3} color="elv-gray.3" />
+          <Tooltip label={"Test"}>
+            <Switch
+              classNames={{track: styles.track}}
+              checked={modalData.value}
+              onChange={(event) => {
+                setModalData({
+                  open: true,
+                  value: event.target.checked
+                });
+              }}
+            />
+          </Tooltip>
         </Group>
       </Group>
       <Stack gap={0} lh={1} mt={8}>
@@ -198,6 +226,45 @@ const CaptionDisplayView = observer(({
             ))
         }
       </Stack>
+      <Modal
+        opened={modalData.open}
+        onClose={() => setModalData({open: false, value: originalValue})}
+        title="Caption Approval"
+        padding={24}
+        size="lg"
+        centered
+      >
+        <Text>
+          Are you sure you would like to {modalData?.value ? "approve" : "remove approval from"} the caption? Once approved, you can still make edits and reapprove it if needed.
+        </Text>
+        <Group justify="flex-end" mt={16} gap={8}>
+          <Button onClick={() => setModalData({open: false, value: originalValue})} variant="outline">
+            Cancel
+          </Button>
+          <Button
+            loading={submitting}
+            onClick={async() => {
+              try {
+                setSubmitting(true);
+
+                await summaryStore.UpdateCaptionApprovalState({
+                  objectId: searchStore.selectedSearchResult.id,
+                  prefix: searchStore.selectedSearchResult._prefix,
+                  value: modalData.value
+                });
+
+                setModalData({
+                  open: false
+                });
+              } finally {
+                setSubmitting(false);
+              }
+            }}
+          >
+            Confirm
+          </Button>
+        </Group>
+      </Modal>
     </Box>
   );
 });

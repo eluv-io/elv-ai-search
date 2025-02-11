@@ -1,6 +1,7 @@
 import {makeAutoObservable, flow} from "mobx";
 import {ToTitleCase} from "@/utils/helpers.js";
 import {CAPTION_KEYS} from "@/utils/data.js";
+import {summaryStore} from "@/stores/index.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -765,6 +766,11 @@ class SearchStore {
             result["_imageSrc"] = url;
             result["_prefix"] = result.prefix;
             result["_title"] = result.prefix.replace("/assets/", "");
+            result["_captionApproved"] = await summaryStore.GetCaptionApprovalState({
+              objectId: result.id,
+              prefix: result.prefix,
+              cache: false
+            });
           } else {
             try {
               url = await this.rootStore.GetThumbnail({
