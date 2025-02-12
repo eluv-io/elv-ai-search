@@ -179,6 +179,10 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
         setIndexes(tenantIndexes || []);
         setLoadingIndexes(false);
 
+        if(tenantIndexes.length === 0) {
+          setShowAdvancedOptions(true);
+        }
+
         if(tenantIndexes && !searchStore.currentSearch.index) {
           const firstIndex = tenantIndexes?.[0]?.id;
           searchStore.SetSearchIndex({index: firstIndex});
@@ -238,32 +242,37 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
         {
           loadingIndexes ?
             <Loader /> :
-            indexes.length === 0 ? "No search indexes configured for this tenant." :
               <>
                 <Text c="elv-gray.8" size="xl" fw={700}>Index</Text>
-                <Radio.Group
-                  value={searchStore.currentSearch?.index}
-                  onChange={(value) => {
-                    searchStore.SetSearchIndex({index: value});
-                  }}
-                >
-                  {
-                    indexes.map(item => (
-                      <Menu.Item
-                        key={item.id}
-                        mb={12}
-                        disabled={!!searchStore.customIndex}
-                      >
-                        <Radio
-                          classNames={{body: styles.radioBody}}
-                          label={item.name || item.id}
-                          description={item.name ? item.id : ""}
-                          value={item.id}
-                        />
-                      </Menu.Item>
-                    ))
-                  }
-                </Radio.Group>
+                {
+                  indexes.length === 0 ?
+                    <Text size="sm" mb={16}>
+                      No search indexes configured for this tenant. Please enter a custom index.
+                    </Text> :
+                    <Radio.Group
+                      value={searchStore.currentSearch?.index}
+                      onChange={(value) => {
+                        searchStore.SetSearchIndex({index: value});
+                      }}
+                    >
+                      {
+                        indexes.map(item => (
+                          <Menu.Item
+                            key={item.id}
+                            mb={12}
+                            disabled={!!searchStore.customIndex}
+                          >
+                            <Radio
+                              classNames={{body: styles.radioBody}}
+                              label={item.name || item.id}
+                              description={item.name ? item.id : ""}
+                              value={item.id}
+                            />
+                          </Menu.Item>
+                        ))
+                      }
+                    </Radio.Group>
+                }
 
                 <Button
                   onClick={() => setShowAdvancedOptions(prevState => !prevState)}
