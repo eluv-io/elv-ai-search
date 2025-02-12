@@ -67,7 +67,7 @@ class SearchStore {
 
   get pagination() {
     const currentPage = this.endResult / this.pageSize;
-    const totalResults = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
+    const totalResultsPerPage = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
 
     return {
       pageSize: this.pageSize,
@@ -76,7 +76,7 @@ class SearchStore {
       totalPages: this.totalPages,
       // Calculated values
       currentPage,
-      totalResults, // total for current page
+      totalResultsPerPage, // total for current page
       searchTotal: this.searchTotal,
       firstResult: this.startResult + 1,
       lastResult: Math.min(this.searchTotal, this.endResult)
@@ -415,15 +415,12 @@ class SearchStore {
           search_fields: searchFields.join(","),
           start: this.pagination.startResult,
           limit: this.pagination.endResult,
-          // start: 0,
-          // limit: searchPhrase ? 160 : 1000,
           display_fields: "all",
           clips: searchContentType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
           debug: true,
-          clips_max_duration: 55,
+          // clips_max_duration: 55,
           max_total: maxTotal,
-          // max_total: searchPhrase ? 40 : -1,
           select: "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
         };
       }
