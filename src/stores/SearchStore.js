@@ -949,14 +949,16 @@ class SearchStore {
 
   GetTitleInfo = flow(function * () {
     const result = this.selectedSearchResult;
+    const libraryId = result.qlib_id;
+    const objectId = result.id;
 
     if(this.musicSettingEnabled) { return; }
 
     if(result._assetType) {
       // Set image info
       const meta = yield this.client.ContentObjectMetadata({
-        objectId: result.id,
-        libraryId: result.qlib_id,
+        objectId,
+        libraryId,
         metadataSubtree: `${result._prefix}/display_metadata`,
         select: CAPTION_KEYS.map(item => item.keyName)
       });
@@ -969,9 +971,11 @@ class SearchStore {
       });
     } else {
       // Set video info
-      const meta = yield this.client.ContentObjectMetadata({
-        objectId: result.id,
-        libraryId: result.qlib_id,
+
+      // TODO: Replace Canal's metadat with display_metadata
+      let meta = yield this.client.ContentObjectMetadata({
+        objectId,
+        libraryId,
         metadataSubtree: "/public/asset_metadata",
         select: [
           "title",
@@ -987,40 +991,68 @@ class SearchStore {
         ]
       });
 
-      const SortedArray = ({data=[], commaSeparated=false}) => {
-        const sorted = data
-          .sort((a, b) => a.order_in_function - b.order_in_function)
-          .map(i => `${i.first_name} ${i.last_name}`);
+      if(meta?.info) {
+        const SortedArray = ({data=[], commaSeparated=false}) => {
+          const sorted = data
+            .sort((a, b) => a.order_in_function - b.order_in_function)
+            .map(i => `${i.first_name} ${i.last_name}`);
 
-        if(commaSeparated) {
-          return sorted.join(", ");
-        } else {
-          return sorted;
-        }
-      };
+          if(commaSeparated) {
+            return sorted.join(", ");
+          } else {
+            return sorted;
+          }
+        };
 
-      const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
+        const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
 
-      const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
-      const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
-    }).slice(0, 5).join(", ");
+        const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
+        const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
+      }).slice(0, 5).join(", ");
 
-      const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
-        .filter(i => i.language_iso_code === "GBR")
-        .map(i => i.content)
-        .join("");
+        const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
+          .filter(i => i.language_iso_code === "GBR")
+          .map(i => i.content)
+          .join("");
 
-      this.UpdateSelectedSearchResult({
-        key: "_info_video",
-        value: {
-          ...meta?.info,
-          title: meta?.title,
-          synopsisDisplay,
-          directorDisplay,
-          writerDisplay,
-          actorDisplay
-        }
-      });
+        this.UpdateSelectedSearchResult({
+          key: "_info_video",
+          value: {
+            ...meta?.info,
+            _standard: false,
+            title: meta?.title,
+            synopsisDisplay,
+            directorDisplay,
+            writerDisplay,
+            actorDisplay
+          }
+        });
+      } else {
+        const infoData = {};
+        meta = yield this.client.ContentObjectMetadata({
+          objectId,
+          libraryId,
+          metadataSubtree: "public/display_metadata"
+        });
+
+        Object.keys(meta || {}).forEach(objectKey => {
+          const value = meta[objectKey];
+
+          if(Array.isArray(value) && typeof value[0] === "string") {
+            infoData[objectKey] = value.join(", ");
+          } else if(["string", "number"].includes(typeof value)) {
+            infoData[objectKey] = value;
+          }
+        });
+
+        this.UpdateSelectedSearchResult({
+          key: "_info_video",
+          value: {
+            ...infoData,
+            _standard: true
+          }
+        });
+      }
     }
   });
 }

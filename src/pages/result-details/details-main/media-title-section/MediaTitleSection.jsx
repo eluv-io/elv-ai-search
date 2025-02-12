@@ -3,7 +3,7 @@ import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon, StreamIcon} 
 import {IconChevronDown, IconChevronUp, IconDownload} from "@tabler/icons-react";
 import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
-import {FormatRuntime} from "@/utils/helpers.js";
+import {FormatRuntime, SplitCamelCase} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
 import {CAPTION_KEYS} from "@/utils/data.js";
 import {useClipboard} from "@mantine/hooks";
@@ -28,6 +28,36 @@ const ImageInfo = observer(({info}) => {
 });
 
 const VideoInfo = observer(({info}) => {
+  if(info._standard) {
+    return (
+      <Box mt={20} mb={20}>
+        <Grid gutter="lg">
+          <Grid.Col>
+            {
+              Object.keys(info || {})
+                .filter(item => item !== "_standard")
+                .map(keyName => (
+                <Grid gutter={0} key={keyName}>
+                  <Grid.Col span={4}>
+                    <Text c="elv-gray.9">{ SplitCamelCase({string: keyName}) }:</Text>
+                  </Grid.Col>
+                  <Grid.Col span={8}>
+                    <Text c="elv-gray.9">{ info[keyName] }</Text>
+                  </Grid.Col>
+                </Grid>
+              ))
+            }
+          </Grid.Col>
+        </Grid>
+      </Box>
+    );
+  } else {
+    return <CanalVideoInfo info={info} />;
+  }
+});
+
+// TODO: Remove Canal-specific info
+const CanalVideoInfo = observer(({info}) => {
   return (
     <Box mt={20} mb={20}>
       <Grid gutter="lg">

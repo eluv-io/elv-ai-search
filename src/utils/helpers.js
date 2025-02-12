@@ -115,3 +115,10 @@ export const ScaleImage = ({url, width, height}) => {
     return url;
   }
 };
+
+export const SplitCamelCase = ({string}) => {
+  return string
+    .split(/(?=[A-Z])/)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
