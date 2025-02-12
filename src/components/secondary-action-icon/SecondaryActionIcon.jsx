@@ -1,4 +1,4 @@
-import {ActionIcon, Button, HoverCard, Text} from "@mantine/core";
+import {ActionIcon, Button, Text, Tooltip} from "@mantine/core";
 import {forwardRef} from "react";
 
 const SecondaryButton = forwardRef(({
@@ -8,7 +8,8 @@ const SecondaryButton = forwardRef(({
   LeftIcon,
   iconOnly=false,
   iconColor,
-  hoverText,
+  tooltipText,
+  tooltipProps={},
   ...props
 }, ref) => {
   let iColor="var(--mantine-color-elv-neutral-5)";
@@ -52,16 +53,11 @@ const SecondaryButton = forwardRef(({
     );
   }
 
-  if (hoverText) {
+  if(tooltipText) {
     return (
-      <HoverCard>
-        <HoverCard.Target>
-          { target }
-        </HoverCard.Target>
-        <HoverCard.Dropdown>
-          <Text size="sm">{ hoverText }</Text>
-        </HoverCard.Dropdown>
-      </HoverCard>
+      <Tooltip label={tooltipText} color={tooltipProps.color} position={tooltipProps.position}>
+        { target }
+      </Tooltip>
     );
   } else {
     return target;

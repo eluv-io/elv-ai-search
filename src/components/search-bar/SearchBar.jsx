@@ -102,6 +102,31 @@ const AdvancedSection = observer(({
           )
       }
 
+      <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Summary Style</Text>
+      <Radio.Group
+        value={searchStore.searchSummaryType}
+        defaultValue="caption"
+        onChange={(value) => {
+          searchStore.SetSearchSummaryType({type: value});
+        }}
+      >
+        <Radio
+          label="Synopsis"
+          value="synopsis"
+          mb={16}
+        />
+        <Radio
+          label="Caption"
+          value="caption"
+          mb={16}
+        />
+        <Radio
+          label="Caption V2"
+          value="caption2"
+          mb={16}
+        />
+      </Radio.Group>
+
       <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Version</Text>
       <Radio.Group
         value={searchStore.searchHostname}
@@ -153,6 +178,10 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
         const tenantIndexes = await tenantStore.GetTenantIndexes();
         setIndexes(tenantIndexes || []);
         setLoadingIndexes(false);
+
+        if(tenantIndexes.length === 0) {
+          setShowAdvancedOptions(true);
+        }
 
         if(tenantIndexes && !searchStore.currentSearch.index) {
           const firstIndex = tenantIndexes?.[0]?.id;
@@ -213,32 +242,37 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
         {
           loadingIndexes ?
             <Loader /> :
-            indexes.length === 0 ? "No search indexes configured for this tenant." :
               <>
                 <Text c="elv-gray.8" size="xl" fw={700}>Index</Text>
-                <Radio.Group
-                  value={searchStore.currentSearch?.index}
-                  onChange={(value) => {
-                    searchStore.SetSearchIndex({index: value});
-                  }}
-                >
-                  {
-                    indexes.map(item => (
-                      <Menu.Item
-                        key={item.id}
-                        mb={12}
-                        disabled={!!searchStore.customIndex}
-                      >
-                        <Radio
-                          classNames={{body: styles.radioBody}}
-                          label={item.name || item.id}
-                          description={item.name ? item.id : ""}
-                          value={item.id}
-                        />
-                      </Menu.Item>
-                    ))
-                  }
-                </Radio.Group>
+                {
+                  indexes.length === 0 ?
+                    <Text size="sm" mb={16}>
+                      No search indexes configured for this tenant. Please enter a custom index.
+                    </Text> :
+                    <Radio.Group
+                      value={searchStore.currentSearch?.index}
+                      onChange={(value) => {
+                        searchStore.SetSearchIndex({index: value});
+                      }}
+                    >
+                      {
+                        indexes.map(item => (
+                          <Menu.Item
+                            key={item.id}
+                            mb={12}
+                            disabled={!!searchStore.customIndex}
+                          >
+                            <Radio
+                              classNames={{body: styles.radioBody}}
+                              label={item.name || item.id}
+                              description={item.name ? item.id : ""}
+                              value={item.id}
+                            />
+                          </Menu.Item>
+                        ))
+                      }
+                    </Radio.Group>
+                }
 
                 <Button
                   onClick={() => setShowAdvancedOptions(prevState => !prevState)}
@@ -272,43 +306,16 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
 
 const SearchBar = observer(({
   loadingSearch,
-  setLoadingSearch
+  HandleSearch,
+  fuzzySearchValue,
+  setFuzzySearchValue
 }) => {
-  const [fuzzySearchValue, setFuzzySearchValue] = useState("");
-
   useEffect(() => {
     const {terms} = searchStore.currentSearch;
     if(terms) {
       setFuzzySearchValue(terms);
     }
   }, [searchStore.currentSearch.terms]);
-
-  const HandleSearch = async() => {
-    if(!(fuzzySearchValue || searchStore.currentSearch.index)) { return; }
-
-    try {
-      setLoadingSearch(true);
-
-      searchStore.ResetSearch();
-      const fuzzySearchFields = [];
-      Object.keys(searchStore.currentSearch.searchFields || {}).forEach(field => {
-        if(searchStore.currentSearch.searchFields[field].value) {
-          fuzzySearchFields.push(field);
-        }
-      });
-
-      await searchStore.GetSearchResults({
-        fuzzySearchValue,
-        fuzzySearchFields,
-        musicType: "all"
-      });
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
-    } finally {
-      setLoadingSearch(false);
-    }
-  };
 
   const HandleUpdateSearchField = ({field, value}) => {
     let fields = searchStore.currentSearch.searchFields;
@@ -367,7 +374,7 @@ const SearchBar = observer(({
                       aria-label="Submit search"
                       variant="transparent"
                       component="button"
-                      onClick={HandleSearch}
+                      onClick={() => HandleSearch()}
                       c="gray.7"
                     >
                       <SubmitIcon />

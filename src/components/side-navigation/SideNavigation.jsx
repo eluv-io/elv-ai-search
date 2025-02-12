@@ -30,7 +30,6 @@ const SideNavigation = () => {
               onClick={() => navigate(path)}
               active={path === location.pathname}
               leftSection={icon}
-              title={title}
             />
           </Tooltip>
         ))

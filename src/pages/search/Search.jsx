@@ -16,7 +16,7 @@ const FilterToolbar = observer(({loadingSearch}) => {
 
   const [view, setView] = useState("grid");
 
-  if(!(searchStore.results?.video?.contents || searchStore.results?.image?.contents) || loadingSearch) { return null; }
+  if(!(searchStore.searchResults || []).length || loadingSearch) { return null; }
 
   const ToggleResultType = () => {
     let newValue;
@@ -101,6 +101,8 @@ const FilterToolbar = observer(({loadingSearch}) => {
 
 const Search = observer(() => {
   const [loadingSearch, setLoadingSearch] = useState(false);
+  const [fuzzySearchValue, setFuzzySearchValue] = useState("");
+
   const colCount = {
     video: 4,
     image: 7
@@ -111,11 +113,70 @@ const Search = observer(() => {
   // const [viewVideoCount, setViewVideoCount] = useState(-1);
   // const [viewImageCount, setViewImageCount] = useState(-1);
 
+  const HandleSearch = async() => {
+    if(!(fuzzySearchValue || searchStore.currentSearch.index)) { return; }
+
+    try {
+      setLoadingSearch(true);
+
+      searchStore.ResetSearch();
+      const fuzzySearchFields = [];
+      Object.keys(searchStore.currentSearch.searchFields || {}).forEach(field => {
+        if(searchStore.currentSearch.searchFields[field].value) {
+          fuzzySearchFields.push(field);
+        }
+      });
+
+      await searchStore.GetSearchResults({
+        fuzzySearchValue,
+        fuzzySearchFields,
+        musicType: "all",
+        page: 1
+      });
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
+    } finally {
+      setLoadingSearch(false);
+    }
+  };
+
+  const HandleNextPage = async({page=1}={}) => {
+    try {
+      const cachedResults = searchStore.results?.imagePaginated?.[page];
+
+      if(cachedResults) {
+        searchStore.SetCurrentSearchResults({imageResults: cachedResults});
+        return;
+      } else {
+        const fuzzySearchFields = [];
+        Object.keys(searchStore.currentSearch.searchFields || {}).forEach(field => {
+          if(searchStore.currentSearch.searchFields[field].value) {
+            fuzzySearchFields.push(field);
+          }
+        });
+
+        await searchStore.GetSearchResults({
+          fuzzySearchValue,
+          fuzzySearchFields,
+          musicType: "all",
+          page
+        });
+      }
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
+    }
+  };
+
   return (
-    <PageContainer title="AI Clip Search" centerTitle>
+    <PageContainer title="AI Content Search" centerTitle>
       <SearchBar
         loadingSearch={loadingSearch}
         setLoadingSearch={setLoadingSearch}
+        HandleSearch={HandleSearch}
+        fuzzySearchValue={fuzzySearchValue}
+        setFuzzySearchValue={setFuzzySearchValue}
       />
       <FilterToolbar loadingSearch={loadingSearch} />
       {
@@ -125,7 +186,7 @@ const Search = observer(() => {
             <>
               {
                 ["ALL", "VIDEOS"].includes(searchStore.searchContentType) &&
-                searchStore.results?.video?.contents &&
+                searchStore.searchResults &&
                 <>
                   <Group mb={16}>
                     <Title c="elv-gray.8" order={3} size="1.5rem">
@@ -148,15 +209,15 @@ const Search = observer(() => {
                   </Group>
                 <ClipsGrid
                   view={searchStore.resultsViewType}
-                  clips={searchStore.results?.video?.contents}
-                  highScoreResults={searchStore.results?.videoHighScore}
+                  clips={searchStore.searchResults}
+                  highScoreResults={searchStore.searchResults}
                   viewCount={viewVideoCount}
                 />
                 </>
               }
               {
                 ["ALL", "IMAGES"].includes(searchStore.searchContentType) &&
-                searchStore.results?.image?.contents &&
+                (searchStore.searchResults || searchStore.loadingSearch) &&
                 <>
                   <Group mb={16} mt={16}>
                     <Title c="elv-gray.8" order={3} size="1.5rem">
@@ -164,7 +225,7 @@ const Search = observer(() => {
                     </Title>
                     {/* TODO: Add limited view when multi search is supported */}
                     {/*{*/}
-                    {/*  searchStore.results?.images?.contents.length > colCount.image ?*/}
+                    {/*  searchStore.results?.images.length > colCount.image ?*/}
                     {/*    (*/}
                     {/*      <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? colCount.image : -1)} classNames={{root: styles.textButton}}>*/}
                     {/*        <Group gap={8}>*/}
@@ -177,13 +238,12 @@ const Search = observer(() => {
                     {/*    ) : null*/}
                     {/*}*/}
                   </Group>
-                <ClipsGrid
-                  view={searchStore.resultsViewType}
-                  clips={searchStore.results?.image?.contents}
-                  viewCount={viewImageCount}
-                  cols={colCount.image}
-                  highScoreResults={searchStore.results?.imageHighScore}
-                />
+                  <ClipsGrid
+                    clips={searchStore.searchResults}
+                    viewCount={viewImageCount}
+                    cols={colCount.image}
+                    HandleNextPage={HandleNextPage}
+                  />
                 </>
               }
             </>

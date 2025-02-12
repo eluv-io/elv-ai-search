@@ -2,9 +2,8 @@ import {observer} from "mobx-react-lite";
 import {useEffect, useRef, useState} from "react";
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
 import {rootStore} from "@/stores/index.js";
-import {Box, Flex} from "@mantine/core";
+import {Box} from "@mantine/core";
 import "@eluvio/elv-player-js/dist/elv-player-js.css";
-import Overlay from "@/components/overlay/Overlay.jsx";
 
 const Video = observer(({
   versionHash,
@@ -13,7 +12,6 @@ const Video = observer(({
   sourceOptions={},
   playoutParameters={},
   playerOptions={},
-  showOverlay,
   Callback
 }) => {
   const [player, setPlayer] = useState(null);

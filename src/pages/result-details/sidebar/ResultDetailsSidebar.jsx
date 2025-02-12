@@ -1,20 +1,42 @@
 import {observer} from "mobx-react-lite";
-import {Box, CloseButton, Flex, Group, ScrollArea, Tabs, Transition} from "@mantine/core";
+import {Box, CloseButton, Flex, Group, ScrollArea, Skeleton, Stack, Tabs, Transition} from "@mantine/core";
 import HighlightsPanel from "@/pages/result-details/sidebar/tab-panels/highlights-panel/HighlightsPanel.jsx";
 import TagsPanel from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsPanel.jsx";
 import styles from "../ResultDetails.module.css";
-import SummaryPanel from "@/pages/result-details/sidebar/tab-panels/summary-panel/SummaryPanel.jsx";
+import DescriptionPanel from "@/pages/result-details/sidebar/tab-panels/description-panel/DescriptionPanel.jsx";
 import {useRef} from "react";
 import {SLIDER_VALUES} from "@/utils/constants.js";
 import VideoDetailsSlider from "@/components/video-details-slider/VideoDetailsSlider.jsx";
 import {searchStore} from "@/stores/index.js";
 
 const DETAILS_TABS = [
-  {value: "summary", label: "Description", Component: SummaryPanel},
+  {value: "description", label: "Description", Component: DescriptionPanel},
   {value: "highlights", label: "Highlights", Component: HighlightsPanel},
   {value: "tags", label: "Tags", Component: TagsPanel}
   // {value: "music", label: "Music", Component: MusicPanel, hidden: !searchStore.musicSettingEnabled},
 ];
+
+const SkeletonContent = observer(({sidebarWidth}) => {
+  return (
+    <Box
+      flex={`0 0 ${sidebarWidth}px`}
+      miw={sidebarWidth}
+      maw={sidebarWidth}
+      h="calc(100dvh - 150px)"
+      pos="relative"
+      pl={0}
+    >
+      <Stack w="100%" gap={1}>
+        <Skeleton height={45} mb={6} />
+        {
+          Array(5).fill(null).map((_, i) => (
+            <Skeleton key={i} height={35} />
+          ))
+        }
+      </Stack>
+    </Box>
+  );
+});
 
 const ResultDetailsSidebar = observer(({opened, close}) => {
   const tabRef = useRef(null);
@@ -22,6 +44,10 @@ const ResultDetailsSidebar = observer(({opened, close}) => {
     tabRef.current.scrollIntoView();
   };
   const sidebarWidth = 415;
+
+  if(searchStore.loadingSearchResult) {
+    return <SkeletonContent sidebarWidth={sidebarWidth} />;
+  }
 
   return (
     <>

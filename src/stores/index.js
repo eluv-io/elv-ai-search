@@ -41,6 +41,11 @@ class RootStore {
       window.client = this.client;
 
       this.tenantId = yield this.tenantStore.GetTenantData();
+
+      // eslint-disable-next-line no-undef
+      if(EluvioConfiguration.imageTenants.includes(this.tenantId)) {
+        searchStore.SetSearchSummaryType({type: "caption"});
+      }
       this.networkInfo = yield this.client.NetworkInfo();
     } catch(error) {
       /* eslint-disable no-console */

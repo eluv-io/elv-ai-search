@@ -131,10 +131,9 @@ const CreateNavBar = observer(({
       <Button
         fullWidth
         onClick={HandleSubmit}
+        loading={isCreating}
       >
-        {
-          isCreating ? <Loader type="dots" size="xs" color="white" /> : "Create"
-        }
+        Create
       </Button>
     </Box>
   );

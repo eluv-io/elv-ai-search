@@ -2,12 +2,10 @@ import {useEffect, useRef, useState} from "react";
 import {reaction} from "mobx";
 import {observer} from "mobx-react-lite";
 import {videoStore, overlayStore} from "@/stores/index.js";
-import {Flex, Tooltip} from "@mantine/core";
+import {Flex} from "@mantine/core";
 
-const Overlay = observer(({
-  element
-}) => {
-  const [hoverEntries, setHoverEntries] = useState([]);
+const Overlay = observer(() => {
+  // const [hoverEntries, setHoverEntries] = useState([]);
   const [dimensions, setDimensions] = useState({width: 0, height: 0});
 
   const [DisposeDrawReaction, setDisposeDrawReaction] = useState(null);
@@ -15,7 +13,7 @@ const Overlay = observer(({
   const canvasRef = useRef(null);
   const boxRef = useRef(null);
 
-  let lastUpdate, resizeUpdate, resizeObserver;
+  // let lastUpdate, resizeUpdate, resizeObserver;
   let isMounted = false;
 
   const Draw = ({entry}={}) => {
@@ -52,7 +50,7 @@ const Overlay = observer(({
     }
     points = points.map(point => [point[0] * width, point[1] * height]);
 
-    const toHex = n => n.toString(16).padStart(2, "0");
+    // const toHex = n => n.toString(16).padStart(2, "0");
 
     // ctx.strokeStyle = `#${toHex(entry.color.r)}${toHex(entry.color.g)}${toHex(entry.color.b)}`;
     ctx.strokeStyle = "#FF00FF";
@@ -65,48 +63,48 @@ const Overlay = observer(({
     ctx.lineTo(points[0][0], points[0][1]);
     ctx.stroke();
 
-    setHoverEntries([
-      entry
-    ]);
+    // setHoverEntries([
+    //   entry
+    // ]);
   };
 
   useEffect(() => {
     // Observe resizing of the video element to adjust the overlay size accordingly
-    const ObserveSizing = () => {
-      const debounceInterval = 100;
-
-      // Add resize observer for overlay component
-      resizeObserver = new ResizeObserver(
-        elements => {
-          // Debounce resize updates
-          if(lastUpdate && (performance.now() - lastUpdate) < debounceInterval) {
-            clearTimeout(resizeUpdate);
-          }
-
-          resizeUpdate = setTimeout(() => {
-            const video = elements[0].target;
-            let {height, width} = elements[0].contentRect;
-
-            const videoAspectRatio = video.videoWidth / video.videoHeight;
-            const elementAspectRatio = width / height;
-
-            // Since the video element is pegged to 100% height, when the AR of the
-            // video element becomes taller than the video content, they no longer match.
-            // Calculate the actual video height using the reported aspect ratio of the content.
-            if(elementAspectRatio < videoAspectRatio) {
-              height = width / videoAspectRatio;
-            }
-
-            if(isMounted) {
-            }
-          }, debounceInterval);
-
-          lastUpdate = performance.now();
-        }
-      );
-
-      resizeObserver?.observe(element);
-    };
+    // const ObserveSizing = () => {
+    //   const debounceInterval = 100;
+    //
+    //   // Add resize observer for overlay component
+    //   resizeObserver = new ResizeObserver(
+    //     elements => {
+    //       // Debounce resize updates
+    //       if(lastUpdate && (performance.now() - lastUpdate) < debounceInterval) {
+    //         clearTimeout(resizeUpdate);
+    //       }
+    //
+    //       resizeUpdate = setTimeout(() => {
+    //         const video = elements[0].target;
+    //         let {height, width} = elements[0].contentRect;
+    //
+    //         const videoAspectRatio = video.videoWidth / video.videoHeight;
+    //         const elementAspectRatio = width / height;
+    //
+    //         // Since the video element is pegged to 100% height, when the AR of the
+    //         // video element becomes taller than the video content, they no longer match.
+    //         // Calculate the actual video height using the reported aspect ratio of the content.
+    //         if(elementAspectRatio < videoAspectRatio) {
+    //           height = width / videoAspectRatio;
+    //         }
+    //
+    //         if(isMounted) {
+    //         }
+    //       }, debounceInterval);
+    //
+    //       lastUpdate = performance.now();
+    //     }
+    //   );
+    //
+    //   resizeObserver?.observe(element);
+    // };
 
     const InitData = () => {
       isMounted = true;
@@ -172,28 +170,28 @@ const Overlay = observer(({
     }
   }, [overlayStore.entry]);
 
-  const TooltipContent = () => {
-    if(
-      // !hovering ||
-      hoverEntries.length === 0
-    ) {
-      return null;
-    }
-
-    return (
-      <div className="track-entry-container">
-        {
-          hoverEntries.map((entry, i) =>
-            <div className="track-entry" key={`overlay-hover-entry-${i}`}>
-              <div className="track-entry-content">
-                { Array.isArray(entry.text) ? entry.text.join(", ") : entry.text }
-              </div>
-            </div>
-          )
-        }
-      </div>
-    );
-  };
+  // const TooltipContent = () => {
+  //   if(
+  //     // !hovering ||
+  //     hoverEntries.length === 0
+  //   ) {
+  //     return null;
+  //   }
+  //
+  //   return (
+  //     <div className="track-entry-container">
+  //       {
+  //         hoverEntries.map((entry, i) =>
+  //           <div className="track-entry" key={`overlay-hover-entry-${i}`}>
+  //             <div className="track-entry-content">
+  //               { Array.isArray(entry.text) ? entry.text.join(", ") : entry.text }
+  //             </div>
+  //           </div>
+  //         )
+  //       }
+  //     </div>
+  //   );
+  // };
 
   // if(!asset && !overlayStore.overlayEnabled) { return null; }
 

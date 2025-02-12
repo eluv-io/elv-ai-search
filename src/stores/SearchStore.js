@@ -1,5 +1,7 @@
 import {makeAutoObservable, flow} from "mobx";
 import {ToTitleCase} from "@/utils/helpers.js";
+import {CAPTION_KEYS} from "@/utils/data.js";
+import {summaryStore} from "@/stores/index.js";
 
 // Store for fetching search results
 class SearchStore {
@@ -9,22 +11,36 @@ class SearchStore {
     terms: "",
     searchFields: null
   };
+
   customIndex = "";
   searchHostname = "ai";
+  searchSummaryType = "synopsis"; // synopsis, caption, caption2
   searchContentType; // ALL, IMAGES, VIDEOS
   resultsViewType; // Show all results vs results that have a high score.
   // Values: HIGH_SCORE | ALL
 
+  // Pagination
+  pageSize = 35;
+  searchTotal = null;
+  totalPages = null;
+  startResult = 0; // Used for API payload
+  endResult = null; // Used for API payload
+
   resultsBySong = null;
   resultsVideo = null;
   resultsImage = null;
+
+  resultsImagePaginated = {};
+  resultsVideoPaginated = {};
 
   highScore = 60;
   highScoreVideoResults = null;
   highScoreImageResults = null;
 
   selectedSearchResult;
+  loadingSearchResult = false;
   musicSettingEnabled = false;
+  loadingSearch = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -36,10 +52,34 @@ class SearchStore {
     return this.rootStore.client;
   }
 
-  get currentSearchData() {
+  get searchResults() {
+    switch(this.searchContentType) {
+      case "IMAGES":
+        return this.resultsViewType === "HIGH_SCORE" ? this.highScoreImageResults : this.resultsImage;
+      case "VIDEOS":
+        return this.resultsViewType === "HIGH_SCORE" ? this.highScoreVideoResults : this.resultsVideo;
+      case "MUSIC":
+        return this.resultsVideo;
+      default:
+        return [];
+    }
+  }
+
+  get pagination() {
+    const currentPage = this.endResult / this.pageSize;
+    const totalResults = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
+
     return {
-      searchContentType: this.searchContentType,
-      searchHostname: this.searchHostname
+      pageSize: this.pageSize,
+      startResult: this.startResult,
+      endResult: this.endResult,
+      totalPages: this.totalPages,
+      // Calculated values
+      currentPage,
+      totalResults, // total for current page
+      searchTotal: this.searchTotal,
+      firstResult: this.startResult + 1,
+      lastResult: Math.min(this.searchTotal, this.endResult)
     };
   }
 
@@ -49,9 +89,25 @@ class SearchStore {
       videoHighScore: this.highScoreVideoResults,
       bySong: this.resultsBySong,
       image: this.resultsImage,
-      imageHighScore: this.highScoreImageResults
+      imageHighScore: this.highScoreImageResults,
+      imagePaginated: this.resultsImagePaginated
     };
   }
+
+  get tagsArray() {
+    return Object.fromEntries(
+      Object.entries(this.selectedSearchResult?._tags || {})
+        .filter(([key]) => !key.toLowerCase().includes("llava"))
+    );
+  }
+
+  ToggleLoadingSearch = () => {
+    this.loadingSearch = !this.loadingSearch;
+  };
+
+  ToggleLoadingSearchResult = () => {
+    this.loadingSearchResult = !this.loadingSearchResult;
+  };
 
   ToggleMusicSetting = () => {
     this.musicSettingEnabled = !this.musicSettingEnabled;
@@ -61,8 +117,19 @@ class SearchStore {
     this.selectedSearchResult = result;
   };
 
+  SetPagination = ({page}) => {
+    this.endResult = (page * this.pageSize);
+    this.startResult = this.endResult - this.pageSize;
+    this.currentPage = page;
+  };
+
   UpdateSelectedSearchResult = ({key, value}) => {
     this.selectedSearchResult[key] = value;
+  };
+
+  SetCurrentSearchResults = ({imageResults}) => {
+    this.resultsImage = null;
+    this.resultsImage = imageResults;
   };
 
   SetCurrentSearch = ({
@@ -73,7 +140,8 @@ class SearchStore {
     terms,
     highScoreVideoResults,
     highScoreImageResults,
-    resultsViewType
+    resultsViewType,
+    resultsImagePaginated
   }) => {
     this.highScoreImageResults = highScoreImageResults;
     this.highScoreVideoResults = highScoreVideoResults;
@@ -83,6 +151,7 @@ class SearchStore {
     this.resultsVideo = videoResults;
     this.resultsImage = imageResults;
     this.resultsViewType = resultsViewType;
+    this.resultsImagePaginated = resultsImagePaginated;
   };
 
   SetSearchIndex = ({index}) => {
@@ -91,6 +160,10 @@ class SearchStore {
 
   SetSearchHostname = ({host="ai"}) => {
     this.searchHostname = host;
+  };
+
+  SetSearchSummaryType = ({type}) => {
+    this.searchSummaryType = type;
   };
 
   SetCustomIndex = ({index}) => {
@@ -108,6 +181,35 @@ class SearchStore {
   SetResultsViewType = ({value}) => {
     this.resultsViewType = value;
   };
+
+  UpdatePageSize = flow(function * ({pageSize}) {
+    this.ResetPagination();
+    this.ResetSearch();
+
+    this.pageSize = pageSize;
+
+    yield this.GetNextPageResults({
+      fuzzySearchValue: this.currentSearch.terms,
+      page: 1
+    });
+  });
+
+  GetNextPageResults = flow(function * ({fuzzySearchValue, page, cacheResults=true}) {
+    const fuzzySearchFields = [];
+    Object.keys(this.currentSearch.searchFields || {}).forEach(field => {
+      if(this.currentSearch.searchFields[field].value) {
+        fuzzySearchFields.push(field);
+      }
+    });
+
+    yield this.GetSearchResults({
+      fuzzySearchValue,
+      fuzzySearchFields,
+      musicType: "all",
+      page,
+      cacheResults
+    });
+  });
 
   GetSearchFields = flow(function * ({index}) {
     if(!index) { return; }
@@ -305,17 +407,23 @@ class SearchStore {
         }
       } else {
         // Regular search
+        const desiredTotalResults = searchPhrase ? 100 : -1;
+        const maxTotal = this.pagination.currentPage === 1 ? desiredTotalResults : this.pagination.endResult;
+
         queryParams = {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
-          start: 0,
-          limit: 160,
+          start: this.pagination.startResult,
+          limit: this.pagination.endResult,
+          // start: 0,
+          // limit: searchPhrase ? 160 : 1000,
           display_fields: "all",
           clips: searchContentType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
           debug: true,
           clips_max_duration: 55,
-          max_total: 40,
+          max_total: maxTotal,
+          // max_total: searchPhrase ? 40 : -1,
           select: "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
         };
       }
@@ -387,8 +495,19 @@ class SearchStore {
       highScoreResults: null,
       index: this.currentSearch.index,
       terms: this.currentSearch.terms,
-      resultsViewType: "ALL"
+      resultsViewType: "ALL",
+      resultsImagePaginated: null
     });
+
+    this.ResetPagination();
+  };
+
+  ResetPagination = () => {
+    this.pageSize = 35;
+    this.searchTotal = null;
+    this.totalPages = null;
+    this.startResult = 0;
+    this.endResult = null;
   };
 
   GetCoverImage = flow(function * ({song, queryParams}) {
@@ -422,6 +541,64 @@ class SearchStore {
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error(`Unable to get cover for ${song}`, error);
+    }
+  });
+
+  UpdateTags = flow(function * ({
+    libraryId,
+    objectId,
+    metadataSubtree,
+    copyPath,
+    value,
+    tagIndex,
+    tagKey
+  }){
+    try {
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
+      const {writeToken} = yield this.client.EditContentObject({
+        libraryId,
+        objectId
+      });
+
+      yield this.client.ReplaceMetadata({
+        libraryId,
+        objectId,
+        writeToken,
+        metadataSubtree,
+        metadata: value
+      });
+
+      yield this.client.ReplaceMetadata({
+        libraryId,
+        objectId,
+        writeToken,
+        metadataSubtree: copyPath,
+        metadata: value
+      });
+
+      yield this.client.FinalizeContentObject({
+        libraryId,
+        objectId,
+        writeToken,
+        commitMessage: "Update tags"
+      });
+
+      const newTags = Object.assign({}, this.selectedSearchResult._tags);
+
+      if(newTags[tagKey]?.items?.[tagIndex]?.text) {
+        newTags[tagKey].items[tagIndex].text = value;
+      }
+
+      this.UpdateSelectedSearchResult({
+        key: "_tags",
+        value: newTags
+      });
+    } catch(error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to update tag", error);
     }
   });
 
@@ -478,7 +655,7 @@ class SearchStore {
                 .join(" ");
             };
 
-            return [TransformKey(key), value];
+            return [TransformKey(key), {items: value, field: key}];
           })
         );
       }
@@ -562,11 +739,16 @@ class SearchStore {
     return highScore ? (highScore * 100).toFixed(1) : "";
   };
 
-  ParseResults = flow(function * ({url, searchContentType}) {
+  ParseResults = flow(function * ({url, searchContentType, page}) {
     try {
       let videoResults, imageResults, resultsBySong;
       let results = yield this.client.Request({url});
       let editedContents;
+
+      if(page === 1) {
+        this.searchTotal = results.pagination?.total;
+        this.totalPages = Math.ceil(this.searchTotal / this.pageSize);
+      }
 
       editedContents = yield Promise.all(
         (results.contents || results.results).map(async (result, i) => {
@@ -582,10 +764,13 @@ class SearchStore {
             });
 
             result["_imageSrc"] = url;
-            // result["_tags"] = this.ParseTags({
-            //   sources: result?.fields
-            // });
+            result["_prefix"] = result.prefix;
             result["_title"] = result.prefix.replace("/assets/", "");
+            result["_captionApproved"] = await summaryStore.GetCaptionApprovalState({
+              objectId: result.id,
+              prefix: result.prefix,
+              cache: false
+            });
           } else {
             try {
               url = await this.rootStore.GetThumbnail({
@@ -604,6 +789,8 @@ class SearchStore {
           }
 
           result["_index"] = i;
+          // Cache index within total results
+          result["_indexTotalRes"] = (i + 1) + ((page - 1) * this.pagination.pageSize);
 
           return result;
         })
@@ -622,7 +809,8 @@ class SearchStore {
         };
       }
 
-      const highScoreResults = (results.contents || results.results || []).filter(item => {
+      const highScoreResults = (results.contents || results.results || [])
+        .filter(item => {
         return (parseInt(item._score || "") >= this.highScore) || [null, undefined, ""].includes(item._score);
       });
 
@@ -642,7 +830,8 @@ class SearchStore {
     fuzzySearchValue,
     fuzzySearchFields,
     musicType,
-    cacheResults=true
+    cacheResults=true,
+    page=1
   }) {
     let objectId, versionHash, imageUrl, videoUrl, imageResults, videoResults, resultsBySong, highScoreImage, highScoreVideo, resultsViewType;
     const indexValue = this.customIndex || this.currentSearch.index;
@@ -659,6 +848,8 @@ class SearchStore {
     });
 
     this.SetSearchContentType({type: searchAssetType ? "IMAGES" : "VIDEOS"});
+
+    this.SetPagination({page});
 
     const ImageRequest = this.CreateVectorSearchUrl({
       objectId,
@@ -682,11 +873,15 @@ class SearchStore {
       imageUrl = yield ImageRequest;
       videoUrl = yield VideoRequest;
 
-      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({url: videoUrl.url, searchContentType: "VIDEOS"}));
+      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
+        url: videoUrl.url,
+        searchContentType: "VIDEOS"
+      }));
 
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
         url: imageUrl.url,
-        searchContentType: "IMAGES"
+        searchContentType: "IMAGES",
+        page
       }));
 
       resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
@@ -694,10 +889,11 @@ class SearchStore {
       imageUrl = yield ImageRequest;
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
         url: imageUrl.url,
-        searchContentType: "IMAGES"
+        searchContentType: "IMAGES",
+        page
       }));
 
-      resultsViewType = (highScoreImage || []).length > 0 ? "HIGH_SCORE" : "ALL";
+      resultsViewType = ((highScoreImage || []).length > 0 && fuzzySearchValue) ? "HIGH_SCORE" : "ALL";
     } else if(this.searchContentType === "VIDEOS") {
       videoUrl = yield VideoRequest;
       ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
@@ -705,19 +901,24 @@ class SearchStore {
         searchContentType: "VIDEOS"
       }));
 
+      // this.totalResults = videoResults.pagination?.total;
       resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
     }
 
+    const newResultsImagePaginated = Object.assign({}, this.resultsImagePaginated);
+    newResultsImagePaginated[page] = imageResults?.contents;
+
     if(cacheResults) {
       this.SetCurrentSearch({
-        videoResults,
-        imageResults,
+        videoResults: videoResults?.contents,
+        imageResults: imageResults?.contents,
         resultsBySong,
         highScoreImageResults: highScoreImage,
         highScoreVideoResults: highScoreVideo,
         index: objectId,
         terms: fuzzySearchValue,
-        resultsViewType
+        resultsViewType,
+        resultsImagePaginated: newResultsImagePaginated
       });
     }
   });
@@ -752,58 +953,78 @@ class SearchStore {
   GetTitleInfo = flow(function * () {
     const result = this.selectedSearchResult;
 
-    const meta = yield this.client.ContentObjectMetadata({
-      objectId: result.id,
-      libraryId: result.qlib_id,
-      metadataSubtree: "/public/asset_metadata",
-      select: [
-        "title",
-        "info/add_ons/Synopsis",
-        "info/duration",
-        "info/genre",
-        "info/language",
-        "info/talent/Acteur", // Actors
-        "info/talent/Producteur", // Producer
-        "info/talent/Réalisateur", // Director
-        "info/talent/Scénariste", // Screenwriter
-        "info/year_of_production"
-      ]
-    });
+    if(this.musicSettingEnabled) { return; }
 
-    const SortedArray = ({data=[], commaSeparated=false}) => {
-      const sorted = data
-        .sort((a, b) => a.order_in_function - b.order_in_function)
-        .map(i => `${i.first_name} ${i.last_name}`);
+    if(result._assetType) {
+      // Set image info
+      const meta = yield this.client.ContentObjectMetadata({
+        objectId: result.id,
+        libraryId: result.qlib_id,
+        metadataSubtree: `${result._prefix}/display_metadata`,
+        select: CAPTION_KEYS.map(item => item.keyName)
+      });
 
-      if(commaSeparated) {
-        return sorted.join(", ");
-      } else {
-        return sorted;
-      }
-    };
+      this.UpdateSelectedSearchResult({
+        key: "_info_image",
+        value: {
+          ...meta
+        }
+      });
+    } else {
+      // Set video info
+      const meta = yield this.client.ContentObjectMetadata({
+        objectId: result.id,
+        libraryId: result.qlib_id,
+        metadataSubtree: "/public/asset_metadata",
+        select: [
+          "title",
+          "info/add_ons/Synopsis",
+          "info/duration",
+          "info/genre",
+          "info/language",
+          "info/talent/Acteur", // Actors
+          "info/talent/Producteur", // Producer
+          "info/talent/Réalisateur", // Director
+          "info/talent/Scénariste", // Screenwriter
+          "info/year_of_production"
+        ]
+      });
 
-    const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
+      const SortedArray = ({data=[], commaSeparated=false}) => {
+        const sorted = data
+          .sort((a, b) => a.order_in_function - b.order_in_function)
+          .map(i => `${i.first_name} ${i.last_name}`);
 
-    const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
-    const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
-  }).slice(0, 5).join(", ");
+        if(commaSeparated) {
+          return sorted.join(", ");
+        } else {
+          return sorted;
+        }
+      };
 
-    const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
-      .filter(i => i.language_iso_code === "GBR")
-      .map(i => i.content)
-      .join("");
+      const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
 
-    this.UpdateSelectedSearchResult({
-      key: "_info",
-      value: {
-        ...meta?.info,
-        title: meta?.title,
-        synopsisDisplay,
-        directorDisplay,
-        writerDisplay,
-        actorDisplay
-      }
-    });
+      const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
+      const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
+    }).slice(0, 5).join(", ");
+
+      const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
+        .filter(i => i.language_iso_code === "GBR")
+        .map(i => i.content)
+        .join("");
+
+      this.UpdateSelectedSearchResult({
+        key: "_info_video",
+        value: {
+          ...meta?.info,
+          title: meta?.title,
+          synopsisDisplay,
+          directorDisplay,
+          writerDisplay,
+          actorDisplay
+        }
+      });
+    }
   });
 }
 

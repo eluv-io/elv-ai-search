@@ -99,3 +99,19 @@ export const ToTitleCase = ({text}) => {
     string => string.charAt(0).toUpperCase() + string.substring(1).toLowerCase()
   );
 };
+
+export const ScaleImage = ({url, width, height}) => {
+  try {
+    url = new URL(url);
+
+    if(width) {
+      url.searchParams.set("width", width);
+    } else {
+      url.searchParams.set("height", height);
+    }
+
+    return url.toString();
+  } catch(error) {
+    return url;
+  }
+};
