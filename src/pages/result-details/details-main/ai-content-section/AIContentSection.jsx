@@ -449,7 +449,7 @@ const SummarySection = observer(({clip}) => {
 });
 
 const AIContentSection = observer(({clip, mediaType}) => {
-  if(mediaType === "MUSIC") {
+  if(mediaType === "MUSIC" || !clip._tags) {
     return null;
   } else if(mediaType === "IMAGE" && searchStore.searchSummaryType.includes("caption")) {
     return <CaptionSection clip={clip} v2={searchStore.searchSummaryType === "caption2"} />;
