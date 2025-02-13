@@ -143,10 +143,10 @@ const Search = observer(() => {
 
   const HandleNextPage = async({page=1}={}) => {
     try {
-      const cachedResults = searchStore.results?.imagePaginated?.[page];
+      const cachedResults = searchStore.GetPaginatedSearchResults({page});
 
       if(cachedResults) {
-        searchStore.SetCurrentSearchResults({imageResults: cachedResults});
+        searchStore.SetCurrentSearchResults({results: cachedResults});
         return;
       } else {
         const fuzzySearchFields = [];
@@ -193,25 +193,12 @@ const Search = observer(() => {
                       Videos
                     </Title>
                     {/* TODO: Add limited view when multi search is supported */}
-                    {/*{*/}
-                    {/*  searchStore.results?.video?.contents.length > colCount.video ?*/}
-                    {/*    (*/}
-                    {/*      <UnstyledButton onClick={() => setViewVideoCount(prevState => prevState === -1 ? colCount.video : -1)} classNames={{root: styles.textButton}}>*/}
-                    {/*        <Group gap={8}>*/}
-                    {/*          <Text size="sm" c="elv-neutral.3" tt="uppercase">*/}
-                    {/*            { viewVideoCount === colCount.video ? "View All" : "View Less" }*/}
-                    {/*          </Text>*/}
-                    {/*          <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />*/}
-                    {/*        </Group>*/}
-                    {/*      </UnstyledButton>*/}
-                    {/*    ) : null*/}
-                    {/*}*/}
                   </Group>
                 <ClipsGrid
-                  view={searchStore.resultsViewType}
                   clips={searchStore.searchResults}
-                  highScoreResults={searchStore.searchResults}
                   viewCount={viewVideoCount}
+                  cols={colCount.video}
+                  HandleNextPage={HandleNextPage}
                 />
                 </>
               }
@@ -224,19 +211,6 @@ const Search = observer(() => {
                       Images
                     </Title>
                     {/* TODO: Add limited view when multi search is supported */}
-                    {/*{*/}
-                    {/*  searchStore.results?.images.length > colCount.image ?*/}
-                    {/*    (*/}
-                    {/*      <UnstyledButton onClick={() => setViewImageCount(prevState => prevState === -1 ? colCount.image : -1)} classNames={{root: styles.textButton}}>*/}
-                    {/*        <Group gap={8}>*/}
-                    {/*          <Text size="sm" c="elv-neutral.3" tt="uppercase">*/}
-                    {/*            { viewImageCount === colCount.image ? "View All" : "View Less" }*/}
-                    {/*          </Text>*/}
-                    {/*          <ArrowRightIcon color="var(--mantine-color-elv-neutral-3)" />*/}
-                    {/*        </Group>*/}
-                    {/*      </UnstyledButton>*/}
-                    {/*    ) : null*/}
-                    {/*}*/}
                   </Group>
                   <ClipsGrid
                     clips={searchStore.searchResults}

@@ -169,6 +169,19 @@ const ClipsGrid = observer(({
     }
   };
 
+  const GetPageSizeOptions = () => {
+    let options;
+    if(searchStore.searchContentType === "IMAGES") {
+      options = [35, 70, 105, 140];
+    } else if(searchStore.searchContentType === "VIDEOS") {
+      options = [20, 40, 60, 80];
+    }
+
+    return options.map(num => (
+      {value: num.toString(), label: num.toString(), disabled: searchStore.pagination.searchTotal < num}
+    ));
+  };
+
   if(searchStore.loadingSearch) {
     return (
       <Flex justify="center">
@@ -198,24 +211,20 @@ const ClipsGrid = observer(({
       </SimpleGrid>
 
       {
-        searchStore.searchContentType === "IMAGES" && !searchStore.loadingSearch &&
+        // searchStore.searchContentType === "IMAGES" &&
+        !searchStore.loadingSearch &&
         <Group gap={24} mt={48}>
           <Text>
             {
-              `${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.searchTotal.toLocaleString()}`
+              `${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.searchTotal?.toLocaleString()}`
             }
           </Text>
           <Group ml="auto" align="center" gap={0}>
             <Text fz="sm" mr={8}>Results Per Page</Text>
             <Select
               w={75}
-              disabled={searchStore.pagination.searchTotal <= 35}
-              data={[
-                {value: "35", label: "35", disabled: searchStore.pagination.searchTotal < 35},
-                {value: "70", label: "70", disabled: searchStore.pagination.searchTotal < 70},
-                {value: "105", label: "105", disabled: searchStore.pagination.searchTotal < 105},
-                {value: "140", label: "140", disabled: searchStore.pagination.searchTotal < 140}
-              ]}
+              disabled={searchStore.pagination.searchTotal <= searchStore.pagination.pageSize}
+              data={GetPageSizeOptions()}
               value={searchStore.pagination.pageSize.toString()}
               onChange={HandlePageSizeChange}
               size="xs"

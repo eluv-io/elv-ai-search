@@ -65,6 +65,17 @@ class SearchStore {
     }
   }
 
+  GetPaginatedSearchResults({page=1}) {
+    switch(this.searchContentType) {
+      case "IMAGES":
+        return this.resultsImagePaginated[page];
+      case "VIDEOS":
+        return this.resultsVideoPaginated[page];
+      default:
+        return [];
+    }
+  }
+
   get pagination() {
     const currentPage = this.endResult / this.pageSize;
     const totalResultsPerPage = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
@@ -127,9 +138,14 @@ class SearchStore {
     this.selectedSearchResult[key] = value;
   };
 
-  SetCurrentSearchResults = ({imageResults}) => {
-    this.resultsImage = null;
-    this.resultsImage = imageResults;
+  SetCurrentSearchResults = ({results, type="IMAGE"}) => {
+    if(type === "IMAGE") {
+      this.resultsImage = null;
+      this.resultsImage = results;
+    } else if(type === "VIDEO") {
+      this.resultsVideo = null;
+      this.resultsVideo = results;
+    }
   };
 
   SetCurrentSearch = ({
@@ -141,7 +157,8 @@ class SearchStore {
     highScoreVideoResults,
     highScoreImageResults,
     resultsViewType,
-    resultsImagePaginated
+    resultsImagePaginated,
+    resultsVideoPaginated
   }) => {
     this.highScoreImageResults = highScoreImageResults;
     this.highScoreVideoResults = highScoreVideoResults;
@@ -152,6 +169,7 @@ class SearchStore {
     this.resultsImage = imageResults;
     this.resultsViewType = resultsViewType;
     this.resultsImagePaginated = resultsImagePaginated;
+    this.resultsVideoPaginated = resultsVideoPaginated;
   };
 
   SetSearchIndex = ({index}) => {
@@ -408,15 +426,8 @@ class SearchStore {
       } else {
         // Regular search
         const desiredTotalResults = searchPhrase ? 100 : -1;
-        let maxTotal, upperLimit;
-
-        if(searchContentType === "IMAGES") {
-          maxTotal = this.pagination.currentPage === 1 ? desiredTotalResults : this.pagination.endResult;
-          upperLimit = this.pagination.endResult;
-        } else {
-          maxTotal = -1;
-          upperLimit = 1000;
-        }
+        const maxTotal = this.pagination.currentPage === 1 ? desiredTotalResults : this.pagination.endResult;
+        const upperLimit = this.pagination.endResult;
 
         queryParams = {
           terms: searchPhrase,
@@ -675,7 +686,7 @@ class SearchStore {
     cacheResults=true,
     page=1
   }) {
-    let objectId, versionHash, imageUrl, videoUrl, imageResults, videoResults, resultsBySong, highScoreImage, highScoreVideo, resultsViewType;
+    let objectId, versionHash, imageUrl, videoUrl, imageResults, videoResults, resultsBySong, highScoreImage, highScoreVideo, resultsViewType, newResultsVideoPaginated, newResultsImagePaginated;
     const indexValue = this.customIndex || this.currentSearch.index;
 
     if(indexValue.startsWith("hq__")) {
@@ -688,6 +699,10 @@ class SearchStore {
     const {searchAssetType} = yield this.GetSearchParams({
       objectId
     });
+
+    if(page === 1 && !searchAssetType) {
+      this.pageSize = 20;
+    }
 
     this.SetSearchContentType({type: searchAssetType ? "IMAGES" : "VIDEOS"});
 
@@ -711,23 +726,7 @@ class SearchStore {
       searchContentType: "VIDEOS"
     });
 
-    if(this.searchContentType === "ALL") {
-      imageUrl = yield ImageRequest;
-      videoUrl = yield VideoRequest;
-
-      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
-        url: videoUrl.url,
-        searchContentType: "VIDEOS"
-      }));
-
-      ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
-        url: imageUrl.url,
-        searchContentType: "IMAGES",
-        page
-      }));
-
-      resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
-    } else if(this.searchContentType === "IMAGES") {
+    if(this.searchContentType === "IMAGES") {
       imageUrl = yield ImageRequest;
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
         url: imageUrl.url,
@@ -736,19 +735,23 @@ class SearchStore {
       }));
 
       resultsViewType = ((highScoreImage || []).length > 0 && fuzzySearchValue) ? "HIGH_SCORE" : "ALL";
+
+      newResultsImagePaginated = Object.assign({}, this.resultsImagePaginated);
+      newResultsImagePaginated[page] = imageResults?.contents;
     } else if(this.searchContentType === "VIDEOS") {
       videoUrl = yield VideoRequest;
       ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
         url: videoUrl.url,
-        searchContentType: "VIDEOS"
+        searchContentType: "VIDEOS",
+        page
       }));
 
       // this.totalResults = videoResults.pagination?.total;
       resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
-    }
 
-    const newResultsImagePaginated = Object.assign({}, this.resultsImagePaginated);
-    newResultsImagePaginated[page] = imageResults?.contents;
+      newResultsVideoPaginated = Object.assign({}, this.resultsVideoPaginated);
+      newResultsVideoPaginated[page] = videoResults?.contents;
+    }
 
     if(cacheResults) {
       this.SetCurrentSearch({
@@ -760,6 +763,7 @@ class SearchStore {
         index: objectId,
         terms: fuzzySearchValue,
         resultsViewType,
+        resultsVideoPaginated: newResultsVideoPaginated,
         resultsImagePaginated: newResultsImagePaginated
       });
     }
