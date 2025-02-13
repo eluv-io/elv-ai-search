@@ -9,6 +9,7 @@ import HighlightsStore from "@/stores/HighlightsStore.js";
 import RatingStore from "@/stores/RatingStore.js";
 import OverlayStore from "@/stores/OverlayStore.js";
 import UrlJoin from "url-join";
+import TagStore from "@/stores/TagStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -28,6 +29,7 @@ class RootStore {
     this.summaryStore = new SummaryStore(this);
     this.highlightsStore = new HighlightsStore(this);
     this.ratingStore = new RatingStore(this);
+    this.tagStore = new TagStore(this);
     this.Initialize();
   }
 
@@ -245,6 +247,7 @@ export const videoStore = rootStore.videoStore;
 export const summaryStore = rootStore.summaryStore;
 export const highlightsStore = rootStore.highlightsStore;
 export const ratingStore = rootStore.ratingStore;
+export const tagStore = rootStore.tagStore;
 
 if(import.meta.hot) {
   if (import.meta.hot.data.store) {

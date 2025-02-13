@@ -1,6 +1,6 @@
 import {observer} from "mobx-react-lite";
 import {Box, Flex, Loader, Stack, Text} from "@mantine/core";
-import {searchStore} from "@/stores/index.js";
+import {searchStore, tagStore} from "@/stores/index.js";
 import {PencilIcon} from "@/assets/icons/index.js";
 import {FormatTime} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
@@ -41,10 +41,13 @@ const DescriptionPanel = observer(() => {
       try {
         setLoading(true);
 
-        await searchStore.GetTags({
+        await tagStore.GetTags({
           dedupe: false,
           assetType: searchStore.selectedSearchResult._assetType,
-          prefix: searchStore.selectedSearchResult.prefix
+          prefix: searchStore.selectedSearchResult.prefix,
+          objectId: searchStore.selectedSearchResult.id,
+          startTime: searchStore.selectedSearchResult.start_time,
+          endTime: searchStore.selectedSearchResult.end_time
         });
       } finally {
         setLoading(false);

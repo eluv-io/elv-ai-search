@@ -1,7 +1,7 @@
 import {observer} from "mobx-react-lite";
 import {Box, Button, Flex, Group, Image, Loader, Pill, Text, UnstyledButton} from "@mantine/core";
 import {useState} from "react";
-import {highlightsStore, rootStore, searchStore, summaryStore} from "@/stores/index.js";
+import {highlightsStore, rootStore, searchStore, summaryStore, tagStore} from "@/stores/index.js";
 import ThumbnailCard from "@/components/thumbnail-card/ThumbnailCard.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
@@ -153,7 +153,13 @@ const HighlightsPanel = observer(() => {
       });
 
       if(!clip._assetType) {
-        await searchStore.GetTags({dedupe: true});
+        await tagStore.GetTags({
+          dedupe: false,
+          assetType: clip._assetType,
+          objectId: clip.id,
+          startTime: clip.start_time,
+          endTime: clip.end_time
+        });
       }
     } finally {
       setLoading(false);

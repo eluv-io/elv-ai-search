@@ -3,7 +3,7 @@ import {observer} from "mobx-react-lite";
 import {Box, Accordion, AccordionControl, Text, Loader, Flex} from "@mantine/core";
 import {CollapseIcon} from "@/assets/icons/index.js";
 import TagsTable from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
-import {searchStore} from "@/stores/index.js";
+import {searchStore, tagStore} from "@/stores/index.js";
 
 const AccordionItems = (({tagData={}}) => {
   if(Object.keys(tagData).length === 0) { return null; }
@@ -52,10 +52,13 @@ const TagsPanel = observer(() => {
     const LoadData = async() => {
       setLoading(true);
 
-      await searchStore.GetTags({
+      await tagStore.GetTags({
         dedupe: false,
         assetType: searchStore.selectedSearchResult._assetType,
-        prefix: searchStore.selectedSearchResult.prefix
+        prefix: searchStore.selectedSearchResult.prefix,
+        objectId: searchStore.selectedSearchResult.id,
+        startTime: searchStore.selectedSearchResult.start_time,
+        endTime: searchStore.selectedSearchResult.end_time
       });
 
       setLoading(false);
