@@ -1,7 +1,6 @@
 
 // Store for managing tags for clips
 import {flow, makeObservable} from "mobx";
-import {searchStore} from "@/stores/index.js";
 
 class TagStore {
   constructor(rootStore) {
@@ -22,9 +21,8 @@ class TagStore {
     startTime,
     endTime
   }={}) {
-    // const {id: objectId, start_time: startTime, end_time: endTime} = this.selectedSearchResult;
-    const libraryId = yield this.client.ContentObjectLibraryId({objectId});
     let requestRep;
+    const libraryId = yield this.client.ContentObjectLibraryId({objectId});
 
     const queryParams = {
       start_time: startTime,
@@ -53,7 +51,7 @@ class TagStore {
     });
 
     const _pos = url.indexOf(`/${requestRep}?`);
-    const newUrl = `https://${searchStore.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
+    const newUrl = `https://${this.rootStore.searchStore.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
       .concat(url.slice(_pos));
 
     try {
@@ -79,13 +77,13 @@ class TagStore {
       );
 
       if(!dedupe && !results?.error) {
-        searchStore.UpdateSelectedSearchResult({
+        this.rootStore.searchStore.UpdateSelectedSearchResult({
           key: "_tags",
           value: results
         });
       }
 
-      searchStore.UpdateSelectedSearchResult({
+      this.rootStore.searchStore.UpdateSelectedSearchResult({
         key: dedupe ? "_topics_deduped" : "_topics",
         value: topics
       });
@@ -97,7 +95,7 @@ class TagStore {
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Failed to load tags", error);
-      searchStore.UpdateSelectedSearchResult({
+      this.rootStore.searchStore.UpdateSelectedSearchResult({
         key: "_tags",
         value: null
       });
@@ -167,13 +165,13 @@ class TagStore {
         commitMessage: "Update tags"
       });
 
-      const newTags = Object.assign({}, searchStore.selectedSearchResult._tags);
+      const newTags = Object.assign({}, this.rootStore.searchStore.selectedSearchResult._tags);
 
       if(newTags[tagKey]?.items?.[tagIndex]?.text) {
         newTags[tagKey].items[tagIndex].text = value;
       }
 
-      searchStore.UpdateSelectedSearchResult({
+      this.rootStore.searchStore.UpdateSelectedSearchResult({
         key: "_tags",
         value: newTags
       });

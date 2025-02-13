@@ -5,7 +5,8 @@ import {CollapseIcon} from "@/assets/icons/index.js";
 import TagsTable from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import {searchStore, tagStore} from "@/stores/index.js";
 
-const AccordionItems = (({tagData={}}) => {
+const AccordionItems = (() => {
+  const tagData = searchStore.tagsArray;
   if(Object.keys(tagData).length === 0) { return null; }
 
   const PanelContent = ({tags=[], id, field}) => {
@@ -85,7 +86,7 @@ const TagsPanel = observer(() => {
         onChange={setValue}
         chevron={<CollapseIcon />}
       >
-        <AccordionItems tagData={searchStore.tagsArray} />
+        <AccordionItems />
       </Accordion>
     </Box>
   );

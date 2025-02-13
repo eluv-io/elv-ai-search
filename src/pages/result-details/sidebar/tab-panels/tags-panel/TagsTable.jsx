@@ -47,7 +47,9 @@ const EditView = ({
               setSaving(true);
               await EditCallback(tagValue);
 
-              CloseOverlayCallback();
+              if(CloseOverlayCallback) {
+                CloseOverlayCallback();
+              }
             } finally {
               setSaving(false);
             }
