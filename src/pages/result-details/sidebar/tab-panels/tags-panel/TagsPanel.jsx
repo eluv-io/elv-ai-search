@@ -35,7 +35,7 @@ const AccordionItems = (({tagData={}}) => {
               { tagName }
             </AccordionControl>
             <Accordion.Panel>
-              <PanelContent tags={tagData[tagName].items || tagData[tagName]} id={tagName} field={tagData[tagName].field} />
+              <PanelContent tags={tagData[tagName].items} id={tagName} field={tagData[tagName].field} />
             </Accordion.Panel>
           </Accordion.Item>
         ))

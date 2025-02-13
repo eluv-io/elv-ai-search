@@ -650,20 +650,23 @@ class SearchStore {
       let results = yield this.client.Request({url: newUrl});
       const topics = results?.["Sports Topic"];
 
-      if(assetType) {
-        results = Object.fromEntries(
-          Object.entries(results).map(([key, value]) => {
-            const TransformKey = (key) => {
-              return key
-                .split("_")
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join(" ");
-            };
+      results = Object.fromEntries(
+        Object.entries(results).map(([key, value]) => {
+          // Tag keys for images will be snake_case
+          // Tag keys for videos will be Title Case
+          const TransformKey = (key) => {
+            return key
+              .split("_")
+              .map(word => assetType ? (
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ) : word
+              )
+              .join(" ");
+          };
 
-            return [TransformKey(key), {items: value, field: key}];
-          })
-        );
-      }
+          return [TransformKey(key), {items: value, field: key, displayName: key}];
+        })
+      );
 
       if(!dedupe && !results?.error) {
         this.UpdateSelectedSearchResult({
