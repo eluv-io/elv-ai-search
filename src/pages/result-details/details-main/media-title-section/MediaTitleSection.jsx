@@ -147,13 +147,17 @@ const MediaTitleSection = observer(({
     width: 18
   };
 
-  const hasInfoData = Object.keys((TYPE_DATA[mediaType]) || {}).length > 0;
+  const hasInfoData = Object
+    .keys((TYPE_DATA[mediaType]) || {})
+    .filter(item => item !== "_standard")
+    .length > 0;
 
   useEffect(() => {
     const LoadData = async() => {
       try {
         setLoading(true);
         await searchStore.GetTitleInfo();
+        setShowInfoCard(false);
       } finally {
         setLoading(false);
       }
