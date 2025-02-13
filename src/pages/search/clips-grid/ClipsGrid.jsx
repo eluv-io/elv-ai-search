@@ -27,7 +27,7 @@ const ImageContent = observer(({imageSrc, title}) => {
     return (
       <Skeleton visible={!loaded} w="100%" h="100%">
         <Image
-          bg="elv-gray.2"
+          bg="elv-gray.1"
           key={imageSrc}
           radius="lg"
           loading="lazy"
@@ -83,7 +83,7 @@ const Clip = observer(({
           {
             clip._score &&
             song &&
-            <Box bg="elv-gray.4" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
+            <Box bg="elv-gray.1" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
               <Text fz="xs" c="elv-neutral.5">
                 Score: { clip._score }
               </Text>
@@ -111,10 +111,10 @@ const Clip = observer(({
               </Text>
             </Flex> : null
           }
-          {
-            _assetType &&
-            _captionApproved &&
-            <Group mb={0} gap={4} ml="auto">
+          <Group mb={0} gap={4} ml="auto">
+            {
+              _assetType &&
+              _captionApproved &&
               <Tooltip
                 label="Approved"
                 position="bottom"
@@ -123,17 +123,17 @@ const Clip = observer(({
               >
                 <ApproveIcon height={18} />
               </Tooltip>
-              {
-                clip._score &&
-                !song &&
-                <Box bg="elv-gray.4" p="2px 6px" style={{flexShrink: 0, borderRadius: "4px"}}>
-                  <Text size="xxs" c="elv-neutral.5">
-                    Score: { clip._score }
-                  </Text>
-                </Box>
-              }
-            </Group>
-          }
+            }
+            {
+              clip._score &&
+              !song &&
+              <Box bg="elv-gray.1" p="2px 6px" style={{flexShrink: 0, borderRadius: "4px"}}>
+                <Text size="xxs" c="elv-neutral.5">
+                  Score: { clip._score }
+                </Text>
+              </Box>
+            }
+          </Group>
         </Flex>
       </Flex>
     </UnstyledButton>

@@ -1,12 +1,11 @@
-import {ActionIcon, Box, Button, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
-import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon, StreamIcon} from "@/assets/icons/index.js";
-import {IconChevronDown, IconChevronUp, IconDownload} from "@tabler/icons-react";
+import {ActionIcon, Box, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
+import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon} from "@/assets/icons/index.js";
+import {IconChevronDown, IconChevronUp} from "@tabler/icons-react";
 import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime, SplitCamelCase} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
 import {CAPTION_KEYS} from "@/utils/data.js";
-import {useClipboard} from "@mantine/hooks";
 
 const ImageInfo = observer(({info}) => {
   return (
@@ -123,9 +122,6 @@ const MediaTitleSection = observer(({
   TYPE_DATA
 }) => {
   const [loading, setLoading] = useState(false);
-  const clipboard = useClipboard({timeout: 2000});
-  const [embedUrl, setEmbedUrl] = useState(null);
-  const [downloadUrl, setDownloadUrl] = useState(null);
 
   let star1icon = HollowStarIcon;
   let star2icon = HollowStarIcon;
@@ -158,11 +154,6 @@ const MediaTitleSection = observer(({
       try {
         setLoading(true);
         await searchStore.GetTitleInfo();
-
-        const {embedUrl: embed, downloadUrl: download} = await searchStore.GetShareUrls();
-
-        setEmbedUrl(embed || "");
-        setDownloadUrl(download || "");
       } finally {
         setLoading(false);
       }
@@ -211,24 +202,6 @@ const MediaTitleSection = observer(({
                     }
                   </ActionIcon>
                 }
-
-                <Tooltip
-                  label={clipboard.copied ? "Copied" : "Copy Object ID"}
-                  position={tooltipStyles.position}
-                  c={tooltipStyles.c}
-                  color={tooltipStyles.color}
-                >
-                  <Button
-                    color={iconStyles.bg}
-                    style={{borderRadius: "30px"}}
-                    maw={100}
-                    onClick={() => clipboard.copy(searchStore.selectedSearchResult.id)}
-                  >
-                    <Text fz="xs" truncate="end" c={tooltipStyles.c}>
-                      { searchStore.selectedSearchResult.id }
-                    </Text>
-                  </Button>
-                </Tooltip>
               </Group>
             ) : null
         }
@@ -252,7 +225,7 @@ const MediaTitleSection = observer(({
                     size="lg"
                     onClick={() => HandleRating(value)}
                     radius={30}
-                    color={iconStyles.bg}
+                    variant="subtle"
                   >
                     <Icon color={iconStyles.color} width={iconStyles.width} />
                   </ActionIcon>
@@ -261,41 +234,6 @@ const MediaTitleSection = observer(({
             }
           </Group>
 
-
-          {/* Copy URL's*/}
-          <Tooltip
-            label={clipboard.copied ? "Copied" : "Copy Download URL"}
-            position={tooltipStyles.position}
-            c={tooltipStyles.c}
-            color={tooltipStyles.color}
-          >
-            <ActionIcon
-              size="lg"
-              onClick={() => clipboard.copy(downloadUrl)}
-              radius={30}
-              color={iconStyles.bg}
-            >
-              <IconDownload color={iconStyles.color} width={iconStyles.width} />
-            </ActionIcon>
-          </Tooltip>
-          {
-            !searchStore.selectedSearchResult._assetType &&
-            <Tooltip
-              label={clipboard.copied ? "Copied" : "Copy Streaming URL"}
-              position={tooltipStyles.position}
-              c={tooltipStyles.c}
-              color={tooltipStyles.color}
-            >
-              <ActionIcon
-                size="lg"
-                onClick={() => clipboard.copy(embedUrl)}
-                radius={30}
-                color={iconStyles.bg}
-              >
-                <StreamIcon color={iconStyles.color} width={iconStyles.width} />
-              </ActionIcon>
-            </Tooltip>
-          }
 
           {/* External Links */}
           <Tooltip

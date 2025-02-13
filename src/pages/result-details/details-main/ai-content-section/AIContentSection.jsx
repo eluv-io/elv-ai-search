@@ -327,7 +327,7 @@ const CaptionSection = observer(({clip, v2=false}) => {
 
   return (
     <Paper
-      bg="elv-gray.4"
+      bg="elv-gray.1"
       p="16 12"
       key={searchStore.selectedSearchResult.id}
     >

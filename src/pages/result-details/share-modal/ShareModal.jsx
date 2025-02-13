@@ -65,7 +65,7 @@ const ShareModal = observer(({
             </AspectRatio>
 
             <Box>
-              <Flex direction="row" bg="elv-gray.2" p="12 16" classNames={{root: styles.bottomFlex}}>
+              <Flex direction="row" bg="elv-gray.1" p="12 16" classNames={{root: styles.bottomFlex}}>
                 <Stack flex={1} gap={2}>
                   <Text fz="xs">Duration</Text>
                   <Text fz="sm">7m 42s</Text>

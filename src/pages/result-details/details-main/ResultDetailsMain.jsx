@@ -13,6 +13,7 @@ import {useEffect, useRef, useState} from "react";
 import {ratingStore, searchStore} from "@/stores/index.js";
 import AIContentSection from "@/pages/result-details/details-main/ai-content-section/AIContentSection.jsx";
 import MediaItem from "@/pages/result-details/details-main/media-item/MediaItem.jsx";
+import MediaSecondaryInfo from "@/pages/result-details/details-main/media-secondary-info/MediaSecondaryInfo.jsx";
 
 const ResultDetailsMain = observer(({
   clip,
@@ -137,40 +138,7 @@ const ResultDetailsMain = observer(({
           TYPE_DATA={TYPE_DATA}
         />
 
-        {/*<Grid gap={8} mb={8}>*/}
-        {/*  {*/}
-        {/*    clip._assetType ? null :*/}
-        {/*    <Grid.Col span={4}>*/}
-        {/*      <TextCard*/}
-        {/*        text={TimeInterval({startTime: clip.start_time, endTime: clip.end_time})}*/}
-        {/*      />*/}
-        {/*    </Grid.Col>*/}
-        {/*  }*/}
-        {/*  <Grid.Col span={clip._assetType ? 10 : 4}>*/}
-        {/*    <TextCard*/}
-        {/*      text={clip.id}*/}
-        {/*      copyText={clip.id}*/}
-        {/*      lineClamp={1}*/}
-        {/*    />*/}
-        {/*  </Grid.Col>*/}
-        {/*  <Grid.Col span={clip._assetType ? 2 : 4}>*/}
-        {/*    <SimpleGrid cols={clip._assetType ? 1 : 2}>*/}
-        {/*      {*/}
-        {/*        clip._assetType ? null :*/}
-        {/*          <TextCard*/}
-        {/*            text="Streaming"*/}
-        {/*            centerText*/}
-        {/*            copyText={embedUrl}*/}
-        {/*          />*/}
-        {/*      }*/}
-        {/*        <TextCard*/}
-        {/*          text="Download"*/}
-        {/*          centerText*/}
-        {/*          copyText={downloadUrl}*/}
-        {/*        />*/}
-        {/*    </SimpleGrid>*/}
-        {/*  </Grid.Col>*/}
-        {/*</Grid>*/}
+        <MediaSecondaryInfo />
 
         <AIContentSection
           clip={clip}
