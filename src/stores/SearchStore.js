@@ -925,7 +925,8 @@ class SearchStore {
       objectId: this.selectedSearchResult.id,
       options: {
         clipStart: this.selectedSearchResult.start_time / 1000,
-        clipEnd: this.selectedSearchResult.end_time / 1000
+        clipEnd: this.selectedSearchResult.end_time / 1000,
+        verifyContent: true
       }
     });
     const {id: objectId, start_time: startTime, end_time: endTime, qlib_id: libraryId, _assetType, prefix} = this.selectedSearchResult;
