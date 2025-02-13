@@ -14,7 +14,7 @@
     "lint-scss-fix": "npx stylelint \"src/**/*.{css,scss}\" --fix"
   },
   "dependencies": {
-    "@eluvio/elv-client-js": "^4.0.109",
+    "@eluvio/elv-client-js": "^4.0.116",
     "@eluvio/elv-player-js": "^2.0.18",
     "@mantine/core": "^7.11.2",
     "@mantine/dropzone": "^7.12.1",
