@@ -69,6 +69,7 @@ const Video = observer(({
               loop: EluvioPlayerParameters.loop.OFF,
               playerProfile: EluvioPlayerParameters.playerProfile.LOW_LATENCY,
               capLevelToPlayerSize: EluvioPlayerParameters.capLevelToPlayerSize.ON,
+              verifyContent: EluvioPlayerParameters.verifyContent.ON,
               ...playerOptions
             }
           },

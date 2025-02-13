@@ -44,7 +44,8 @@ const GetKeyFrame = async (keyFrame) => {
       },
       playerOptions: {
         muted: EluvioPlayerParameters.muted.ON,
-        autoplay: EluvioPlayerParameters.autoplay.OFF
+        autoplay: EluvioPlayerParameters.autoplay.OFF,
+        verifyContent: EluvioPlayerParameters.verifyContent.ON
       }
     },
   );
