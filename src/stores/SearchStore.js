@@ -408,13 +408,21 @@ class SearchStore {
       } else {
         // Regular search
         const desiredTotalResults = searchPhrase ? 100 : -1;
-        const maxTotal = this.pagination.currentPage === 1 ? desiredTotalResults : this.pagination.endResult;
+        let maxTotal, upperLimit;
+
+        if(searchContentType === "IMAGES") {
+          maxTotal = this.pagination.currentPage === 1 ? desiredTotalResults : this.pagination.endResult;
+          upperLimit = this.pagination.endResult;
+        } else {
+          maxTotal = -1;
+          upperLimit = 1000;
+        }
 
         queryParams = {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
           start: this.pagination.startResult,
-          limit: this.pagination.endResult,
+          limit: upperLimit,
           display_fields: "all",
           clips: searchContentType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
