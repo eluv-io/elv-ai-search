@@ -122,3 +122,16 @@ export const SplitCamelCase = ({string}) => {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 };
+
+export const HandleDownload = ({downloadLink, name}) => {
+  const link = document.createElement("a");
+  link.href = downloadLink;
+
+  if(name) {
+    link.setAttribute("download", name);
+  }
+
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};

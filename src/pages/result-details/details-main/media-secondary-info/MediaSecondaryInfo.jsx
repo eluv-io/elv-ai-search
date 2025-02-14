@@ -6,30 +6,11 @@ import {TimeInterval} from "@/utils/helpers.js";
 import {IconCopy} from "@tabler/icons-react";
 import styles from "./MediaSecondaryInfo.module.css";
 import {useClipboard} from "@mantine/hooks";
-import {useEffect, useState} from "react";
 
-const MediaSecondaryInfo = observer(() => {
+const MediaSecondaryInfo = observer(({downloadUrl, embedUrl}) => {
   if(searchStore.selectedSearchResult._assetType) { return null; }
 
-  const [embedUrl, setEmbedUrl] = useState(null);
-  const [downloadUrl, setDownloadUrl] = useState(null);
   const clipboard = useClipboard({timeout: 2000});
-
-  useEffect(() => {
-    const LoadData = async() => {
-      try {
-        const {embedUrl: embed, downloadUrl: download} = await searchStore.GetShareUrls();
-
-        setEmbedUrl(embed || "");
-        setDownloadUrl(download || "");
-      } catch(error) {
-        // eslint-disable-next-line no-console
-        console.error(error);
-      }
-    };
-
-    LoadData();
-  }, [searchStore.selectedSearchResult]);
 
   return (
     <Flex direction="row" align="center" mt={12} mb={12}>

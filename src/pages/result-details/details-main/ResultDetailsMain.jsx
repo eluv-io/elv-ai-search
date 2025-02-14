@@ -138,8 +138,6 @@ const ResultDetailsMain = observer(({
           TYPE_DATA={TYPE_DATA}
         />
 
-        <MediaSecondaryInfo />
-
         <AIContentSection
           clip={clip}
           mediaType={mediaType}
