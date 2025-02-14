@@ -22,7 +22,6 @@ class SearchStore {
   // Pagination
   pageSize = 35;
   searchTotal = null;
-  totalPages = null;
   startResult = 0; // Used for API payload
   endResult = null; // Used for API payload
 
@@ -78,19 +77,21 @@ class SearchStore {
 
   get pagination() {
     const currentPage = this.endResult / this.pageSize;
-    const totalResultsPerPage = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
+    const searchTotal = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
+    const totalResultsPerPage = searchTotal;
+    const totalPages = Math.ceil(searchTotal / this.pageSize);
 
     return {
       pageSize: this.pageSize,
       startResult: this.startResult,
       endResult: this.endResult,
-      totalPages: this.totalPages,
       // Calculated values
+      totalPages,
       currentPage,
       totalResultsPerPage, // total for current page
-      searchTotal: this.searchTotal,
+      searchTotal,
       firstResult: this.startResult + 1,
-      lastResult: Math.min(this.searchTotal, this.endResult)
+      lastResult: Math.min(searchTotal, this.endResult)
     };
   }
 
@@ -521,7 +522,6 @@ class SearchStore {
   ResetPagination = () => {
     this.pageSize = 35;
     this.searchTotal = null;
-    this.totalPages = null;
     this.startResult = 0;
     this.endResult = null;
   };
@@ -600,7 +600,6 @@ class SearchStore {
 
       if(page === 1) {
         this.searchTotal = results.pagination?.total;
-        this.totalPages = Math.ceil(this.searchTotal / this.pageSize);
       }
 
       editedContents = yield Promise.all(

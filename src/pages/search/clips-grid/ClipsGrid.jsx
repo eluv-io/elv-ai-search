@@ -211,7 +211,6 @@ const ClipsGrid = observer(({
       </SimpleGrid>
 
       {
-        // searchStore.searchContentType === "IMAGES" &&
         !searchStore.loadingSearch &&
         <Group gap={24} mt={48}>
           <Text>
