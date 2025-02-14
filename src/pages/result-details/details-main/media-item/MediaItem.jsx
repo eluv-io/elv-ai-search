@@ -35,27 +35,30 @@ const MediaItem = ({clip}) => {
     return (
       <Skeleton visible={searchStore.loadingSearchResult}>
         <ContainerElement>
-          <Box w="100%" h="100%" style={{flexGrow: 1}}>
-            {
-              imageFailed ?
-                (
-                  <Flex h="auto" w="100%" justify="center">
-                    <Title c="elv-gray.7" order={1}>
-                      { clip.meta?.public?.asset_metadata?.title || clip.id }
-                    </Title>
-                  </Flex>
-                ) :
-                <Image
-                  ref={mediaRef}
-                  src={clip._imageSrc}
-                  fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
-                  fit="contain"
-                  w="100%"
-                  h="auto"
-                  onError={() => setImageFailed(true)}
-                />
-            }
-          </Box>
+          <AspectRatio ratio={16 / 9}>
+            <Box w="100%" h="100%">
+              {
+                imageFailed ?
+                  (
+                    <Flex h="auto" w="100%" justify="center">
+                      <Title c="elv-gray.7" order={1}>
+                        { clip.meta?.public?.asset_metadata?.title || clip.id }
+                      </Title>
+                    </Flex>
+                  ) :
+                  <Image
+                    ref={mediaRef}
+                    src={clip._imageSrc}
+                    fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+                    fit="contain"
+                    w="100%"
+                    // mah={900}
+                    h="100%"
+                    onError={() => setImageFailed(true)}
+                  />
+              }
+            </Box>
+          </AspectRatio>
         </ContainerElement>
       </Skeleton>
     );
