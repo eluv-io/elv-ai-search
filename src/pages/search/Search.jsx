@@ -46,12 +46,15 @@ const FilterToolbar = observer(({loadingSearch}) => {
           size="xs"
           classNames={{root: styles.selectRoot, input: styles.selectInput}}
         />
-        <Select
-          placeholder="Clip Duration"
-          data={["1", "2"]}
-          size="xs"
-          classNames={{root: styles.selectRoot, input: styles.selectInput}}
-        />
+        {
+          searchStore.searchContentType === "VIDEOS" &&
+          <Select
+            placeholder="Clip Duration"
+            data={["1", "2"]}
+            size="xs"
+            classNames={{root: styles.selectRoot, input: styles.selectInput}}
+          />
+        }
         <Select
           placeholder="Rating"
           data={["1", "2"]}
