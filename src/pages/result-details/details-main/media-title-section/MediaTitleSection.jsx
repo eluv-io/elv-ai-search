@@ -1,11 +1,12 @@
-import {ActionIcon, Box, Button, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
-import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon, StreamIcon} from "@/assets/icons/index.js";
-import {IconChevronDown, IconChevronUp, IconDownload} from "@tabler/icons-react";
+import {ActionIcon, Box, Grid, Group, Loader, Stack, Text, Title, Tooltip} from "@mantine/core";
+import {ShareIcon, HollowStarIcon, FilledStarIcon, VideoEditorIcon, LinkIcon} from "@/assets/icons/index.js";
+import {IconChevronDown, IconChevronUp, IconCopy, IconDownload} from "@tabler/icons-react";
 import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
-import {FormatRuntime} from "@/utils/helpers.js";
+import {FormatRuntime, HandleDownload, SplitCamelCase} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
 import {CAPTION_KEYS} from "@/utils/data.js";
+import MediaSecondaryInfo from "@/pages/result-details/details-main/media-secondary-info/MediaSecondaryInfo.jsx";
 import {useClipboard} from "@mantine/hooks";
 
 const ImageInfo = observer(({info}) => {
@@ -28,6 +29,36 @@ const ImageInfo = observer(({info}) => {
 });
 
 const VideoInfo = observer(({info}) => {
+  if(info._standard) {
+    return (
+      <Box mt={20} mb={20}>
+        <Grid gutter="lg">
+          <Grid.Col>
+            {
+              Object.keys(info || {})
+                .filter(item => item !== "_standard")
+                .map(keyName => (
+                <Grid gutter={0} key={keyName}>
+                  <Grid.Col span={4}>
+                    <Text c="elv-gray.9">{ SplitCamelCase({string: keyName}) }:</Text>
+                  </Grid.Col>
+                  <Grid.Col span={8}>
+                    <Text c="elv-gray.9">{ info[keyName] }</Text>
+                  </Grid.Col>
+                </Grid>
+              ))
+            }
+          </Grid.Col>
+        </Grid>
+      </Box>
+    );
+  } else {
+    return <CanalVideoInfo info={info} />;
+  }
+});
+
+// TODO: Remove Canal-specific info
+const CanalVideoInfo = observer(({info}) => {
   return (
     <Box mt={20} mb={20}>
       <Grid gutter="lg">
@@ -93,9 +124,9 @@ const MediaTitleSection = observer(({
   TYPE_DATA
 }) => {
   const [loading, setLoading] = useState(false);
-  const clipboard = useClipboard({timeout: 2000});
   const [embedUrl, setEmbedUrl] = useState(null);
   const [downloadUrl, setDownloadUrl] = useState(null);
+  const clipboard = useClipboard({timeout: 2000});
 
   let star1icon = HollowStarIcon;
   let star2icon = HollowStarIcon;
@@ -121,7 +152,14 @@ const MediaTitleSection = observer(({
     width: 18
   };
 
-  const hasInfoData = Object.keys((TYPE_DATA[mediaType]) || {}).length > 0;
+  const hasInfoData = Object
+    .keys((TYPE_DATA[mediaType]) || {})
+    .filter(item => item !== "_standard")
+    .length > 0;
+
+  const ResetProps = () => {
+    setShowInfoCard(false);
+  };
 
   useEffect(() => {
     const LoadData = async() => {
@@ -133,6 +171,8 @@ const MediaTitleSection = observer(({
 
         setEmbedUrl(embed || "");
         setDownloadUrl(download || "");
+
+        ResetProps();
       } finally {
         setLoading(false);
       }
@@ -159,12 +199,12 @@ const MediaTitleSection = observer(({
 
   return (
     <>
-      <Group mb={8} wrap="nowrap">
+      <Group mb={8} wrap="nowrap" w="100%">
         {
           title ?
             (
-              <Group wrap="nowrap" style={{flexGrow: 1}} align="center" gap={6}>
-                <Title order={2} c="elv-gray.8" lineClamp={1} style={{wordBreak: "break-all"}}>
+              <Group wrap="nowrap" align="center" gap={6} flex="0 1 0%">
+                <Title order={2} c="elv-gray.8" lineClamp={1} >
                   { title }
                 </Title>
                 {
@@ -181,26 +221,27 @@ const MediaTitleSection = observer(({
                     }
                   </ActionIcon>
                 }
-
-                <Tooltip
-                  label={clipboard.copied ? "Copied" : "Copy Object ID"}
-                  position={tooltipStyles.position}
-                  c={tooltipStyles.c}
-                  color={tooltipStyles.color}
-                >
-                  <Button
-                    color={iconStyles.bg}
-                    style={{borderRadius: "30px"}}
-                    maw={100}
-                    onClick={() => clipboard.copy(searchStore.selectedSearchResult.id)}
-                  >
-                    <Text fz="xs" truncate="end" c={tooltipStyles.c}>
-                      { searchStore.selectedSearchResult.id }
-                    </Text>
-                  </Button>
-                </Tooltip>
               </Group>
             ) : null
+        }
+        {
+          searchStore.selectedSearchResult._assetType &&
+          <Group gap={3} mr={40} wrap="nowrap" w="100%" flex="1 1 0%" miw={0}>
+            <Text c="elv-gray.8" fw={400} size="sm" truncate="end">{ searchStore.selectedSearchResult.id }</Text>
+            <Tooltip
+              label={clipboard.copied ? "Copied" : "Copy ID"}
+              position="bottom"
+              c="elv-gray.8"
+              color="elv-neutral.2"
+            >
+              <ActionIcon variant="transparent" onClick={() => clipboard.copy(searchStore.selectedSearchResult.id)}>
+                <IconCopy
+                  height={16}
+                  color="var(--mantine-color-elv-gray-5)"
+                />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
         }
 
         <Group style={{flexShrink: 0, flexGrow: 0, marginLeft: "auto"}}>
@@ -222,7 +263,7 @@ const MediaTitleSection = observer(({
                     size="lg"
                     onClick={() => HandleRating(value)}
                     radius={30}
-                    color={iconStyles.bg}
+                    variant="subtle"
                   >
                     <Icon color={iconStyles.color} width={iconStyles.width} />
                   </ActionIcon>
@@ -231,38 +272,22 @@ const MediaTitleSection = observer(({
             }
           </Group>
 
-
-          {/* Copy URL's*/}
-          <Tooltip
-            label={clipboard.copied ? "Copied" : "Copy Download URL"}
-            position={tooltipStyles.position}
-            c={tooltipStyles.c}
-            color={tooltipStyles.color}
-          >
-            <ActionIcon
-              size="lg"
-              onClick={() => clipboard.copy(downloadUrl)}
-              radius={30}
-              color={iconStyles.bg}
-            >
-              <IconDownload color={iconStyles.color} width={iconStyles.width} />
-            </ActionIcon>
-          </Tooltip>
           {
-            !searchStore.selectedSearchResult._assetType &&
+            searchStore.selectedSearchResult._assetType &&
             <Tooltip
-              label={clipboard.copied ? "Copied" : "Copy Streaming URL"}
-              position={tooltipStyles.position}
-              c={tooltipStyles.c}
-              color={tooltipStyles.color}
+              label="Download File"
+              position="bottom"
+              c="elv-gray.8"
+              color="elv-neutral.2"
             >
               <ActionIcon
-                size="lg"
-                onClick={() => clipboard.copy(embedUrl)}
-                radius={30}
                 color={iconStyles.bg}
+                radius={30}
+                size="lg"
+                onClick={() => HandleDownload({downloadLink: downloadUrl})}
+                rightSection={<LinkIcon color="var(--mantine-color-elv-gray-9)" />}
               >
-                <StreamIcon color={iconStyles.color} width={iconStyles.width} />
+                <IconDownload color={iconStyles.color} width={iconStyles.width} />
               </ActionIcon>
             </Tooltip>
           }
@@ -300,6 +325,7 @@ const MediaTitleSection = observer(({
           </Tooltip>
         </Group>
       </Group>
+      <MediaSecondaryInfo embedUrl={embedUrl} downloadUrl={downloadUrl} />
       <InfoCard
         show={showInfoCard && hasInfoData}
         info={TYPE_DATA[mediaType]}

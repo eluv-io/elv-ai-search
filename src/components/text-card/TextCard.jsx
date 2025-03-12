@@ -109,7 +109,7 @@ const TextCard = ({
 }) => {
 
   return (
-    <Paper bg="elv-gray.4" p="16 12" {...props}>
+    <Paper bg="elv-gray.1" p="16 12" {...props}>
       {
         title &&
         <Flex align="center" gap={16} mb={8}>

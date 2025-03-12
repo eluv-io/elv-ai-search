@@ -163,7 +163,7 @@ const CaptionDisplayView = observer(({
   return (
     <Box>
       <Group gap={0} w="100%">
-        <Title order={4} c="elv-gray.8" lh={1} truncate="end">{ title }</Title>
+        <Title order={4} c="elv-gray.8" lh={1} maw={480} textWrap="wrap">{ title }</Title>
         <Group ml="auto" gap={6}>
           {
             editEnabled ?
@@ -327,7 +327,7 @@ const CaptionSection = observer(({clip, v2=false}) => {
 
   return (
     <Paper
-      bg="elv-gray.4"
+      bg="elv-gray.1"
       p="16 12"
       key={searchStore.selectedSearchResult.id}
     >
@@ -449,7 +449,7 @@ const SummarySection = observer(({clip}) => {
 });
 
 const AIContentSection = observer(({clip, mediaType}) => {
-  if(mediaType === "MUSIC") {
+  if(mediaType === "MUSIC" || !clip._tags) {
     return null;
   } else if(mediaType === "IMAGE" && searchStore.searchSummaryType.includes("caption")) {
     return <CaptionSection clip={clip} v2={searchStore.searchSummaryType === "caption2"} />;

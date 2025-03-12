@@ -22,7 +22,6 @@ class SearchStore {
   // Pagination
   pageSize = 35;
   searchTotal = null;
-  totalPages = null;
   startResult = 0; // Used for API payload
   endResult = null; // Used for API payload
 
@@ -65,21 +64,34 @@ class SearchStore {
     }
   }
 
+  GetPaginatedSearchResults({page=1}) {
+    switch(this.searchContentType) {
+      case "IMAGES":
+        return this.resultsImagePaginated[page];
+      case "VIDEOS":
+        return this.resultsVideoPaginated[page];
+      default:
+        return [];
+    }
+  }
+
   get pagination() {
     const currentPage = this.endResult / this.pageSize;
-    const totalResults = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
+    const searchTotal = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
+    const totalResultsPerPage = searchTotal;
+    const totalPages = Math.ceil(searchTotal / this.pageSize);
 
     return {
       pageSize: this.pageSize,
       startResult: this.startResult,
       endResult: this.endResult,
-      totalPages: this.totalPages,
       // Calculated values
+      totalPages,
       currentPage,
-      totalResults, // total for current page
-      searchTotal: this.searchTotal,
+      totalResultsPerPage, // total for current page
+      searchTotal,
       firstResult: this.startResult + 1,
-      lastResult: Math.min(this.searchTotal, this.endResult)
+      lastResult: Math.min(searchTotal, this.endResult)
     };
   }
 
@@ -127,9 +139,14 @@ class SearchStore {
     this.selectedSearchResult[key] = value;
   };
 
-  SetCurrentSearchResults = ({imageResults}) => {
-    this.resultsImage = null;
-    this.resultsImage = imageResults;
+  SetCurrentSearchResults = ({results, type="IMAGE"}) => {
+    if(type === "IMAGE") {
+      this.resultsImage = null;
+      this.resultsImage = results;
+    } else if(type === "VIDEO") {
+      this.resultsVideo = null;
+      this.resultsVideo = results;
+    }
   };
 
   SetCurrentSearch = ({
@@ -141,7 +158,8 @@ class SearchStore {
     highScoreVideoResults,
     highScoreImageResults,
     resultsViewType,
-    resultsImagePaginated
+    resultsImagePaginated,
+    resultsVideoPaginated
   }) => {
     this.highScoreImageResults = highScoreImageResults;
     this.highScoreVideoResults = highScoreVideoResults;
@@ -152,6 +170,7 @@ class SearchStore {
     this.resultsImage = imageResults;
     this.resultsViewType = resultsViewType;
     this.resultsImagePaginated = resultsImagePaginated;
+    this.resultsVideoPaginated = resultsVideoPaginated;
   };
 
   SetSearchIndex = ({index}) => {
@@ -409,21 +428,19 @@ class SearchStore {
         // Regular search
         const desiredTotalResults = searchPhrase ? 100 : -1;
         const maxTotal = this.pagination.currentPage === 1 ? desiredTotalResults : this.pagination.endResult;
+        const upperLimit = this.pagination.endResult;
 
         queryParams = {
           terms: searchPhrase,
           search_fields: searchFields.join(","),
           start: this.pagination.startResult,
-          limit: this.pagination.endResult,
-          // start: 0,
-          // limit: searchPhrase ? 160 : 1000,
+          limit: upperLimit,
           display_fields: "all",
           clips: searchContentType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
           debug: true,
-          clips_max_duration: 55,
+          // clips_max_duration: 55,
           max_total: maxTotal,
-          // max_total: searchPhrase ? 40 : -1,
           select: "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
         };
       }
@@ -505,7 +522,6 @@ class SearchStore {
   ResetPagination = () => {
     this.pageSize = 35;
     this.searchTotal = null;
-    this.totalPages = null;
     this.startResult = 0;
     this.endResult = null;
   };
@@ -543,169 +559,6 @@ class SearchStore {
       console.error(`Unable to get cover for ${song}`, error);
     }
   });
-
-  UpdateTags = flow(function * ({
-    libraryId,
-    objectId,
-    metadataSubtree,
-    copyPath,
-    value,
-    tagIndex,
-    tagKey
-  }){
-    try {
-      if(!libraryId) {
-        libraryId = yield this.client.ContentObjectLibraryId({objectId});
-      }
-
-      const {writeToken} = yield this.client.EditContentObject({
-        libraryId,
-        objectId
-      });
-
-      yield this.client.ReplaceMetadata({
-        libraryId,
-        objectId,
-        writeToken,
-        metadataSubtree,
-        metadata: value
-      });
-
-      yield this.client.ReplaceMetadata({
-        libraryId,
-        objectId,
-        writeToken,
-        metadataSubtree: copyPath,
-        metadata: value
-      });
-
-      yield this.client.FinalizeContentObject({
-        libraryId,
-        objectId,
-        writeToken,
-        commitMessage: "Update tags"
-      });
-
-      const newTags = Object.assign({}, this.selectedSearchResult._tags);
-
-      if(newTags[tagKey]?.items?.[tagIndex]?.text) {
-        newTags[tagKey].items[tagIndex].text = value;
-      }
-
-      this.UpdateSelectedSearchResult({
-        key: "_tags",
-        value: newTags
-      });
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to update tag", error);
-    }
-  });
-
-  GetTags = flow(function * ({
-    dedupe=false,
-    assetType=false,
-    prefix
-  }={}) {
-    const {id: objectId, start_time: startTime, end_time: endTime} = this.selectedSearchResult;
-    const libraryId = yield this.client.ContentObjectLibraryId({objectId});
-    let requestRep;
-
-    const queryParams = {
-      start_time: startTime,
-      end_time: endTime
-    };
-
-    if(dedupe) {
-      // De-duplicates results
-      queryParams["dedupe"] = true;
-    }
-
-    if(assetType) {
-      requestRep = "image_tags";
-      queryParams["path"] = prefix.toString();
-    } else {
-      requestRep = "tags";
-    }
-
-    const url = yield this.client.Rep({
-      libraryId,
-      objectId,
-      rep: requestRep,
-      service: "search",
-      makeAccessRequest: true,
-      queryParams
-    });
-
-    const _pos = url.indexOf(`/${requestRep}?`);
-    const newUrl = `https://${this.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
-      .concat(url.slice(_pos));
-
-    try {
-      let results = yield this.client.Request({url: newUrl});
-      const topics = results?.["Sports Topic"];
-
-      if(assetType) {
-        results = Object.fromEntries(
-          Object.entries(results).map(([key, value]) => {
-            const TransformKey = (key) => {
-              return key
-                .split("_")
-                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-                .join(" ");
-            };
-
-            return [TransformKey(key), {items: value, field: key}];
-          })
-        );
-      }
-
-      if(!dedupe && !results?.error) {
-        this.UpdateSelectedSearchResult({
-          key: "_tags",
-          value: results
-        });
-      }
-
-      this.UpdateSelectedSearchResult({
-        key: dedupe ? "_topics_deduped" : "_topics",
-        value: topics
-      });
-
-      return {
-        tags: results,
-        topics
-      };
-    } catch(error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to load tags", error);
-      this.UpdateSelectedSearchResult({
-        key: "_tags",
-        value: null
-      });
-    }
-  });
-
-  ParseTags = ({sources=[]}) => {
-    const parsedTags = {};
-    Object.keys(sources).forEach(source => {
-      const label = source
-        .replace("f_", "")
-        .split("_")
-        .join(" ")
-        .replace(/\b\w/g, char => char.toUpperCase());
-
-      if(!parsedTags[label]) {
-        parsedTags[label] = [];
-      }
-
-      parsedTags[label].push({
-        text: sources[source]
-      });
-    });
-
-    return parsedTags;
-  };
 
   ParseResultsBySong = ({results}) => {
     const resultsBySong = {};
@@ -747,7 +600,6 @@ class SearchStore {
 
       if(page === 1) {
         this.searchTotal = results.pagination?.total;
-        this.totalPages = Math.ceil(this.searchTotal / this.pageSize);
       }
 
       editedContents = yield Promise.all(
@@ -833,7 +685,7 @@ class SearchStore {
     cacheResults=true,
     page=1
   }) {
-    let objectId, versionHash, imageUrl, videoUrl, imageResults, videoResults, resultsBySong, highScoreImage, highScoreVideo, resultsViewType;
+    let objectId, versionHash, imageUrl, videoUrl, imageResults, videoResults, resultsBySong, highScoreImage, highScoreVideo, resultsViewType, newResultsVideoPaginated, newResultsImagePaginated;
     const indexValue = this.customIndex || this.currentSearch.index;
 
     if(indexValue.startsWith("hq__")) {
@@ -846,6 +698,10 @@ class SearchStore {
     const {searchAssetType} = yield this.GetSearchParams({
       objectId
     });
+
+    if(page === 1 && !searchAssetType) {
+      this.pageSize = 20;
+    }
 
     this.SetSearchContentType({type: searchAssetType ? "IMAGES" : "VIDEOS"});
 
@@ -869,23 +725,7 @@ class SearchStore {
       searchContentType: "VIDEOS"
     });
 
-    if(this.searchContentType === "ALL") {
-      imageUrl = yield ImageRequest;
-      videoUrl = yield VideoRequest;
-
-      ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
-        url: videoUrl.url,
-        searchContentType: "VIDEOS"
-      }));
-
-      ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
-        url: imageUrl.url,
-        searchContentType: "IMAGES",
-        page
-      }));
-
-      resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
-    } else if(this.searchContentType === "IMAGES") {
+    if(this.searchContentType === "IMAGES") {
       imageUrl = yield ImageRequest;
       ({imageResults, highScoreResults: highScoreImage} = yield this.ParseResults({
         url: imageUrl.url,
@@ -894,19 +734,23 @@ class SearchStore {
       }));
 
       resultsViewType = ((highScoreImage || []).length > 0 && fuzzySearchValue) ? "HIGH_SCORE" : "ALL";
+
+      newResultsImagePaginated = Object.assign({}, this.resultsImagePaginated);
+      newResultsImagePaginated[page] = imageResults?.contents;
     } else if(this.searchContentType === "VIDEOS") {
       videoUrl = yield VideoRequest;
       ({videoResults, resultsBySong, highScoreResults: highScoreVideo} = yield this.ParseResults({
         url: videoUrl.url,
-        searchContentType: "VIDEOS"
+        searchContentType: "VIDEOS",
+        page
       }));
 
       // this.totalResults = videoResults.pagination?.total;
       resultsViewType = (highScoreVideo || []).length > 0 ? "HIGH_SCORE" : "ALL";
-    }
 
-    const newResultsImagePaginated = Object.assign({}, this.resultsImagePaginated);
-    newResultsImagePaginated[page] = imageResults?.contents;
+      newResultsVideoPaginated = Object.assign({}, this.resultsVideoPaginated);
+      newResultsVideoPaginated[page] = videoResults?.contents;
+    }
 
     if(cacheResults) {
       this.SetCurrentSearch({
@@ -918,6 +762,7 @@ class SearchStore {
         index: objectId,
         terms: fuzzySearchValue,
         resultsViewType,
+        resultsVideoPaginated: newResultsVideoPaginated,
         resultsImagePaginated: newResultsImagePaginated
       });
     }
@@ -928,7 +773,8 @@ class SearchStore {
       objectId: this.selectedSearchResult.id,
       options: {
         clipStart: this.selectedSearchResult.start_time / 1000,
-        clipEnd: this.selectedSearchResult.end_time / 1000
+        clipEnd: this.selectedSearchResult.end_time / 1000,
+        verifyContent: true
       }
     });
     const {id: objectId, start_time: startTime, end_time: endTime, qlib_id: libraryId, _assetType, prefix} = this.selectedSearchResult;
@@ -952,14 +798,16 @@ class SearchStore {
 
   GetTitleInfo = flow(function * () {
     const result = this.selectedSearchResult;
+    const libraryId = result.qlib_id;
+    const objectId = result.id;
 
     if(this.musicSettingEnabled) { return; }
 
     if(result._assetType) {
       // Set image info
       const meta = yield this.client.ContentObjectMetadata({
-        objectId: result.id,
-        libraryId: result.qlib_id,
+        objectId,
+        libraryId,
         metadataSubtree: `${result._prefix}/display_metadata`,
         select: CAPTION_KEYS.map(item => item.keyName)
       });
@@ -972,9 +820,11 @@ class SearchStore {
       });
     } else {
       // Set video info
-      const meta = yield this.client.ContentObjectMetadata({
-        objectId: result.id,
-        libraryId: result.qlib_id,
+
+      // TODO: Replace Canal's metadat with display_metadata
+      let meta = yield this.client.ContentObjectMetadata({
+        objectId,
+        libraryId,
         metadataSubtree: "/public/asset_metadata",
         select: [
           "title",
@@ -990,40 +840,68 @@ class SearchStore {
         ]
       });
 
-      const SortedArray = ({data=[], commaSeparated=false}) => {
-        const sorted = data
-          .sort((a, b) => a.order_in_function - b.order_in_function)
-          .map(i => `${i.first_name} ${i.last_name}`);
+      if(meta?.info) {
+        const SortedArray = ({data=[], commaSeparated=false}) => {
+          const sorted = data
+            .sort((a, b) => a.order_in_function - b.order_in_function)
+            .map(i => `${i.first_name} ${i.last_name}`);
 
-        if(commaSeparated) {
-          return sorted.join(", ");
-        } else {
-          return sorted;
-        }
-      };
+          if(commaSeparated) {
+            return sorted.join(", ");
+          } else {
+            return sorted;
+          }
+        };
 
-      const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
+        const directorDisplay = SortedArray({data: meta?.info?.talent?.Réalisateur, commaSeparated: true});
 
-      const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
-      const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
-    }).slice(0, 5).join(", ");
+        const writerDisplay = SortedArray({data: meta?.info?.talent?.Scénariste, commaSeparated: true});
+        const actorDisplay = SortedArray({data: meta?.info?.talent?.Acteur
+      }).slice(0, 5).join(", ");
 
-      const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
-        .filter(i => i.language_iso_code === "GBR")
-        .map(i => i.content)
-        .join("");
+        const synopsisDisplay = (meta?.info?.add_ons?.Synopsis || [])
+          .filter(i => i.language_iso_code === "GBR")
+          .map(i => i.content)
+          .join("");
 
-      this.UpdateSelectedSearchResult({
-        key: "_info_video",
-        value: {
-          ...meta?.info,
-          title: meta?.title,
-          synopsisDisplay,
-          directorDisplay,
-          writerDisplay,
-          actorDisplay
-        }
-      });
+        this.UpdateSelectedSearchResult({
+          key: "_info_video",
+          value: {
+            ...meta?.info,
+            _standard: false,
+            title: meta?.title,
+            synopsisDisplay,
+            directorDisplay,
+            writerDisplay,
+            actorDisplay
+          }
+        });
+      } else {
+        const infoData = {};
+        meta = yield this.client.ContentObjectMetadata({
+          objectId,
+          libraryId,
+          metadataSubtree: "public/display_metadata"
+        });
+
+        Object.keys(meta || {}).forEach(objectKey => {
+          const value = meta[objectKey];
+
+          if(Array.isArray(value) && typeof value[0] === "string") {
+            infoData[objectKey] = value.join(", ");
+          } else if(["string", "number"].includes(typeof value)) {
+            infoData[objectKey] = value;
+          }
+        });
+
+        this.UpdateSelectedSearchResult({
+          key: "_info_video",
+          value: {
+            ...infoData,
+            _standard: true
+          }
+        });
+      }
     }
   });
 }

@@ -13,7 +13,7 @@ import {
   UnstyledButton
 } from "@mantine/core";
 import {useState} from "react";
-import {searchStore, videoStore, overlayStore} from "@/stores/index.js";
+import {searchStore, videoStore, overlayStore, tagStore} from "@/stores/index.js";
 import {PencilIcon, PlayIcon} from "@/assets/icons/index.js";
 
 const EditView = ({
@@ -47,7 +47,9 @@ const EditView = ({
               setSaving(true);
               await EditCallback(tagValue);
 
-              CloseOverlayCallback();
+              if(CloseOverlayCallback) {
+                CloseOverlayCallback();
+              }
             } finally {
               setSaving(false);
             }
@@ -185,7 +187,7 @@ const TagsTable = observer(({
       const path = `${searchStore.selectedSearchResult?._prefix}/image_tags/${field}/tags/${i}/text`;
       const copyPath = `${searchStore.selectedSearchResult?._prefix}/manual_tags/${field}/tags/${i}/text`;
 
-      await searchStore.UpdateTags({
+      await tagStore.UpdateTags({
         libraryId: searchStore.selectedSearchResult.qlib_id,
         objectId: searchStore.selectedSearchResult.id,
         metadataSubtree: path,

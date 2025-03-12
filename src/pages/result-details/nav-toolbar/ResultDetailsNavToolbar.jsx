@@ -61,7 +61,7 @@ const ResultDetailsNavToolbar = observer(() => {
         iconOnly
         Icon={ArrowRightIcon}
         onClick={() => HandleNavClip(false)}
-        disabled={searchStore.selectedSearchResult._indexTotalRes === (searchStore.pagination.totalResults)}
+        disabled={searchStore.selectedSearchResult._indexTotalRes === (searchStore.pagination.totalResultsPerPage)}
       />
     </Stack>
   );

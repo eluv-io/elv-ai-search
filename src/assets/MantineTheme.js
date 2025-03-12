@@ -24,10 +24,10 @@ const theme = createTheme({
     ],
     "elv-gray": [
       "#f5f5f5",
-      "#f0f0f0",
+      "rgba(0, 0, 0, 0.06)", // eluvio color
       "#d7d7d7", // eluvio color
       "#bdbdbd", // eluvio color
-      "rgba(0,0,0,0.06)", // eluvio color
+      "#acacac",
       "#8b8b8b",
       "#848484",
       "#717171",
@@ -51,7 +51,7 @@ const theme = createTheme({
     Accordion: {
       styles: () => ({
         control: {
-          backgroundColor: "var(--mantine-color-elv-gray-4)"
+          backgroundColor: "var(--mantine-color-elv-gray-1)"
         },
         label: {
           lineHeight: 1,

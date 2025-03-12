@@ -27,7 +27,7 @@ const ImageContent = observer(({imageSrc, title}) => {
     return (
       <Skeleton visible={!loaded} w="100%" h="100%">
         <Image
-          bg="elv-gray.2"
+          bg="elv-gray.1"
           key={imageSrc}
           radius="lg"
           loading="lazy"
@@ -83,7 +83,7 @@ const Clip = observer(({
           {
             clip._score &&
             song &&
-            <Box bg="elv-gray.4" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
+            <Box bg="elv-gray.1" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
               <Text fz="xs" c="elv-neutral.5">
                 Score: { clip._score }
               </Text>
@@ -111,10 +111,10 @@ const Clip = observer(({
               </Text>
             </Flex> : null
           }
-          {
-            _assetType &&
-            _captionApproved &&
-            <Group mb={0} gap={4} ml="auto">
+          <Group mb={0} gap={4} ml="auto">
+            {
+              _assetType &&
+              _captionApproved &&
               <Tooltip
                 label="Approved"
                 position="bottom"
@@ -123,17 +123,17 @@ const Clip = observer(({
               >
                 <ApproveIcon height={18} />
               </Tooltip>
-              {
-                clip._score &&
-                !song &&
-                <Box bg="elv-gray.4" p="2px 6px" style={{flexShrink: 0, borderRadius: "4px"}}>
-                  <Text size="xxs" c="elv-neutral.5">
-                    Score: { clip._score }
-                  </Text>
-                </Box>
-              }
-            </Group>
-          }
+            }
+            {
+              clip._score &&
+              !song &&
+              <Box bg="elv-gray.1" p="2px 6px" style={{flexShrink: 0, borderRadius: "4px"}}>
+                <Text size="xxs" c="elv-neutral.5">
+                  Score: { clip._score }
+                </Text>
+              </Box>
+            }
+          </Group>
         </Flex>
       </Flex>
     </UnstyledButton>
@@ -169,6 +169,19 @@ const ClipsGrid = observer(({
     }
   };
 
+  const GetPageSizeOptions = () => {
+    let options;
+    if(searchStore.searchContentType === "IMAGES") {
+      options = [35, 70, 105, 140];
+    } else if(searchStore.searchContentType === "VIDEOS") {
+      options = [20, 40, 60, 80];
+    }
+
+    return options.map(num => (
+      {value: num.toString(), label: num.toString(), disabled: searchStore.pagination.searchTotal < num}
+    ));
+  };
+
   if(searchStore.loadingSearch) {
     return (
       <Flex justify="center">
@@ -198,24 +211,19 @@ const ClipsGrid = observer(({
       </SimpleGrid>
 
       {
-        searchStore.searchContentType === "IMAGES" && !searchStore.loadingSearch &&
+        !searchStore.loadingSearch &&
         <Group gap={24} mt={48}>
           <Text>
             {
-              `${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.searchTotal.toLocaleString()}`
+              `${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.searchTotal?.toLocaleString()}`
             }
           </Text>
           <Group ml="auto" align="center" gap={0}>
             <Text fz="sm" mr={8}>Results Per Page</Text>
             <Select
               w={75}
-              disabled={searchStore.pagination.searchTotal <= 35}
-              data={[
-                {value: "35", label: "35", disabled: searchStore.pagination.searchTotal < 35},
-                {value: "70", label: "70", disabled: searchStore.pagination.searchTotal < 70},
-                {value: "105", label: "105", disabled: searchStore.pagination.searchTotal < 105},
-                {value: "140", label: "140", disabled: searchStore.pagination.searchTotal < 140}
-              ]}
+              disabled={searchStore.pagination.searchTotal <= searchStore.pagination.pageSize}
+              data={GetPageSizeOptions()}
               value={searchStore.pagination.pageSize.toString()}
               onChange={HandlePageSizeChange}
               size="xs"

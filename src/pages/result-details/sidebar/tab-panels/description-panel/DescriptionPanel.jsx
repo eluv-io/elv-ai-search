@@ -1,14 +1,14 @@
 import {observer} from "mobx-react-lite";
 import {Box, Flex, Loader, Stack, Text} from "@mantine/core";
-import {searchStore} from "@/stores/index.js";
+import {searchStore, tagStore} from "@/stores/index.js";
 import {PencilIcon} from "@/assets/icons/index.js";
 import {FormatTime} from "@/utils/helpers.js";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 
 const Card = ({startTime, text}) => {
   return (
     <Flex mb={20} direction="column">
-      <Box bg="elv-gray.4" w="100%" p={8} mb={12}>
+      <Box bg="elv-gray.1" w="100%" p={8} mb={12}>
         <Flex direction="row" justify="space-between" align="center">
           <Stack gap={0}>
             <Text fz="xs" fw={400} c="elv-gray.8">
@@ -34,15 +34,24 @@ const DescriptionPanel = observer(() => {
   const clip = searchStore.selectedSearchResult;
   const llavaTagKey = Object.keys(clip?._tags || {}).find(tagKey => tagKey.toLowerCase().includes("llava"));
   const llavaTags = clip._tags?.[llavaTagKey].items;
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const LoadData = async() => {
+      try {
+        setLoading(true);
 
-      await searchStore.GetTags({
-        dedupe: false,
-        assetType: searchStore.selectedSearchResult._assetType,
-        prefix: searchStore.selectedSearchResult.prefix
-      });
+        await tagStore.GetTags({
+          dedupe: false,
+          assetType: searchStore.selectedSearchResult._assetType,
+          prefix: searchStore.selectedSearchResult.prefix,
+          objectId: searchStore.selectedSearchResult.id,
+          startTime: searchStore.selectedSearchResult.start_time,
+          endTime: searchStore.selectedSearchResult.end_time
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     if(!searchStore.selectedSearchResult?._tags) {
@@ -50,7 +59,7 @@ const DescriptionPanel = observer(() => {
     }
   }, [searchStore.selectedSearchResult?._tags, searchStore.selectedSearchResult._assetType]);
 
-  if(!clip?._tags) {
+  if(loading) {
     return (
       <Flex justify="center">
         <Loader />
