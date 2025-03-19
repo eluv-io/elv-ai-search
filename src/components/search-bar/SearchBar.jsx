@@ -5,6 +5,7 @@ import {
   Checkbox,
   CloseIcon,
   Flex,
+  Group,
   Loader,
   Menu,
   Radio,
@@ -235,7 +236,7 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
     >
       <Menu.Target>
         <ActionIcon variant="transparent">
-          <DownArrowIcon color="var(--mantine-color-elv-gray-5)" />
+          <DownArrowIcon color="var(--mantine-color-elv-gray-3)" />
         </ActionIcon>
       </Menu.Target>
       <Menu.Dropdown p={24} style={{left: "300px"}}>
@@ -344,32 +345,38 @@ const SearchBar = observer(({
   return (
     <Flex direction="column">
       <Flex direction="row" align="center" mb={12} justify="center" w="100%">
-        <Flex w="70%" justify="center">
-          <Flex w="100%" pos="relative" align="center">
-            <TextInput
-              w="100%"
-              size="sm"
-              placeholder="Enter search phrase or keyword"
-              miw={"275px"}
-              classNames={{input: styles.textInput}}
-              value={fuzzySearchValue}
-              onChange={event => setFuzzySearchValue(event.target.value)}
-              onKeyDown={async (event) => {
-                if(event.key === "Enter") {
-                  await HandleSearch();
-                }
-              }}
-              leftSectionPointerEvents="all"
-              leftSection={
-                <IndexMenu
-                  setSearchFields={() => searchStore.currentSearch.SetSearchFields()}
-                  HandleUpdateSearchField={HandleUpdateSearchField}
-                />
+        <Flex w="100%" pos="relative" align="center">
+          <TextInput
+            w="100%"
+            size="lg"
+            placeholder="Enter search phrase or keyword"
+            miw={"275px"}
+            classNames={{input: styles.textInput, section: styles.inputRightSection}}
+            value={fuzzySearchValue}
+            onChange={event => setFuzzySearchValue(event.target.value)}
+            onKeyDown={async (event) => {
+              if(event.key === "Enter") {
+                await HandleSearch();
               }
-              rightSection={
-                loadingSearch ?
-                  <Loader size="xs" color="gray.7" /> :
-                  (
+            }}
+            leftSectionPointerEvents="all"
+            leftSection={
+              <IndexMenu
+                setSearchFields={() => searchStore.currentSearch.SetSearchFields()}
+                HandleUpdateSearchField={HandleUpdateSearchField}
+              />
+            }
+            rightSection={
+              loadingSearch ?
+                <Loader size="xs" color="gray.7" /> :
+                (
+                  <Group gap={16} wrap="nowrap">
+                    {
+                      !searchStore.musicSettingEnabled &&
+                      <ActionIcon variant="transparent" className={styles.cameraIcdon} size="sm">
+                        <CameraIcon color="var(--mantine-color-elv-gray-3)" />
+                      </ActionIcon>
+                    }
                     <ActionIcon
                       aria-label="Submit search"
                       variant="transparent"
@@ -379,29 +386,25 @@ const SearchBar = observer(({
                     >
                       <SubmitIcon />
                     </ActionIcon>
-                  )
-              }
-              rightSectionPointerEvents="all"
-            />
-            {
-              !searchStore.musicSettingEnabled &&
-              <ActionIcon variant="transparent" pos="absolute" className={styles.cameraIcon}>
-                <CameraIcon color="var(--mantine-color-elv-gray-3)" />
-              </ActionIcon>
+                  </Group>
+                )
             }
-          </Flex>
-
-          {
-            searchStore.searchContentType !== "IMAGES" &&
-            <Switch
-              size="xxl"
-              thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon />}
-              checked={searchStore.musicSettingEnabled}
-              onChange={() => searchStore.ToggleMusicSetting()}
-              ml={24}
-            />
-          }
+            rightSectionPointerEvents="all"
+          />
         </Flex>
+
+        {
+          searchStore.searchContentType !== "IMAGES" &&
+          <Switch
+            size="xxl"
+            classNames={{track: styles.switchTrack, thumb: styles.switchThumb}}
+            thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon color="var(--mantine-color-elv-gray-3)" />}
+            checked={searchStore.musicSettingEnabled}
+            onChange={() => searchStore.ToggleMusicSetting()}
+            bd={"none"}
+            ml={24}
+          />
+        }
       </Flex>
     </Flex>
   );

@@ -97,9 +97,9 @@ const theme = createTheme({
     Switch: {
       styles: () => ({
         root: {
-          "--switch-height-xxl": "calc(2.625rem*var(--mantine-scale))",
-          "--switch-width-xxl": "calc(4.75rem*var(--mantine-scale))",
-          "--switch-thumb-size-xxl": "calc(2rem* var(--mantine-scale))",
+          "--switch-height-xxl": "calc(3.125rem*var(--mantine-scale))",
+          "--switch-width-xxl": "calc(5.875rem*var(--mantine-scale))",
+          "--switch-thumb-size-xxl": "calc(2.5rem* var(--mantine-scale))",
           "--switch-label-font-size-xxl": "calc(0.75rem* var(--mantine-scale))",
           "--switch-track-label-padding-xxl": "calc(0.25rem* var(--mantine-scale))"
         }

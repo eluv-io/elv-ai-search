@@ -1,6 +1,9 @@
 .textInput {
+  background-color: var(--mantine-color-elv-gray-1);
+  border: none;
   border-radius: 50px;
   margin: 0;
+  padding-inline-end: 100px;
 }
 
 .radioBody {
@@ -10,4 +13,20 @@
 .cameraIcon {
   right: 42px;
   z-index: 5;
+}
+
+.inputRightSection {
+  &[data-position="right"] {
+    width: fit-content;
+    inset-inline-end: 0.75rem;
+  }
+}
+
+.switchTrack {
+  border: none;
+  background-color: var(--mantine-color-elv-gray-1);
+}
+
+.switchThumb {
+  border: none;
 }
