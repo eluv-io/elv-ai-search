@@ -3,3 +3,7 @@
     margin-inline-end: 0;
   }
 }
+
+.navLinkRoot {
+  padding: 6px 9px;
+}

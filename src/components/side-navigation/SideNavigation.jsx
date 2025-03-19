@@ -4,9 +4,9 @@ import {CreateIcon, LibraryIcon, SearchIcon} from "@/assets/icons/index.js";
 import styles from "@/components/side-navigation/SideNavigation.module.css";
 
 const NAV_LINKS = [
-  {path: "/search", icon: <SearchIcon />, title: "Search"},
-  {path: "/create", icon: <CreateIcon />, title: "Create"},
-  {path: "/library", icon: <LibraryIcon />, title: "My Library"},
+  {path: "/search", icon: <SearchIcon width={23} height={23} />, title: "Search"},
+  {path: "/create", icon: <CreateIcon width={23} height={23} />, title: "Create"},
+  {path: "/library", icon: <LibraryIcon width={23} height={23} />, title: "My Library"},
 ];
 
 const SideNavigation = () => {
@@ -25,7 +25,7 @@ const SideNavigation = () => {
           >
             <NavLink
               key={`navigation-link-${path}`}
-              classNames={{section: styles.section}}
+              classNames={{root: styles.navLinkRoot, section: styles.section}}
               href="#"
               onClick={() => navigate(path)}
               active={path === location.pathname}
