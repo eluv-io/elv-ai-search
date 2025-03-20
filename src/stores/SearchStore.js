@@ -636,6 +636,7 @@ class SearchStore {
               console.error(`Unable to retrieve thumbnail for ${result.id}`, error);
             }
 
+            result["_assetType"] = false;
             result["_score"] = this.GetSearchScore({clip: result});
             result["_title"] = result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
           }

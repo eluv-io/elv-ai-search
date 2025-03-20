@@ -13,6 +13,7 @@ import HollowStarIcon from "./HollowStarIcon.jsx";
 import LibraryIcon from "./LibraryIcon.jsx";
 import LinkIcon from "./LinkIcon.jsx";
 import ListIcon from "./ListIcon.jsx";
+import LockIcon from "./LockIcon.jsx";
 import MailIcon from "./MailIcon.jsx";
 import MusicIcon from "./MusicIcon.jsx";
 import PaperClipIcon from "./PaperClipIcon.jsx";
@@ -45,6 +46,7 @@ export {
   LibraryIcon,
   LinkIcon,
   ListIcon,
+  LockIcon,
   MailIcon,
   MusicIcon,
   PaperClipIcon,

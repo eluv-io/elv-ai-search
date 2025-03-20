@@ -13,7 +13,6 @@ import {useEffect, useRef, useState} from "react";
 import {ratingStore, searchStore} from "@/stores/index.js";
 import AIContentSection from "@/pages/result-details/details-main/ai-content-section/AIContentSection.jsx";
 import MediaItem from "@/pages/result-details/details-main/media-item/MediaItem.jsx";
-import MediaSecondaryInfo from "@/pages/result-details/details-main/media-secondary-info/MediaSecondaryInfo.jsx";
 
 const ResultDetailsMain = observer(({
   clip,
@@ -148,8 +147,13 @@ const ResultDetailsMain = observer(({
         opened={openedShareModal}
         onClose={closeModal}
         objectId={clip.id}
-        startTime={clip.start_time / 1000}
-        endTime={clip.end_time / 1000}
+        startTime={clip.start_time }
+        endTime={clip.end_time}
+        title={clip._title}
+        summary={clip._summary}
+        highlights={clip._highlights}
+        assetType={clip._assetType}
+        prefix={clip._prefix}
       />
     </Box>
   );

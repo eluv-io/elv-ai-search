@@ -6,24 +6,7 @@ import ThumbnailCard from "@/components/thumbnail-card/ThumbnailCard.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
-
-const TitleGroup = ({title, aiGenerated=false, loading, ...props}) => {
-  return (
-    <Group gap={4} mb={13} {...props}>
-      {
-        aiGenerated &&
-        <AiIcon />
-      }
-      <Group>
-        <Text size="sm" fw={600} c="elv-gray.8">{ title }</Text>
-        {
-          loading &&
-          <Loader size="xs" />
-        }
-      </Group>
-    </Group>
-  );
-};
+import TitleGroup from "@/components/title-group/TitleGroup.jsx";
 
 // Load video, seek to specified frame, make a blob URL out of that frame and open in new tab
 const GetKeyFrame = async (keyFrame) => {

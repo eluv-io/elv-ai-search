@@ -1,148 +1,167 @@
 import {observer} from "mobx-react-lite";
-import {AspectRatio, Box, CopyButton, Flex, Modal, Stack, Tabs, Text, Tooltip} from "@mantine/core";
+import {
+  AspectRatio,
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Group,
+  Loader,
+  Modal,
+  Pill,
+  Text,
+  Title
+} from "@mantine/core";
 import styles from "./ShareModal.module.css";
-import {LinkIcon, MailIcon} from "@/assets/icons/index.js";
+import {ShareIcon} from "@/assets/icons/index.js";
 import Video from "@/components/video/Video.jsx";
-import ShareDetailsPanel from "@/pages/result-details/share-modal/tab-panels/ShareDetailsPanel.jsx";
-import SharePlaybackPanel from "@/pages/result-details/share-modal/tab-panels/SharePlaybackPanel.jsx";
-import ShareFormatPanel from "@/pages/result-details/share-modal/tab-panels/ShareFormatPanel.jsx";
-import ShareAccessPanel from "@/pages/result-details/share-modal/tab-panels/ShareAccessPanel.jsx";
-import ShareSocialPanel from "@/pages/result-details/share-modal/tab-panels/ShareSocialPanel.jsx";
 import {useEffect, useState} from "react";
-import {searchStore} from "@/stores/index.js";
-import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
+import {summaryStore} from "@/stores/index.js";
+import {TimeInterval} from "@/utils/helpers.js";
+import TitleGroup from "@/components/title-group/TitleGroup.jsx";
+import ShareSection from "@/pages/result-details/share-modal/share-section/ShareSection.jsx";
 
-const SHARE_TABS = [
-  {value: "details", label: "Details", Component: ShareDetailsPanel},
-  {value: "playback", label: "Playback", Component: SharePlaybackPanel},
-  {value: "format", label: "Format", Component: ShareFormatPanel},
-  {value: "access", label: "Access", Component: ShareAccessPanel},
-  {value: "social", label: "Social", Component: ShareSocialPanel}
-];
+const SummaryHashtagsSection = observer(({
+  objectId,
+  startTime,
+  endTime,
+  prefix,
+  assetType,
+  summaryMeta
+}) => {
+  const [info, setInfo] = useState(summaryMeta);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const LoadSummary = async() => {
+      try {
+        if(summaryMeta) { return; }
+
+        setLoading(true);
+
+        const summaryResults = await summaryStore.GetSummaryResults({
+          objectId,
+          startTime,
+          endTime,
+          prefix,
+          assetType
+        });
+
+        setInfo(summaryResults);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    LoadSummary();
+  }, []);
+
+  return (
+    <>
+      <Box bg="elv-gray.1" p={8} className={styles.textBox}>
+        {
+          loading ?
+            <Loader size="sm" /> :
+            <Text fw={400} c="elv-gray.8" lh={1.25}>{ info ? info.summary : "" }</Text>
+        }
+      </Box>
+      {
+        loading ?
+          null :
+          <>
+            <TitleGroup
+              title={"Suggested Hashtags"}
+              mt={16}
+              aiGenerated
+            />
+            <Flex wrap="wrap" direction="row" gap={8}>
+              {
+                (info?.hashtags || []).map(hashtag => (
+                  <Pill key={hashtag} bg="white" bd="1px solid var(--mantine-color-elv-gray-3)" c="elv-gray.8" fz={14}>
+                    { hashtag }
+                  </Pill>
+                ))
+              }
+            </Flex>
+          </>
+      }
+    </>
+  );
+});
 
 const ShareModal = observer(({
   objectId,
   startTime,
+  title,
   endTime,
+  summary,
+  prefix,
+  assetType,
   opened,
   onClose
 }) => {
-  const [embedUrl, setEmbedUrl] = useState("");
-  const [downloadUrl, setDownloadUrl] = useState("");
-
-  useEffect(() => {
-    const LoadData = async () => {
-      const {embedUrl, downloadUrl} = await searchStore.GetShareUrls();
-
-      setEmbedUrl(embedUrl || "");
-      setDownloadUrl(downloadUrl || "");
-    };
-
-    LoadData();
-  }, []);
-
   return (
     <Modal
       opened={opened}
       onClose={onClose}
       size="xxl"
-      title="Share"
+      title={
+        <Group gap={8} w="100%" wrap="nowrap">
+          <ShareIcon height={22} width={22} className={styles.shareIcon} />
+          <Title order={1} lineClamp={1}>Share {title}</Title>
+        </Group>
+      }
       padding="26px"
     >
       <Box className={styles.grid}>
+        {/* Left column */}
         <Flex direction="column">
-          <Text fw={600} c="elv-gray.8" fz="md" mb={12}>Preview</Text>
           <Box mb={24}>
-            <AspectRatio ratio={16 / 9} classNames={{root: styles.video}}>
-              <Video
-                objectId={objectId}
-                playoutParameters={{
-                  clipStart: startTime,
-                  clipEnd: endTime,
-                  ignoreTrimming: true
-                }}
-              />
+            <AspectRatio ratio={16 / 9}>
+              <Box className={styles.videoWrapper}>
+                <Video
+                  objectId={objectId}
+                  playoutParameters={{
+                    clipStart: startTime,
+                    clipEnd: endTime,
+                    ignoreTrimming: true
+                  }}
+                />
+              </Box>
             </AspectRatio>
 
-            <Box>
-              <Flex direction="row" bg="elv-gray.1" p="12 16" classNames={{root: styles.bottomFlex}}>
-                <Stack flex={1} gap={2}>
-                  <Text fz="xs">Duration</Text>
-                  <Text fz="sm">7m 42s</Text>
-                </Stack>
-                <Stack flex={1} gap={2}>
-                  <Text fz="xs">Size</Text>
-                  <Text fz="sm">548  MB (estimated)</Text>
-                </Stack>
-              </Flex>
-            </Box>
-          </Box>
-          <Text fw={600} c="elv-gray.8" fz="md">Streaming URL</Text>
-          <Flex direction="row" gap={10} mb={24} w="100%">
-            <Text fz="xs" c="elv-neutral.5" truncate="end" style={{flexGrow: 0}}>
-              { embedUrl }
-            </Text>
-            <CopyButton value={embedUrl}>
-              {({copied, copy}) => (
-                <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
-                  <SecondaryButton
-                    onClick={copy}
-                    size="xs"
-                    variant="transparent"
-                    iconOnly
-                    style={{flexBasis: "20px", flexShrink: 0}}
-                  >
-                    <LinkIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
-                  </SecondaryButton>
-                </Tooltip>
-              )}
-            </CopyButton>
-            <MailIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
-          </Flex>
-          <Text fw={600} c="elv-gray.8" fz="md">Download URL</Text>
-          <Flex direction="row" gap={10} w="100%">
-            <Text fz="xs" c="elv-neutral.5" truncate="end" style={{flexGrow: 0}}>
-              { downloadUrl }
-            </Text>
-            <CopyButton value={downloadUrl}>
-              {({copied, copy}) => (
-                <Tooltip label={copied ? "Copied" : "Copy"} withArrow position="right">
-                  <SecondaryButton
-                    onClick={copy}
-                    size="xs"
-                    variant="transparent"
-                    iconOnly
-                    style={{flexBasis: "20px", flexShrink: 0}}
-                  >
-                    <LinkIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
-                  </SecondaryButton>
-                </Tooltip>
-              )}
-            </CopyButton>
-            <MailIcon width={20} color="black" style={{flexBasis: "20px", display: "flex", flexShrink: 0}} />
-          </Flex>
-        </Flex>
-        <Box>
-          <Tabs defaultValue="access">
-            <Tabs.List mb={24}>
+            <Box m="16 0 16">
               {
-                SHARE_TABS.map(item => (
-                  <Tabs.Tab value={item.value} key={`share-tabs-${item.value}`}>
-                    { item.label }
-                  </Tabs.Tab>
-                ))
+                ![undefined, null].includes(startTime) && ![undefined, null].includes(endTime) &&
+                <Text c="elv-gray.9">
+                  {
+                    TimeInterval({
+                      startTime: startTime / 1000,
+                      endTime: endTime / 1000
+                    })
+                  }
+                </Text>
               }
-            </Tabs.List>
-            {
-              SHARE_TABS.map(item => (
-                <Tabs.Panel key={item.value} value={item.value}>
-                  <item.Component />
-                </Tabs.Panel>
-              ))
-            }
-          </Tabs>
-        </Box>
+            </Box>
+            <SummaryHashtagsSection
+              objectId={objectId}
+              startTime={startTime}
+              endTime={endTime}
+              assetType={assetType}
+              prefix={prefix}
+              summaryMeta={summary}
+            />
+          </Box>
+        </Flex>
+
+        {/* Right column */}
+        <ShareSection />
       </Box>
+      <Divider color="elv-gray.3" mt={60} mb={24} />
+
+      <Flex justify="flex-end">
+        <Button onClick={onClose} pl={43} pr={43}>Done</Button>
+      </Flex>
     </Modal>
   );
 });

@@ -1,9 +1,31 @@
-import {createTheme} from "@mantine/core";
+import {createTheme, rem} from "@mantine/core";
 
 const theme = createTheme({
-  fontFamily: "Helvetica Neue, Helvetica, sans-serif",
+  fontFamily: "Inter, Helvetica Neue, helvetica, sans-serif",
   headings: {
-    fontFamily: "Helvetica Neue, Helvetica, sans-serif"
+    fontFamily: "Inter, Helvetica Neue, helvetica, sans-serif",
+    sizes: {
+      h1: {
+        fontSize: rem(22),
+        fontWeight: 600
+      },
+      h2: {
+        fontSize: rem(18),
+        fontWeight: 600,
+      },
+      h3: {
+        fontSize: rem(14),
+        fontWeight: 700
+      },
+      h4: {
+        fontSize: rem(14),
+        fontWeight: 500
+      },
+      h6: {
+        fontSize: rem(12),
+        fontWeight: 500
+      }
+    }
   },
   primaryColor: "elv-violet",
   primaryShade: 3,
@@ -29,8 +51,8 @@ const theme = createTheme({
       "#bdbdbd", // eluvio color
       "#acacac",
       "#8b8b8b",
-      "#848484",
-      "#717171",
+      "#868e96", // eluvio color
+      "#6b6b6b", // eluvio color
       "#4b494e", // eluvio color
       "#3c3c3c" // eluvio color
     ],
@@ -90,7 +112,12 @@ const theme = createTheme({
     Modal: {
       styles: () => ({
         root: {
-          "--modal-size-xxl": "calc(55.75rem * var(--mantine-scale))"
+          "--modal-size-xxl": rem(950)
+        },
+        title: {
+          "fontSize": rem(22),
+          "fontWeight": 600,
+          "color": "var(--mantine-color-elv-gray-9)"
         }
       })
     },
@@ -117,7 +144,7 @@ const theme = createTheme({
         if(props.size === "xxs") {
           return {
             root: {
-              "--text-fz": "0.75rem"
+              "--text-fz": rem(12)
             }
           };
         }

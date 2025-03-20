@@ -4,11 +4,15 @@
   grid-template-columns: minmax(0, 375px) 1fr;
 }
 
-.bottomFlex {
-  border-radius: 0 0 4px 4px;
+.videoWrapper {
+  border-radius: 14px;
+  overflow: hidden;
 }
 
-.video {
-  border-radius: 4px 4px 0 0;
-  overflow: hidden;
+.shareIcon {
+  flex-shrink: 0;
+}
+
+.textBox {
+  border-radius: 7px;
 }
