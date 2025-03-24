@@ -3,6 +3,8 @@ import {searchStore} from "@/stores/index.js";
 
 // Store for managing clip generated highlights
 class HighlightsStore {
+  mlcacheHostname = "ai.contentfabric.io"
+
   constructor(rootStore) {
     makeAutoObservable(this);
 
@@ -11,6 +13,10 @@ class HighlightsStore {
 
   get client() {
     return this.rootStore.client;
+  }
+
+  SetMlcacheHostname = ({host="ai.contentfabric.io"}) => {
+    this.mlcacheHostname = host
   }
 
   GetHighlightsUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
@@ -34,7 +40,7 @@ class HighlightsStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-03.contentfabric.io/mlcache/highlight/q/${objectId}`
+      const newUrl = `https://${this.mlcacheHostname}/mlcache/highlight/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;

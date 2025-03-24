@@ -13,7 +13,7 @@ class SearchStore {
   };
 
   customIndex = "";
-  searchHostname = "ai";
+  searchHostname = "ai.contentfabric.io";
   searchSummaryType = "synopsis"; // synopsis, caption, caption2
   searchContentType; // ALL, IMAGES, VIDEOS
   resultsViewType; // Show all results vs results that have a high score.
@@ -177,7 +177,7 @@ class SearchStore {
     this.currentSearch.index = index;
   };
 
-  SetSearchHostname = ({host="ai"}) => {
+  SetSearchHostname = ({host="ai.contentfabric.io"}) => {
     this.searchHostname = host;
   };
 
@@ -465,7 +465,7 @@ class SearchStore {
         `qlibs/${libraryId}/q/${objectId}`;
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://${this.searchHostname}.contentfabric.io/search/${contentObject}`.concat(url.slice(_pos));
+      const newUrl = `https://${this.searchHostname}/search/${contentObject}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
