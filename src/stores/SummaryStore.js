@@ -4,6 +4,7 @@ import {searchStore} from "@/stores/index.js";
 // Store for managing clip generated summaries and captions
 class SummaryStore {
   loadingSummary = false;
+  mlcacheHostname = "ai.contentfabric.io"
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -13,6 +14,10 @@ class SummaryStore {
 
   get client() {
     return this.rootStore.client;
+  }
+
+  SetMlcacheHostname = ({host="ai.contentfabric.io"}) => {
+     this.mlcacheHostname = host
   }
 
   ToggleLoading = () => {
@@ -38,7 +43,7 @@ class SummaryStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://ai-02.contentfabric.io/caption/q/${objectId}`
+      const newUrl = `https://${this.mlcacheHostname}/caption/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;
@@ -108,7 +113,7 @@ class SummaryStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `https://${server}.contentfabric.io/${requestUrl}/q/${objectId}`
+      const newUrl = `https://${this.mlcacheHostname}/${requestUrl}/q/${objectId}`
         .concat(url.slice(_pos));
 
       return newUrl;

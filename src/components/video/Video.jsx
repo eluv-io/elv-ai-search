@@ -49,7 +49,7 @@ const Video = observer(({
           {
             clientOptions: {
               client: rootStore.client,
-              network: EluvioPlayerParameters.networks[rootStore.networkInfo.name === "main" ? "MAIN" : "DEMO"],
+              network: EluvioPlayerParameters.networks[rootStore.networkName === "main" ? "MAIN" : "DEMO"],
               ...clientOptions
             },
             sourceOptions: {

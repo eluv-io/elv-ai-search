@@ -13,7 +13,7 @@ import {
   TextInput
 } from "@mantine/core";
 import {useEffect, useState} from "react";
-import {searchStore, tenantStore} from "@/stores/index.js";
+import {searchStore, tenantStore, summaryStore, highlightsStore} from "@/stores/index.js";
 import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
@@ -130,19 +130,21 @@ const AdvancedSection = observer(({
       <Text c="elv-gray.8" size="xl" fw={700} mb={8}>Version</Text>
       <Radio.Group
         value={searchStore.searchHostname}
-        defaultValue="ai"
+        defaultValue="ai.contentfabric.io"
         onChange={(value) => {
           searchStore.SetSearchHostname({host: value});
+          summaryStore.SetMlcacheHostname({host: value});
+          highlightsStore.SetMlcacheHostname({host: value});
         }}
       >
         <Radio
           label="AI 1"
-          value="ai"
+          value="ai.contentfabric.io"
           mb={16}
         />
         <Radio
           label="AI 2"
-          value="ai-02"
+          value="ai-02.contentfabric.io"
           mb={16}
         />
       </Radio.Group>

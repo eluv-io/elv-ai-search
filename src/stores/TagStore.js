@@ -51,7 +51,7 @@ class TagStore {
     });
 
     const _pos = url.indexOf(`/${requestRep}?`);
-    const newUrl = `https://${this.rootStore.searchStore.searchHostname}.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`
+    const newUrl = `https://${this.rootStore.searchStore.searchHostname}/search/qlibs/${libraryId}/q/${objectId}`
       .concat(url.slice(_pos));
 
     try {
