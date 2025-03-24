@@ -141,7 +141,7 @@ const Clip = observer(({
 });
 
 const ClipsGrid = observer(({
-  clips=[],
+  clips,
   song,
   cols=4,
   HandleNextPage

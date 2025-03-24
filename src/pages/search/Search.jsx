@@ -8,13 +8,12 @@ import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
+import ClipsList from "@/pages/search/clips-list/ClipsList.jsx";
 
-const FilterToolbar = observer(({loadingSearch}) => {
+const FilterToolbar = observer(({loadingSearch, resultsView, setResultsView}) => {
   const iconProps = {
     style: {width: "20px", height: "20px", display: "block"}
   };
-
-  const [view, setView] = useState("grid");
 
   if(!(searchStore.searchResults || []).length || loadingSearch) { return null; }
 
@@ -75,11 +74,11 @@ const FilterToolbar = observer(({loadingSearch}) => {
         }
       </Group>
       <SegmentedControl
-        value={view}
-        onChange={setView}
+        value={resultsView}
+        onChange={setResultsView}
         data={[
           {
-            value: "list",
+            value: "LIST",
             label: (
               <>
                 <ListIcon {...iconProps} />
@@ -88,7 +87,7 @@ const FilterToolbar = observer(({loadingSearch}) => {
             )
           },
           {
-            value: "grid",
+            value: "GRID",
             label: (
               <>
                 <GridIcon {...iconProps} />
@@ -102,16 +101,59 @@ const FilterToolbar = observer(({loadingSearch}) => {
   );
 });
 
-const Search = observer(() => {
-  const [loadingSearch, setLoadingSearch] = useState(false);
-  const [fuzzySearchValue, setFuzzySearchValue] = useState("");
-
+const SearchResults = observer(({HandleNextPage, resultsView}) => {
   const colCount = {
     video: 4,
     image: 7
   };
-  const viewVideoCount = -1;
-  const viewImageCount = -1;
+
+  if(searchStore.musicSettingEnabled) {
+    return <MusicGrid />;
+  }
+
+  let cols, title;
+  if(["ALL", "VIDEOS"].includes(searchStore.searchContentType)) {
+    cols = colCount.video;
+    title = "Videos";
+  } else if(["ALL", "IMAGES"].includes(searchStore.searchContentType)) {
+    cols = colCount.image;
+    title = "Images";
+  } else {
+    return null;
+  }
+
+  // condition for images:
+  // (searchStore.searchResults || searchStore.loadingSearch)
+
+  return (
+    searchStore.searchResults &&
+    <>
+      <Group mb={16}>
+        <Title c="elv-gray.8" order={3} size="1.5rem">
+          { title }
+        </Title>
+      </Group>
+      {
+        resultsView === "GRID" ?
+          <ClipsGrid
+            clips={searchStore.searchResults}
+            cols={cols}
+            HandleNextPage={HandleNextPage}
+          /> :
+          <ClipsList
+            clips={searchStore.searchResults}
+            HandleNextPage={HandleNextPage}
+          />
+      }
+    </>
+  );
+});
+
+const Search = observer(() => {
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [fuzzySearchValue, setFuzzySearchValue] = useState("");
+  const [resultsView, setResultsView] = useState("GRID");
+
   // TODO: When multi-search is supported, use limited view
   // const [viewVideoCount, setViewVideoCount] = useState(-1);
   // const [viewImageCount, setViewImageCount] = useState(-1);
@@ -181,51 +223,15 @@ const Search = observer(() => {
         fuzzySearchValue={fuzzySearchValue}
         setFuzzySearchValue={setFuzzySearchValue}
       />
-      <FilterToolbar loadingSearch={loadingSearch} />
-      {
-        searchStore.musicSettingEnabled ?
-          <MusicGrid /> :
-          (
-            <>
-              {
-                ["ALL", "VIDEOS"].includes(searchStore.searchContentType) &&
-                searchStore.searchResults &&
-                <>
-                  <Group mb={16}>
-                    <Title c="elv-gray.8" order={3} size="1.5rem">
-                      Videos
-                    </Title>
-                    {/* TODO: Add limited view when multi search is supported */}
-                  </Group>
-                <ClipsGrid
-                  clips={searchStore.searchResults}
-                  viewCount={viewVideoCount}
-                  cols={colCount.video}
-                  HandleNextPage={HandleNextPage}
-                />
-                </>
-              }
-              {
-                ["ALL", "IMAGES"].includes(searchStore.searchContentType) &&
-                (searchStore.searchResults || searchStore.loadingSearch) &&
-                <>
-                  <Group mb={16} mt={16}>
-                    <Title c="elv-gray.8" order={3} size="1.5rem">
-                      Images
-                    </Title>
-                    {/* TODO: Add limited view when multi search is supported */}
-                  </Group>
-                  <ClipsGrid
-                    clips={searchStore.searchResults}
-                    viewCount={viewImageCount}
-                    cols={colCount.image}
-                    HandleNextPage={HandleNextPage}
-                  />
-                </>
-              }
-            </>
-          )
-      }
+      <FilterToolbar
+        loadingSearch={loadingSearch}
+        resultsView={resultsView}
+        setResultsView={setResultsView}
+      />
+      <SearchResults
+        HandleNextPage={HandleNextPage}
+        resultsView={resultsView}
+      />
     </PageContainer>
   );
 });

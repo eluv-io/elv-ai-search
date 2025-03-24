@@ -25,13 +25,16 @@ class SearchStore {
   startResult = 0; // Used for API payload
   endResult = null; // Used for API payload
 
+  // Results by type
   resultsBySong = null;
   resultsVideo = null;
   resultsImage = null;
 
+  // Paginated results
   resultsImagePaginated = {};
   resultsVideoPaginated = {};
 
+  // High score results
   highScore = 60;
   highScoreVideoResults = null;
   highScoreImageResults = null;
