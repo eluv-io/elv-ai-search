@@ -1,9 +1,8 @@
 import {observer} from "mobx-react-lite";
-import {Box, Button, Flex, Group, Image, Loader, Pill, Text, UnstyledButton} from "@mantine/core";
+import {Box, Button, Flex, Image, Loader, Pill, UnstyledButton} from "@mantine/core";
 import {useState} from "react";
 import {highlightsStore, rootStore, searchStore, summaryStore, tagStore} from "@/stores/index.js";
 import ThumbnailCard from "@/components/thumbnail-card/ThumbnailCard.jsx";
-import AiIcon from "@/components/ai-icon/AiIcon.jsx";
 
 import {EluvioPlayerParameters, InitializeEluvioPlayer} from "@eluvio/elv-player-js";
 import TitleGroup from "@/components/title-group/TitleGroup.jsx";

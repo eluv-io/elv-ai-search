@@ -2,8 +2,10 @@ import {BrowserRouter} from "react-router-dom";
 import {observer} from "mobx-react-lite";
 import {AppShell, Loader, MantineProvider} from "@mantine/core";
 import MantineTheme from "@/assets/MantineTheme.js";
+
 import "@mantine/core/styles.layer.css";
 import "@mantine/dropzone/styles.css";
+import "mantine-datatable/styles.layer.css";
 
 import SideNavigation from "@/components/side-navigation/SideNavigation.jsx";
 import AppRoutes from "./Routes.jsx";

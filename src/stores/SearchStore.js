@@ -621,6 +621,7 @@ class SearchStore {
             result["_imageSrc"] = url;
             result["_prefix"] = result.prefix;
             result["_title"] = result.prefix.replace("/assets/", "");
+            result["id"] = `${result.id}-${result.prefix}`;
             result["_captionApproved"] = await summaryStore.GetCaptionApprovalState({
               objectId: result.id,
               prefix: result.prefix,
@@ -642,6 +643,7 @@ class SearchStore {
             result["_assetType"] = false;
             result["_score"] = this.GetSearchScore({clip: result});
             result["_title"] = result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
+            result["_id"] = `${result.id}-${result.start_time}-${result.end_time}`;
           }
 
           result["_index"] = i;

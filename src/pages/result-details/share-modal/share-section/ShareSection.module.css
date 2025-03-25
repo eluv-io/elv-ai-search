@@ -4,9 +4,9 @@
 
 .dropdownInput {
   border: none;
+  color: var(--mantine-color-elv-gray-8);
   font-size: 14px;
   font-weight: 500;
-  color: var(--mantine-color-elv-gray-8);
   height: 14px;
   min-height: 14px;
   padding-inline-end: 0;
@@ -18,6 +18,6 @@
 }
 
 .pillButton {
-  border-radius: 16px;
   border-color: var(--mantine-color-elv-gray-4);
+  border-radius: 16px;
 }

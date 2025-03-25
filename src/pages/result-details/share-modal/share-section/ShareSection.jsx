@@ -2,8 +2,8 @@ import {observer} from "mobx-react-lite";
 import {
   ActionIcon,
   Avatar,
-  Box, Button,
-  CopyButton,
+  Box,
+  Button,
   Divider,
   Group,
   Select,

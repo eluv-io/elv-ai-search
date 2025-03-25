@@ -17,14 +17,14 @@
 
 .inputRightSection {
   &[data-position="right"] {
-    width: fit-content;
     inset-inline-end: 0.75rem;
+    width: fit-content;
   }
 }
 
 .switchTrack {
-  border: none;
   background-color: var(--mantine-color-elv-gray-1);
+  border: none;
 }
 
 .switchThumb {
