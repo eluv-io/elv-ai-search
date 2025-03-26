@@ -8,7 +8,7 @@ import {useEffect, useState} from "react";
 const Card = ({startTime, text}) => {
   return (
     <Flex mb={20} direction="column">
-      <Box bg="elv-gray.1" w="100%" p={8} mb={12}>
+      <Box bg="elv-gray.4" w="100%" p={8} mb={12}>
         <Flex direction="row" justify="space-between" align="center">
           <Stack gap={0}>
             <Text fz="xs" fw={400} c="elv-gray.8">

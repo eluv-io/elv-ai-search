@@ -57,7 +57,7 @@ const CreateVideoMain = observer(({
                 right={10}
                 onClick={open}
                 radius={30}
-                color="elv-gray.1"
+                color="elv-gray.4"
                 style={{
                   opacity: openedSidebar ? 0 : 1,
                   zIndex: 10,

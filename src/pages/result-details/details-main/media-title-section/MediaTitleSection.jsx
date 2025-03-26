@@ -147,7 +147,7 @@ const MediaTitleSection = observer(({
   };
 
   const iconStyles = {
-    bg: "elv-gray.1",
+    bg: "elv-gray.4",
     color: "var(--mantine-color-elv-neutral-8)",
     width: 18
   };
@@ -245,7 +245,7 @@ const MediaTitleSection = observer(({
         }
 
         <Group style={{flexShrink: 0, flexGrow: 0, marginLeft: "auto"}}>
-          <Group gap="1" bg="elv-gray.1" style={{borderRadius: "30px"}}>
+          <Group gap="1" bg="elv-gray.4" style={{borderRadius: "30px"}}>
             {
               [
                 {Icon: star1icon, tooltipText: "Irrelevant", value: "RELEVANCY_1_STAR"},

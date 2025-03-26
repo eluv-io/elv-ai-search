@@ -27,7 +27,7 @@ const ImageContent = observer(({imageSrc, title}) => {
     return (
       <Skeleton visible={!loaded} w="100%" h="100%">
         <Image
-          bg="elv-gray.1"
+          bg="elv-gray.4"
           key={imageSrc}
           radius="lg"
           loading="lazy"
@@ -83,7 +83,7 @@ const Clip = observer(({
           {
             clip._score &&
             song &&
-            <Box bg="elv-gray.1" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
+            <Box bg="elv-gray.4" p="4px 8px" style={{flexShrink: 0, borderRadius: "4px"}}>
               <Text fz="xs" c="elv-neutral.5">
                 Score: { clip._score }
               </Text>
@@ -127,7 +127,7 @@ const Clip = observer(({
             {
               clip._score &&
               !song &&
-              <Box bg="elv-gray.1" p="2px 6px" style={{flexShrink: 0, borderRadius: "4px"}}>
+              <Box bg="elv-gray.4" p="2px 6px" style={{flexShrink: 0, borderRadius: "4px"}}>
                 <Text size="xxs" c="elv-neutral.5">
                   Score: { clip._score }
                 </Text>

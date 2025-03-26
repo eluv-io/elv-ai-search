@@ -10,6 +10,7 @@ import RatingStore from "@/stores/RatingStore.js";
 import OverlayStore from "@/stores/OverlayStore.js";
 import UrlJoin from "url-join";
 import TagStore from "@/stores/TagStore.js";
+import ContentStore from "@/stores/ContentStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -30,6 +31,7 @@ class RootStore {
     this.highlightsStore = new HighlightsStore(this);
     this.ratingStore = new RatingStore(this);
     this.tagStore = new TagStore(this);
+    this.contentStore = new ContentStore(this);
     this.Initialize();
   }
 
@@ -42,7 +44,7 @@ class RootStore {
 
       window.client = this.client;
 
-      this.tenantId = yield this.tenantStore.GetTenantData();
+      this.tenantId = yield this.tenantStore.GetTenantId();
 
       // eslint-disable-next-line no-undef
       if(EluvioConfiguration.imageTenants.includes(this.tenantId)) {
@@ -248,6 +250,7 @@ export const summaryStore = rootStore.summaryStore;
 export const highlightsStore = rootStore.highlightsStore;
 export const ratingStore = rootStore.ratingStore;
 export const tagStore = rootStore.tagStore;
+export const contentStore = rootStore.contentStore;
 
 if(import.meta.hot) {
   if (import.meta.hot.data.store) {

@@ -7,6 +7,8 @@ class TenantStore {
   searchIndexes;
   loadedIndexes = false;
   libraries;
+  rootFolder;
+  tenantName;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -22,7 +24,7 @@ class TenantStore {
     return this.rootStore.tenantId;
   }
 
-  GetTenantData = () => {
+  GetTenantId = () => {
     try {
       return this.client.userProfileClient.TenantContractId();
     } catch(error) {
@@ -33,20 +35,31 @@ class TenantStore {
     }
   };
 
-  GetTenantIndexes = flow(function * () {
+  GetTenantData = flow(function * () {
     if(!this.tenantId) {
       return [];
     }
 
-    if(this.loadedIndexes) {
+    if(this.loadedIndexes && this.rootFolder) {
       return Object.values(this.searchIndexes || {});
     }
 
-    const indexes = yield this.client.ContentObjectMetadata({
+    const tenantMeta = yield this.client.ContentObjectMetadata({
       libraryId: this.tenantId.replace("iten", "ilib"),
       objectId: this.tenantId.replace("iten", "iq__"),
-      metadataSubtree: "public/search/indexes"
+      metadataSubtree: "public",
+      select: [
+        "search/indexes",
+        "content_folder_root",
+        "name"
+      ]
     });
+
+    const indexes = tenantMeta?.search?.indexes;
+
+    if(tenantMeta?.name) {
+      this.tenantName = tenantMeta.name;
+    }
 
     if(!indexes) {
       uiStore.SetErrorMessage("Unable to determine search indexes for tenant");
@@ -62,8 +75,12 @@ class TenantStore {
     }
 
     this.loadedIndexes = true;
+    this.rootFolder = tenantMeta?.content_folder_root;
 
-    return indexes;
+    return {
+      indexes: indexes || [],
+      contentFolderRoot: tenantMeta?.content_folder_root
+    };
   });
 
   GetLibraries = flow(function * (){

@@ -1,5 +1,5 @@
 .textInput {
-  background-color: var(--mantine-color-elv-gray-1);
+  background-color: var(--mantine-color-elv-gray-4);
   border: none;
   border-radius: 50px;
   margin: 0;
@@ -23,7 +23,7 @@
 }
 
 .switchTrack {
-  background-color: var(--mantine-color-elv-gray-1);
+  background-color: var(--mantine-color-elv-gray-4);
   border: none;
 }
 

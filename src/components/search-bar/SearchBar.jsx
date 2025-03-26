@@ -176,7 +176,7 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
     const LoadData = async() => {
       try {
         setLoadingIndexes(true);
-        const tenantIndexes = await tenantStore.GetTenantIndexes();
+        const {indexes: tenantIndexes} = await tenantStore.GetTenantData();
         setIndexes(tenantIndexes || []);
         setLoadingIndexes(false);
 
@@ -343,69 +343,67 @@ const SearchBar = observer(({
   };
 
   return (
-    <Flex direction="column">
-      <Flex direction="row" align="center" mb={12} justify="center" w="100%">
-        <Flex w="100%" pos="relative" align="center">
-          <TextInput
-            w="100%"
-            size="lg"
-            placeholder="Enter search phrase or keyword"
-            miw={"275px"}
-            classNames={{input: styles.textInput, section: styles.inputRightSection}}
-            value={fuzzySearchValue}
-            onChange={event => setFuzzySearchValue(event.target.value)}
-            onKeyDown={async (event) => {
-              if(event.key === "Enter") {
-                await HandleSearch();
-              }
-            }}
-            leftSectionPointerEvents="all"
-            leftSection={
-              <IndexMenu
-                setSearchFields={() => searchStore.currentSearch.SetSearchFields()}
-                HandleUpdateSearchField={HandleUpdateSearchField}
-              />
+    <Flex direction="row" align="center" justify="center" w="100%" mb={24}>
+      <Flex w="100%" pos="relative" align="center">
+        <TextInput
+          w="100%"
+          size="lg"
+          placeholder="Enter search phrase or keyword"
+          miw={"275px"}
+          classNames={{input: styles.textInput, section: styles.inputRightSection}}
+          value={fuzzySearchValue}
+          onChange={event => setFuzzySearchValue(event.target.value)}
+          onKeyDown={async (event) => {
+            if(event.key === "Enter") {
+              await HandleSearch();
             }
-            rightSection={
-              loadingSearch ?
-                <Loader size="xs" color="gray.7" /> :
-                (
-                  <Group gap={16} wrap="nowrap">
-                    {
-                      !searchStore.musicSettingEnabled &&
-                      <ActionIcon variant="transparent" className={styles.cameraIcdon} size="sm">
-                        <CameraIcon color="var(--mantine-color-elv-gray-3)" />
-                      </ActionIcon>
-                    }
-                    <ActionIcon
-                      aria-label="Submit search"
-                      variant="transparent"
-                      component="button"
-                      onClick={() => HandleSearch()}
-                      c="gray.7"
-                    >
-                      <SubmitIcon />
+          }}
+          leftSectionPointerEvents="all"
+          leftSection={
+            <IndexMenu
+              setSearchFields={() => searchStore.currentSearch.SetSearchFields()}
+              HandleUpdateSearchField={HandleUpdateSearchField}
+            />
+          }
+          rightSection={
+            loadingSearch ?
+              <Loader size="xs" color="gray.7" /> :
+              (
+                <Group gap={16} wrap="nowrap">
+                  {
+                    !searchStore.musicSettingEnabled &&
+                    <ActionIcon variant="transparent" className={styles.cameraIcdon} size="sm">
+                      <CameraIcon color="var(--mantine-color-elv-gray-3)" />
                     </ActionIcon>
-                  </Group>
-                )
-            }
-            rightSectionPointerEvents="all"
-          />
-        </Flex>
-
-        {
-          searchStore.searchContentType !== "IMAGES" &&
-          <Switch
-            size="xxl"
-            classNames={{track: styles.switchTrack, thumb: styles.switchThumb}}
-            thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon color="var(--mantine-color-elv-gray-3)" />}
-            checked={searchStore.musicSettingEnabled}
-            onChange={() => searchStore.ToggleMusicSetting()}
-            bd={"none"}
-            ml={24}
-          />
-        }
+                  }
+                  <ActionIcon
+                    aria-label="Submit search"
+                    variant="transparent"
+                    component="button"
+                    onClick={() => HandleSearch()}
+                    c="gray.7"
+                  >
+                    <SubmitIcon />
+                  </ActionIcon>
+                </Group>
+              )
+          }
+          rightSectionPointerEvents="all"
+        />
       </Flex>
+
+      {
+        searchStore.searchContentType !== "IMAGES" &&
+        <Switch
+          size="xxl"
+          classNames={{track: styles.switchTrack, thumb: styles.switchThumb}}
+          thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon color="var(--mantine-color-elv-gray-3)" />}
+          checked={searchStore.musicSettingEnabled}
+          onChange={() => searchStore.ToggleMusicSetting()}
+          bd={"none"}
+          ml={24}
+        />
+      }
     </Flex>
   );
 });

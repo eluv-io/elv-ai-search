@@ -26,7 +26,7 @@ const SecondaryButton = forwardRef(({
       <ActionIcon
         onClick={onClick}
         radius={30}
-        color="elv-gray.1"
+        color="elv-gray.4"
         {...props}
         ref={ref}
       >
@@ -42,7 +42,7 @@ const SecondaryButton = forwardRef(({
       <Button
         leftSection={LeftIcon ? <LeftIcon color={iColor} /> : null}
         radius={30}
-        color="elv-gray.1"
+        color="elv-gray.4"
         onClick={onClick}
         {...props}
       >

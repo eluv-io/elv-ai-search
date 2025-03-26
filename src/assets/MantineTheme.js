@@ -27,6 +27,11 @@ const theme = createTheme({
       }
     }
   },
+  fontSizes: {
+    sm: rem(12),
+    md: rem(16),
+    xl: rem(24)
+  },
   primaryColor: "elv-violet",
   primaryShade: 3,
   scale: 1,
@@ -46,10 +51,10 @@ const theme = createTheme({
     ],
     "elv-gray": [
       "#f5f5f5",
-      "rgba(0, 0, 0, 0.06)", // eluvio color
+      "#e3e3e3", // eluvio color
       "#d7d7d7", // eluvio color
       "#bdbdbd", // eluvio color
-      "#acacac",
+      "rgba(0, 0, 0, 0.06)", // eluvio color
       "#8b8b8b",
       "#868e96", // eluvio color
       "#6b6b6b", // eluvio color
@@ -97,7 +102,7 @@ const theme = createTheme({
     Accordion: {
       styles: () => ({
         control: {
-          backgroundColor: "var(--mantine-color-elv-gray-1)"
+          backgroundColor: "var(--mantine-color-elv-gray-4)"
         },
         label: {
           lineHeight: 1,

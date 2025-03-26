@@ -58,7 +58,7 @@ const SummaryHashtagsSection = observer(({
 
   return (
     <>
-      <Box bg="elv-gray.1" p={8} className={styles.textBox}>
+      <Box bg="elv-gray.4" p={8} className={styles.textBox}>
         {
           loading ?
             <Loader size="sm" /> :

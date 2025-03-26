@@ -35,14 +35,13 @@ const TypeCell = observer(({assetType, startTime, endTime}) => {
   );
 });
 
-const ClipsList = observer(({clips}) => {
-  const records = clips;
-
+const ClipsList = observer(({records, loading}) => {
   return (
     <Box>
       <DataTable
         highlightOnHover
         idAccessor="objectId"
+        fetching={loading}
         minHeight={(!records || records.length === 0) ? 130 : 75}
         records={records}
         columns={[
