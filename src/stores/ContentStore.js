@@ -14,14 +14,30 @@ class ContentStore {
     return this.rootStore.client;
   }
 
-  GetContentFolders = flow(function * ({parentFolder}={}) {
+  GetContentData = flow(function * ({
+    parentFolder,
+    filterByFolder=true,
+    sortBy="asset_type"
+  }={}) {
+    const filterOptions = [];
+
+    if(filterByFolder) {
+      filterOptions.push("tag:eq:elv:folder");
+    }
+
+    if(parentFolder) {
+      filterOptions.push(`group:eq:${parentFolder}`);
+    }
+
     const data = yield this.client.TenantContent({
-      filter: [
-        "tag:eq:elv:folder",
-        `group:eq:${parentFolder}`
+      filter: filterOptions,
+      select: [
+        "public/name",
+        "public/asset_metadata/display_title"
       ],
-      select: ["public/name", "public/asset_metadata/display_title"],
-      sort: {field: "asset_type"}
+      sort: {
+        field: sortBy
+      }
     });
 
     const content = data.versions || [];
@@ -30,13 +46,26 @@ class ContentStore {
       10,
       content,
       async contentObject => {
-        const tags = await this.GetContentTags({
-          objectId: contentObject.id
-        });
+        let tags, permission;
+        const objectId = contentObject.id;
+
+        try {
+          tags = await this.GetContentTags({
+            objectId
+          });
+        } catch(error) {
+          console.error(`Skipping tag for ${objectId}`);
+        }
+
+        try {
+          permission = await this.client.Permission({objectId});
+        } catch(error) {
+          console.error(`Skipping permission for ${objectId}`);
+        }
 
         contentObject["_tags"] = tags;
-        contentObject["_isFolder"] = tags.includes("elv:folder");
-        contentObject["_permission"] = await this.client.Permission({objectId: contentObject.id});
+        contentObject["_isFolder"] = (tags || []).includes("elv:folder");
+        contentObject["_permission"] = permission;
 
         return contentObject;
       }
@@ -50,14 +79,20 @@ class ContentStore {
     objectId,
     versionHash
   }) {
-    if(!libraryId) {
-      libraryId = yield this.client.ContentObjectLibraryId({objectId, versionHash});
-    }
+    try {
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId, versionHash});
+      }
 
-    return this.client.ContentTags({
-      libraryId,
-      objectId
-    });
+      return this.client.ContentTags({
+        libraryId,
+        objectId
+      });
+    } catch(error) {
+       
+      console.error(`Unable to get tags for ${objectId}`, error);
+      return [];
+    }
   });
 }
 

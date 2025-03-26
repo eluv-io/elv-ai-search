@@ -42,7 +42,6 @@ class RatingStore {
     try {
       return this.client.Request({url, body, method: "POST"});
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to set rating results", error);
       throw error;
     }
@@ -85,7 +84,6 @@ class RatingStore {
     try {
       return this.client.Request({url, body, method: "POST"});
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get rating results", error);
     }
   });

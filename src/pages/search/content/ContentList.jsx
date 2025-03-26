@@ -79,6 +79,8 @@ const TypeCell = observer(({assetType, startTime, endTime}) => {
 });
 
 const TagsCell = observer(({tags}) => {
+  if(!tags || tags.length === 0) { return <EmptyTableCell />; }
+
   return (
     <Text fz={14} fw={500} c="elv-gray.8">
       { tags.join(", ") }
@@ -88,7 +90,7 @@ const TagsCell = observer(({tags}) => {
 
 const AccessCell = observer(({permission}) => {
   if(!Object.hasOwn(permissionLevels, permission)) {
-    return <Text c="elv-gray.9">---</Text>;
+    return <EmptyTableCell />;
   }
 
   return (
@@ -100,8 +102,12 @@ const AccessCell = observer(({permission}) => {
   );
 });
 
+const EmptyTableCell = () => {
+  return <Text c="elv-gray.9">---</Text>;
+};
+
 const TableCell = observer(({isFolder, type, ...props}) => {
-  const FolderCondition = (Component) => (isFolder ? <Text c="elv-gray.9">---</Text> : <Component />);
+  const FolderCondition = (Component) => (isFolder ? <EmptyTableCell /> : Component);
 
   const cellMap = {
     "title": <TitleCell isFolder={isFolder} {...props} />,

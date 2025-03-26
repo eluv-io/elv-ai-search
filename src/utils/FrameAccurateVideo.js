@@ -87,7 +87,6 @@ class FrameAccurateVideo {
           return "NTSCHD";
         }
 
-        // eslint-disable-next-line no-console
         console.error(`Unknown playback rate: ${input}`);
     }
   }

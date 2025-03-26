@@ -88,9 +88,7 @@ const KeyFrameButton = observer(({keyFrame}) => {
         try {
           await GetKeyFrame(keyFrame);
         } catch(error) {
-          // eslint-disable-next-line no-console
           console.error("Failed to generate keyframe image:");
-          // eslint-disable-next-line no-console
           console.error(error);
         } finally {
           setLoading(false);

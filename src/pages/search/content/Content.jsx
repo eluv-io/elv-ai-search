@@ -1,21 +1,20 @@
 import {observer} from "mobx-react-lite";
 import {Box} from "@mantine/core";
 import {useEffect, useState} from "react";
-import {contentStore, rootStore} from "@/stores/index.js";
+import {contentStore} from "@/stores/index.js";
 import ContentList from "@/pages/search/content/ContentList.jsx";
 
 const Content = observer(({show}) => {
-  const [content, setContent] = useState(null);
+  const [content, setContent] = useState([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const LoadData = async() => {
       try {
         setLoading(true);
-        const contentMetadata = await contentStore.GetContentFolders({
-          parentFolder: rootStore.tenantStore.rootFolder
+        const contentMetadata = await contentStore.GetContentData({
+          filterByFolder: false
         });
-
         setContent(contentMetadata);
       } finally {
         setLoading(false);
@@ -23,7 +22,7 @@ const Content = observer(({show}) => {
     };
 
     LoadData();
-  }, [rootStore.tenantStore.rootFolder]);
+  }, []);
 
   if(!show) { return null; }
 

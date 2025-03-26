@@ -43,7 +43,6 @@ class SummaryStore {
 
       return newUrl;
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get caption URL", error);
     }
   });
@@ -113,7 +112,6 @@ class SummaryStore {
 
       return newUrl;
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get summary URL", error);
     }
   });
@@ -161,7 +159,6 @@ class SummaryStore {
 
       return value;
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Unable to get caption approval state", error);
     }
   });
@@ -202,7 +199,6 @@ class SummaryStore {
         value
       });
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Unable to update caption approval state", error);
     }
   });
@@ -238,7 +234,6 @@ class SummaryStore {
 
       return results;
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get caption", error);
     }
   });
@@ -289,7 +284,6 @@ class SummaryStore {
         }
       });
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to update caption values", error);
     }
   });
@@ -314,7 +308,6 @@ class SummaryStore {
         cache
       });
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get summary URL", error);
       this.ToggleLoading();
     }
@@ -331,7 +324,6 @@ class SummaryStore {
 
       return results;
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get summary results", error);
       this.ToggleLoading();
     }

@@ -180,7 +180,6 @@ const Search = observer(() => {
         page: 1
       });
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
     } finally {
       setLoadingSearch(false);
@@ -210,7 +209,6 @@ const Search = observer(() => {
         });
       }
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error(`Unable to retrieve results for index ${searchStore.currentSearch.index}`, error);
     }
   };

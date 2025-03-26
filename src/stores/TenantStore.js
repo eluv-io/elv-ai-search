@@ -29,7 +29,6 @@ class TenantStore {
       return this.client.userProfileClient.TenantContractId();
     } catch(error) {
       uiStore.SetErrorMessage("Unable to determine tenant info");
-      // eslint-disable-next-line no-console
       console.error(error);
       throw Error("No tenant contract ID found.");
     }
@@ -104,7 +103,6 @@ class TenantStore {
                 ]
               }));
             } catch(error) {
-              // eslint-disable-next-line no-console
               console.error(`Unable to load metadata for ${libraryId}`);
             }
 
@@ -123,7 +121,6 @@ class TenantStore {
         this.libraries = Object.fromEntries(sortedArray);
       }
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to load libraries", error);
     }
   });
@@ -145,7 +142,6 @@ class TenantStore {
               ]
             });
           } catch(error) {
-            // eslint-disable-next-line no-console
             console.error(`Unable to load metadata for ${libraryId}`);
           }
 
@@ -163,7 +159,6 @@ class TenantStore {
 
       return Object.fromEntries(sortedArray);
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to load objects", error);
     }
   });

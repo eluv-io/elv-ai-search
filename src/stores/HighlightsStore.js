@@ -39,7 +39,6 @@ class HighlightsStore {
 
       return newUrl;
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get highlights URL", error);
     }
   });
@@ -65,7 +64,6 @@ class HighlightsStore {
 
         retries = retries++;
       } else {
-        // eslint-disable-next-line no-console
         console.error("Failed to get highlights URL", error);
       }
     }
@@ -79,7 +77,6 @@ class HighlightsStore {
         try {
           response.highlight = JSON.parse(response.highlight);
         } catch(error) {
-          // eslint-disable-next-line no-console
           console.error("Unable to parse highlight response");
         }
       }
@@ -126,7 +123,6 @@ class HighlightsStore {
         keyframes
       };
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to get highlights results", error);
     }
   });

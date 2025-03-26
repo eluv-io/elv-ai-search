@@ -93,7 +93,6 @@ class TagStore {
         topics
       };
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to load tags", error);
       this.rootStore.searchStore.UpdateSelectedSearchResult({
         key: "_tags",
@@ -176,7 +175,6 @@ class TagStore {
         value: newTags
       });
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Failed to update tag", error);
     }
   });

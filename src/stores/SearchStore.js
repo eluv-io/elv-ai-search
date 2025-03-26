@@ -280,7 +280,6 @@ class SearchStore {
 
       this.SetSearchFields({fields: fuzzySearchFields});
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Unable to load search fields", error);
       this.SetSearchFields({fields: null});
     }
@@ -471,7 +470,6 @@ class SearchStore {
       const newUrl = `https://${this.searchHostname}.contentfabric.io/search/${contentObject}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error(error);
       return { url: "", status: 1 };
     }
@@ -558,7 +556,6 @@ class SearchStore {
 
       return url;
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error(`Unable to get cover for ${song}`, error);
     }
   });
@@ -636,7 +633,6 @@ class SearchStore {
               });
               result["_imageSrc"] = url;
             } catch(error) {
-              // eslint-disable-next-line no-console
               console.error(`Unable to retrieve thumbnail for ${result.id}`, error);
             }
 
@@ -679,7 +675,6 @@ class SearchStore {
         highScoreResults
       };
     } catch(error) {
-      // eslint-disable-next-line no-console
       console.error("Unable to perform search", error);
     }
   });

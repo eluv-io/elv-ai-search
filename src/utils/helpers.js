@@ -31,7 +31,6 @@ export const FormatTime = ({
   } else if(format === "mm, ss") {
     return `${minutes.toString()} minutes ${seconds.toString()}`;
   } else {
-    // eslint-disable-next-line no-console
     console.error(`Unsupported format${format}`);
   }
 

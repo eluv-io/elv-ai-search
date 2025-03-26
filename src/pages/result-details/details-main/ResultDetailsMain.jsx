@@ -51,7 +51,7 @@ const ResultDetailsMain = observer(({
       });
     }
     catch (error) {
-      // eslint-disable-next-line no-console
+       
       console.error("Did not update rating store, reverting to previous state");
       setCurrentStars(currentStars);
     }
@@ -83,7 +83,7 @@ const ResultDetailsMain = observer(({
         });
         setCurrentStars(stars?.feedback_item?.rating);
       } catch (error) {
-        // eslint-disable-next-line no-console
+         
         console.error("Error fetching stars:", error);
       }
     };
