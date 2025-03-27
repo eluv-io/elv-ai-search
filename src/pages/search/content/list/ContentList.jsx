@@ -28,6 +28,8 @@ import {useState} from "react";
 import styles from "./ContentList.module.css";
 import {permissionLevels} from "@eluvio/elv-client-js/src/client/ContentAccess.js";
 import {useClipboard} from "@mantine/hooks";
+import {searchStore} from "@/stores/index.js";
+import {useNavigate} from "react-router-dom";
 
 const EmptyTableCell = () => {
   return <Text c="elv-gray.9">---</Text>;
@@ -72,7 +74,10 @@ const TitleCell = ({
               <ActionIcon
                 variant="transparent"
                 size="xs"
-                onClick={() => clipboard.copy(id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  clipboard.copy(id);
+                }}
               >
                 <IconCopy color="var(--mantine-color-elv-gray-8)" height={16} />
               </ActionIcon>
@@ -153,7 +158,10 @@ const ObjectCell = observer(({versionHash}) => {
         <ActionIcon
           variant="transparent"
           size="xs"
-          onClick={() => clipboard.copy(versionHash)}
+          onClick={(e) => {
+            e.stopPropagation();
+            clipboard.copy(versionHash);
+          }}
         >
           <IconCopy color="var(--mantine-color-elv-gray-8)" height={16} />
         </ActionIcon>
@@ -212,10 +220,23 @@ const ActionsCell = observer(() => {
     {id: "delete-option", Icon: <TrashIcon size={16} />, label: "Delete"},
   ];
 
+  const [opened, setOpened] = useState(false);
+
   return (
-    <Menu ml="auto" position="bottom-end">
+    <Menu
+      ml="auto"
+      position="bottom-end"
+      opened={opened}
+      onChange={setOpened}
+    >
       <Menu.Target>
-        <ActionIcon variant="transparent">
+        <ActionIcon
+          variant="transparent"
+          onClick={(e) => {
+            e.stopPropagation();
+            setOpened(prev => !prev);
+          }}
+        >
           <VerticalDotsIcon color="var(--mantine-color-elv-gray-8)" />
         </ActionIcon>
       </Menu.Target>
@@ -230,7 +251,10 @@ const ActionsCell = observer(() => {
                   key={item.id}
                   leftSection={item.Icon}
                   color="var(--mantine-color-elv-gray-9)"
-                  onClick={() => item.onClick()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    item.onClick();
+                  }}
                   disabled={item.disabled}
                 >
                   { item.label }
@@ -303,6 +327,7 @@ const ContentList = observer(({
   setCurrentPage
 }) => {
   const [selectedRecords, setSelectedRecords] = useState([]);
+  const navigate = useNavigate();
   // TODO: Add action/state for selectedRecords
 
   return (
@@ -314,6 +339,10 @@ const ContentList = observer(({
         idAccessor="id"
         classNames={{header: styles.tableHeader}}
         minHeight={(!records || records.length === 0) ? 130 : 75}
+        onRowClick={({record}) => {
+          searchStore.SetSelectedSearchResult({result: record});
+          navigate(record.id);
+        }}
         columns={[
           {
             accessor: "title",
@@ -387,7 +416,7 @@ const ContentList = observer(({
             accessor: "actions",
             title: "",
             width: 60,
-            render: record => (
+            render: () => (
               <ActionsCell
               />
             )
