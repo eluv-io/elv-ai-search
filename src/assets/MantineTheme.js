@@ -61,6 +61,13 @@ const theme = createTheme({
       "#4b494e", // eluvio color
       "#3c3c3c" // eluvio color
     ],
+
+    "elv-black": [
+      "#22252a", // eluvio color
+      "#202020", // eluvio color
+      "#1e1e1e", // eluvio color
+      "#212529" // eluvio color
+    ],
     "elv-neutral": [
       "#f8f2fe",
       "#ecece8", // eluvio color

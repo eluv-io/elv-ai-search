@@ -114,6 +114,8 @@ class ContentStore {
         contentObject["_isFolder"] = (tags || []).includes("elv:folder");
         contentObject["_permission"] = permission;
         contentObject["_duration"] = duration;
+        contentObject["_title"] = contentObject.meta?.public?.asset_metadata?.display_title || contentObject.meta?.public?.name || contentObject.id;
+        contentObject["_clipType"] = false;
 
         return contentObject;
       }

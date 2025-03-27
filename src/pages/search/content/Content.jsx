@@ -8,6 +8,7 @@ import {useEffect, useState} from "react";
 import {contentStore, rootStore} from "@/stores/index.js";
 import ContentList from "@/pages/search/content/list/ContentList.jsx";
 import ActionsToolbar from "@/pages/search/content/actions-toolbar/ActionsToolbar.jsx";
+import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 
 const Content = observer(({show}) => {
   const [loading, setLoading] = useState(false);
@@ -55,7 +56,7 @@ const Content = observer(({show}) => {
   }, [pageSize, currentPage]);
 
   if(!show) { return null; }
-
+  console.log("content", content)
 
   return (
     <Box>
@@ -84,6 +85,13 @@ const Content = observer(({show}) => {
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           HandleChangePageSize={HandleChangePageSize}
+        />
+      }
+
+      {
+        viewType === "GRID" &&
+        <ClipsGrid
+          clips={content}
         />
       }
     </Box>

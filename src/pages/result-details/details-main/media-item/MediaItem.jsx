@@ -42,14 +42,14 @@ const MediaItem = ({clip}) => {
                   (
                     <Flex h="auto" w="100%" justify="center">
                       <Title c="elv-gray.7" order={1}>
-                        { clip.meta?.public?.asset_metadata?.title || clip.id }
+                        { clip._title }
                       </Title>
                     </Flex>
                   ) :
                   <Image
                     ref={mediaRef}
                     src={clip._imageSrc}
-                    fallbackSrc={`https://placehold.co/600x400?text=${clip.meta?.public?.asset_metadata?.title || clip.id}`}
+                    fallbackSrc={`https://placehold.co/600x400?text=${clip._title}`}
                     fit="contain"
                     w="100%"
                     // mah={900}

@@ -322,7 +322,7 @@ const ContentList = observer(({
               <TableCell
                 type="title"
                 isFolder={record._isFolder}
-                title={record.meta?.public?.asset_metadata?.display_title || record.meta?.public?.name || record.id}
+                title={record._title}
                 id={record.id}
               />
             )

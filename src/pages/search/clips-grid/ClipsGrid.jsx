@@ -16,7 +16,7 @@ import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import {ScaleImage, TimeInterval} from "@/utils/helpers.js";
-import {ApproveIcon, EyeIcon, MusicIcon} from "@/assets/icons/index.js";
+import {ApproveIcon, EyeIcon, ImageIcon, MusicIcon, VideoClipIcon} from "@/assets/icons/index.js";
 import {useState} from "react";
 
 const ImageContent = observer(({imageSrc, title}) => {
@@ -55,7 +55,7 @@ const Clip = observer(({
   song
  }) => {
   const navigate = useNavigate();
-  const {id, start_time: startTime, end_time: endTime, _assetType, _captionApproved} = clip;
+  const {id, start_time: startTime, end_time: endTime, _assetType, _captionApproved, _clipType} = clip;
 
   return (
     <UnstyledButton
@@ -91,11 +91,26 @@ const Clip = observer(({
           }
         </Flex>
         {
-          !_assetType &&
+          _clipType &&
           <Box>
             <Text size="sm">
               { TimeInterval({startTime, endTime}) }
             </Text>
+          </Box>
+        }
+        {
+          !_clipType &&
+          <Box>
+            <Group gap={8}>
+              {
+                _assetType ?
+                  <ImageIcon color="var(--mantine-color-elv-green-7)" width={20} height={20} /> :
+                  <VideoClipIcon color="var(--mantine-color-elv-red-4)" width={20} height={20} />
+              }
+              <Text size="md" fw={400} c="elv-black.1" lh={1}>
+                { id }
+              </Text>
+            </Group>
           </Box>
         }
         <Flex gap={4} direction="row" wrap="nowrap" align="center" mih={30.8}>
