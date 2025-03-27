@@ -153,7 +153,7 @@ const Content = observer(({show}) => {
 
   const [paging, setPaging] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(100);
+  const [pageSize, setPageSize] = useState(20);
 
   const HandleGetResults = async(page, limit) => {
     try {
@@ -162,7 +162,7 @@ const Content = observer(({show}) => {
       const contentMetadata = await contentStore.GetContentData({
         filterByFolder: false,
         parentFolder: rootStore.tenantStore.rootFolder,
-        start: page === 1 ? 0 : ((limit * (page - 1)) + 1),
+        start: ((currentPage - 1) * pageSize),
         limit: limit
       });
 
@@ -187,9 +187,9 @@ const Content = observer(({show}) => {
     }
   }, [rootStore.tenantStore.rootFolder]);
 
-  // useEffect(() => {
-  //   HandleGetResults(currentPage, pageSize);
-  // }, [pageSize, currentPage]);
+  useEffect(() => {
+    HandleGetResults(currentPage, pageSize);
+  }, [pageSize, currentPage]);
 
   if(!show) { return null; }
 
@@ -218,6 +218,7 @@ const Content = observer(({show}) => {
           paging={paging}
           loading={loading}
           pageSize={pageSize}
+          currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           HandleChangePageSize={HandleChangePageSize}
         />
