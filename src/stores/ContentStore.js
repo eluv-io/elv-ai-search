@@ -2,8 +2,6 @@ import {flow, makeAutoObservable} from "mobx";
 
 // Store for managing content object
 class ContentStore {
-  rootFolderId;
-
   // Pagination
   pageSize = 20;
   totalResults;
@@ -20,6 +18,10 @@ class ContentStore {
 
   get client() {
     return this.rootStore.client;
+  }
+
+  get rootFolderId() {
+    return this.rootStore.tenantStore.rootFolder;
   }
 
   get pagination() {
@@ -140,6 +142,34 @@ class ContentStore {
     } catch(error) {
       console.error(`Unable to get tags for ${objectId}`, error);
       return [];
+    }
+  });
+
+  CreateContentFolder = flow(function * ({
+    libraryId,
+    name,
+    displayTitle,
+    tags,
+    queryFields
+  }){
+    try {
+      const {objectId, writeToken} = yield this.client.CreateContentFolder({
+        libraryId,
+        name,
+        displayTitle,
+        tags,
+        queryFields
+      });
+
+      yield this.client.FinalizeContentObject({
+        libraryId,
+        objectId,
+        writeToken,
+        commitMessage: "Create content group"
+      });
+    } catch(error) {
+      console.error("Unable to create content folder", error);
+      return {};
     }
   });
 }
