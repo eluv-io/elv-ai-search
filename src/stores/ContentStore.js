@@ -32,9 +32,11 @@ class ContentStore {
     const data = yield this.client.TenantContent({
       filter: filterOptions,
       select: [
+        "commit/timestamp",
         "public/name",
         "public/asset_metadata/display_title",
-        "commit/timestamp"
+        "offerings/default/media_struct/streams/video/duration/float",
+        "offerings/default/media_struct/streams/audio/duration/float"
       ],
       sort: {
         field: sortBy
@@ -49,6 +51,7 @@ class ContentStore {
       async contentObject => {
         let tags, permission;
         const objectId = contentObject.id;
+        const duration = contentObject.meta?.offerings?.default?.media_struct?.streams?.video?.duration?.float || contentObject.meta?.offerings?.default?.media_struct?.streams?.audio?.duration?.float;
 
         try {
           tags = await this.GetContentTags({
@@ -67,6 +70,7 @@ class ContentStore {
         contentObject["_tags"] = tags;
         contentObject["_isFolder"] = (tags || []).includes("elv:folder");
         contentObject["_permission"] = permission;
+        contentObject["_duration"] = duration;
 
         return contentObject;
       }

@@ -1,7 +1,8 @@
 export const FormatTime = ({
   time,
   millisecondsFormat=true,
-  format="hh:mm:ss"
+  format="hh:mm:ss",
+  hideHour=false
 }) => {
   if(time === undefined) { return ""; }
 
@@ -19,11 +20,21 @@ export const FormatTime = ({
   }
 
   if(format === "hh:mm:ss") {
-    const arrayValue = [
-      (hours).toString().padStart(2, "0"),
-      (minutes).toString().padStart(2, "0"),
-      (seconds).toString().padStart(2, "0"),
-    ];
+    let arrayValue;
+    if(hideHour) {
+      arrayValue = [hours === 0 ? undefined : hours]
+        .filter(e => !!e)
+        .concat([
+          minutes.toString().padStart(2, "0"),
+          seconds.toString().padStart(2, "0")
+        ]);
+    } else {
+      arrayValue = [
+        (hours).toString().padStart(2, "0"),
+        (minutes).toString().padStart(2, "0"),
+        (seconds).toString().padStart(2, "0"),
+      ];
+    }
 
     timeString = arrayValue.join(":");
   } else if(format === "mm") {

@@ -3,7 +3,7 @@ import {ActionIcon, AspectRatio, Box, Button, Divider, Group, Image, Stack, Text
 import {DataTable} from "mantine-datatable";
 import {IconCopy, IconFolder} from "@tabler/icons-react";
 import {FilterIcon, ImageIcon, VideoClipIcon} from "@/assets/icons/index.js";
-import {FormatDuration} from "@/utils/helpers.js";
+import {FormatTime} from "@/utils/helpers.js";
 import {rootStore} from "@/stores/index.js";
 import {useState} from "react";
 import styles from "./ContentList.module.css";
@@ -65,7 +65,7 @@ const TitleCell = ({
   }
 };
 
-const TypeCell = observer(({assetType, startTime, endTime}) => {
+const TypeCell = observer(({assetType, duration}) => {
   let content;
 
   if(assetType) {
@@ -79,10 +79,18 @@ const TypeCell = observer(({assetType, startTime, endTime}) => {
     content = (
       <>
         <VideoClipIcon color="var(--mantine-color-elv-red-4)" />
-        <Stack gap={0}>
+        <Stack gap={3}>
           <Text fz={14} fw={500} c="elv-gray.8" lh={1}>Video</Text>
           <Text fz={12} fw={400} c="elv-gray.8" lh={1}>
-            { FormatDuration({startTime, endTime}) }
+            {
+              duration ?
+                FormatTime({
+                  time: duration,
+                  millisecondsFormat: false,
+                  hideHour: true
+                }) :
+                ""
+            }
           </Text>
         </Stack>
       </>
@@ -231,8 +239,7 @@ const ContentList = observer(({records, loading}) => {
                 type="type"
                 isFolder={record._isFolder}
                 assetType={record._assetType}
-                startTime={record.start_time}
-                endTime={record.end_time}
+                duration={record._duration}
               />
             )
           },
