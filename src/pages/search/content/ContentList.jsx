@@ -1,13 +1,18 @@
 import {observer} from "mobx-react-lite";
-import {AspectRatio, Box, Button, Divider, Group, Image, Stack, Text} from "@mantine/core";
+import {ActionIcon, AspectRatio, Box, Button, Divider, Group, Image, Stack, Text, Tooltip} from "@mantine/core";
 import {DataTable} from "mantine-datatable";
-import {IconFolder} from "@tabler/icons-react";
+import {IconCopy, IconFolder} from "@tabler/icons-react";
 import {FilterIcon, ImageIcon, VideoClipIcon} from "@/assets/icons/index.js";
 import {FormatDuration} from "@/utils/helpers.js";
 import {rootStore} from "@/stores/index.js";
 import {useState} from "react";
 import styles from "./ContentList.module.css";
 import {permissionLevels} from "@eluvio/elv-client-js/src/client/ContentAccess.js";
+import {useClipboard} from "@mantine/hooks";
+
+const EmptyTableCell = () => {
+  return <Text c="elv-gray.9">---</Text>;
+};
 
 const TitleCell = ({
   isFolder,
@@ -17,8 +22,10 @@ const TitleCell = ({
   id,
   ...props
 }) => {
+  const clipboard = useClipboard();
+
   const titleText = (
-    <Text fz={16} fw={700} c="elv-gray.8">
+    <Text fz={16} fw={700} c="elv-gray.8" maw={400} truncate="end" lh={1}>
       { title }
     </Text>
   );
@@ -36,11 +43,22 @@ const TitleCell = ({
         <AspectRatio ratio={imageAspectRatio} maw={70}>
           <Image src={imageSrc} />
         </AspectRatio>
-        <Stack gap={0}>
+        <Stack gap={6}>
           { titleText }
-          <Text fz={12} fw={400} c="elv-gray.8">
-            { id }
-          </Text>
+          <Group gap={8}>
+            <Text fz={12} fw={400} c="elv-gray.8" lh={1}>
+              { id }
+            </Text>
+            <Tooltip label={clipboard.copied ? "Copied": "Copy"} position="bottom">
+              <ActionIcon
+                variant="transparent"
+                size="xs"
+                onClick={() => clipboard.copy(id)}
+              >
+                <IconCopy color="var(--mantine-color-elv-gray-8)" height={16} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
         </Stack>
       </Group>
     );
@@ -78,6 +96,22 @@ const TypeCell = observer(({assetType, startTime, endTime}) => {
   );
 });
 
+const DateCell = observer(({date}) => {
+  if(!date) { return <EmptyTableCell/>; }
+
+  return (
+    <Text fz={14} fw={500} c="elv-gray.8">
+      {
+        new Date(date).toLocaleString(undefined, {
+          month: "short",
+          day: "numeric",
+          year: "numeric"
+        })
+      }
+    </Text>
+  );
+});
+
 const TagsCell = observer(({tags}) => {
   if(!tags || tags.length === 0) { return <EmptyTableCell />; }
 
@@ -102,10 +136,6 @@ const AccessCell = observer(({permission}) => {
   );
 });
 
-const EmptyTableCell = () => {
-  return <Text c="elv-gray.9">---</Text>;
-};
-
 const TableCell = observer(({isFolder, type, ...props}) => {
   const FolderCondition = (Component) => (isFolder ? <EmptyTableCell /> : Component);
 
@@ -113,6 +143,7 @@ const TableCell = observer(({isFolder, type, ...props}) => {
     "title": <TitleCell isFolder={isFolder} {...props} />,
     "type": FolderCondition(<TypeCell {...props} />),
     "access": FolderCondition(<AccessCell {...props} />),
+    "date": FolderCondition(<DateCell {...props} />),
     "tags": FolderCondition(<TagsCell {...props} />)
   };
 
@@ -192,7 +223,17 @@ const ContentList = observer(({records, loading}) => {
               />
             )
           },
-          {accessor: "lastModified", title: "Last Modified"},
+          {
+            accessor: "lastModified",
+            title: "Last Modified",
+            render: record => (
+              <TableCell
+                type="date"
+                date={record.meta?.commit?.timestamp}
+                isFolder={record._isFolder}
+              />
+            )
+          },
           {accessor: "contentObject", title: "Content Object"},
           {
             accessor: "tags",

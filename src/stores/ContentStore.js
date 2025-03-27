@@ -33,7 +33,8 @@ class ContentStore {
       filter: filterOptions,
       select: [
         "public/name",
-        "public/asset_metadata/display_title"
+        "public/asset_metadata/display_title",
+        "commit/timestamp"
       ],
       sort: {
         field: sortBy
@@ -89,7 +90,6 @@ class ContentStore {
         objectId
       });
     } catch(error) {
-       
       console.error(`Unable to get tags for ${objectId}`, error);
       return [];
     }
