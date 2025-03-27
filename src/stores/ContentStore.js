@@ -23,11 +23,6 @@ class ContentStore {
   }
 
   get pagination() {
-    // const currentPage = this.endResult / this.pageSize;
-    // const searchTotal = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
-    // const totalResultsPerPage = searchTotal;
-    // const totalPages = Math.ceil(searchTotal / this.pageSize);
-
     return {
       pageSize: this.pageSize,
       currentPage: this.currentPage,
@@ -35,32 +30,33 @@ class ContentStore {
       totalResults: this.totalResults,
       previousPages: this.previousPages,
       nextPages: this.nextPages,
-      // startResult: this.startResult,
-      // endResult: this.endResult,
-      // Calculated values
-      // totalResultsPerPage, // total for current page
-      // searchTotal,
-      // firstResult: this.startResult + 1,
-      // lastResult: Math.min(searchTotal, this.endResult)
     };
   }
 
-  UpdatePageSize = flow(function * ({pageSize}) {
-    this.ResetPagination();
-    // this.ResetSearch();
-
-    this.pageSize = pageSize;
-
-    // yield this.GetNextPageResults({
-    //   fuzzySearchValue: this.currentSearch.terms,
-    //   page: 1
-    // });
-  });
+  // ResetPagination = () => {
+  //   this.pageSize = 35;
+  //   this.totalPages = null;
+  //   this.totalResults = null;
+  //   this.currentPage = 0;
+  // };
+  //
+  // UpdatePageSize = flow(function * ({pageSize}) {
+  //   // this.ResetPagination();
+  //
+  //   this.pageSize = pageSize;
+  //
+  //   // yield this.GetNextPageResults({
+  //   //   fuzzySearchValue: this.currentSearch.terms,
+  //   //   page: 1
+  //   // });
+  // });
 
   GetContentData = flow(function * ({
     parentFolder,
     filterByFolder=true,
-    sortBy="asset_type"
+    sortBy="asset_type",
+    start,
+    limit
   }={}) {
     const filterOptions = [];
 
@@ -83,9 +79,10 @@ class ContentStore {
       ],
       sort: {
         field: sortBy
-      }
+      },
+      start,
+      limit
     });
-    console.log("data", data)
 
     const content = data.versions || [];
 

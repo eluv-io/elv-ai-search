@@ -16,7 +16,7 @@ import {DataTable} from "mantine-datatable";
 import {IconCopy, IconFolder} from "@tabler/icons-react";
 import {FilterIcon, ImageIcon, VideoClipIcon} from "@/assets/icons/index.js";
 import {FormatTime} from "@/utils/helpers.js";
-import {contentStore, rootStore, searchStore} from "@/stores/index.js";
+import {rootStore} from "@/stores/index.js";
 import {useState} from "react";
 import styles from "./ContentList.module.css";
 import {permissionLevels} from "@eluvio/elv-client-js/src/client/ContentAccess.js";
@@ -194,19 +194,16 @@ const TableCell = observer(({isFolder, type, ...props}) => {
   return cellMap[type];
 });
 
-const TablePagination = observer(({loading, paging}) => {
+const TablePagination = observer(({
+  loading,
+  paging,
+  pageSize,
+  HandleChangePageSize,
+  HandleNextPage
+}) => {
   if(loading || !paging) { return null; }
 
-  const HandlePageSizeChange = async(value) => {
-    try {
-      // searchStore.ToggleLoadingSearch();
-      await searchStore.UpdatePageSize({pageSize: parseInt(value)});
-    } finally {
-      // searchStore.ToggleLoadingSearch();
-    }
-  };
-
-  const GetPageSizeOptions = () => {
+  const PageSizeOptions = () => {
     const options = [20, 40, 60, 80];
 
     return options.map(num => (
@@ -219,26 +216,41 @@ const TablePagination = observer(({loading, paging}) => {
   };
 
   return (
-    <Group ml="auto" align="center" gap={0}>
-      <Text fz="sm" mr={8}>Results Per Page</Text>
-      <Select
-        w={75}
-        disabled={contentStore.pagination.pageSize >= paging.items}
-        data={GetPageSizeOptions()}
-        value={contentStore.pagination.pageSize.toString()}
-        onChange={HandlePageSizeChange}
-        size="xs"
-        mr={16}
-      />
-      <Pagination
-        total={paging.pages}
-        value={paging.current}
-      />
+    <Group gap={24} mt={48}>
+      <Text fz={14} fw={500}>
+        {
+          `${paging.first}-${paging.last} / ${paging.items.toLocaleString()}`
+        }
+      </Text>
+      <Group ml="auto" align="center" gap={0}>
+        <Text fz="sm" mr={8}>Results Per Page</Text>
+        <Select
+          w={75}
+          disabled={pageSize >= paging.items}
+          data={PageSizeOptions()}
+          value={pageSize.toString()}
+          onChange={(value) => HandleChangePageSize(parseInt(value))}
+          size="xs"
+          mr={16}
+        />
+        <Pagination
+          total={paging.pages}
+          value={paging.current}
+          onChange={HandleNextPage}
+        />
+      </Group>
     </Group>
   );
 });
 
-const ContentList = observer(({records, paging, loading}) => {
+const ContentList = observer(({
+  records,
+  paging,
+  loading,
+  HandleChangePageSize,
+  HandleNextPage,
+  pageSize
+}) => {
   const [selectedRecords, setSelectedRecords] = useState([]);
   // TODO: Add action/state for selectedRecords
 
@@ -350,6 +362,9 @@ const ContentList = observer(({records, paging, loading}) => {
       <TablePagination
         loading={loading}
         paging={paging}
+        pageSize={pageSize}
+        HandleChangePageSize={HandleChangePageSize}
+        HandleNextPage={HandleNextPage}
       />
     </Box>
   );
