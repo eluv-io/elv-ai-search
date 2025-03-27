@@ -6,6 +6,7 @@ import CollapseIcon from "./CollapseIcon.jsx";
 import CopyIcon from "./CopyIcon.jsx";
 import CreateIcon from "./CreateIcon.jsx";
 import DownArrowIcon from "./DownArrowIcon.jsx";
+import EditTagIcon from "./EditTagIcon.jsx";
 import EyeIcon from "./EyeIcon.jsx";
 import FilledStarIcon from "./FilledStarIcon.jsx";
 import FilterIcon from "./FilterIcon.jsx";
@@ -26,6 +27,8 @@ import SearchIcon from "./SearchIcon.jsx";
 import ShareIcon from "./ShareIcon.jsx";
 import SparklesIcon from "./SparklesIcon.jsx";
 import SubmitIcon from "./SubmitIcon.jsx";
+import TrashIcon from "./TrashIcon.jsx";
+import VerticalDotsIcon from "./VerticalDotsIcon.jsx";
 import VideoClipIcon from "./media-types/VideoClipIcon.jsx";
 import VideoEditorIcon from "./VideoEditorIcon.jsx";
 import WaveIcon from "./media-types/WaveIcon.jsx";
@@ -39,6 +42,7 @@ export {
   CopyIcon,
   CreateIcon,
   DownArrowIcon,
+  EditTagIcon,
   EyeIcon,
   FilledStarIcon,
   FilterIcon,
@@ -59,6 +63,8 @@ export {
   ShareIcon,
   SparklesIcon,
   SubmitIcon,
+  TrashIcon,
+  VerticalDotsIcon,
   VideoClipIcon,
   VideoEditorIcon,
   WaveIcon

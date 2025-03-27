@@ -5,14 +5,24 @@ import {
   Box,
   Group,
   Image,
-  Pagination, Select,
+  Menu,
+  Pagination,
+  Select,
   Stack,
   Text,
   Tooltip
 } from "@mantine/core";
 import {DataTable} from "mantine-datatable";
-import {IconCopy, IconFolder} from "@tabler/icons-react";
-import {ImageIcon, VideoClipIcon} from "@/assets/icons/index.js";
+import {IconCopy, IconFolder, IconFolderBolt, IconPencilMinus} from "@tabler/icons-react";
+import {
+  CopyIcon,
+  EditTagIcon,
+  ImageIcon,
+  ShareIcon,
+  TrashIcon,
+  VerticalDotsIcon,
+  VideoClipIcon
+} from "@/assets/icons/index.js";
 import {FormatTime} from "@/utils/helpers.js";
 import {useState} from "react";
 import styles from "./ContentList.module.css";
@@ -191,6 +201,47 @@ const TableCell = observer(({isFolder, type, ...props}) => {
   return cellMap[type];
 });
 
+const ActionsCell = observer(() => {
+  const options = [
+    {id: "rename-option", Icon: <IconPencilMinus size={16} />, label: "Rename"},
+    {id: "duplicate-option", Icon: <CopyIcon width={16} height={16} />, label: "Duplicate"},
+    {id: "organize-option", Icon: <IconFolderBolt size={16} />, label: "Organize"},
+    {id: "edit-tags-option", Icon: <EditTagIcon size={16} />, label: "Edit Tags"},
+    {id: "share-option", Icon: <ShareIcon width={16} height={16} />, label: "Share"},
+    {id: "divider-1", divider: true},
+    {id: "delete-option", Icon: <TrashIcon size={16} />, label: "Delete"},
+  ];
+
+  return (
+    <Menu ml="auto" position="bottom-end">
+      <Menu.Target>
+        <ActionIcon variant="transparent">
+          <VerticalDotsIcon color="var(--mantine-color-elv-gray-8)" />
+        </ActionIcon>
+      </Menu.Target>
+      <Menu.Dropdown>
+        {
+          options
+            .filter(item => !item.hide)
+            .map(item => (
+              item.divider ?
+                <Menu.Divider key={item.id} /> :
+                <Menu.Item
+                  key={item.id}
+                  leftSection={item.Icon}
+                  color="var(--mantine-color-elv-gray-9)"
+                  onClick={() => item.onClick()}
+                  disabled={item.disabled}
+                >
+                  { item.label }
+                </Menu.Item>
+            ))
+        }
+      </Menu.Dropdown>
+    </Menu>
+  );
+});
+
 const TablePagination = observer(({
   loading,
   paging,
@@ -332,6 +383,15 @@ const ContentList = observer(({
               />
             )
           },
+          {
+            accessor: "actions",
+            title: "",
+            width: 60,
+            render: record => (
+              <ActionsCell
+              />
+            )
+          }
         ]}
         selectedRecords={selectedRecords}
         onSelectedRecordsChange={setSelectedRecords}
