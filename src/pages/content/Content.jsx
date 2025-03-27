@@ -6,8 +6,8 @@ import {
 } from "@mantine/core";
 import {useEffect, useState} from "react";
 import {contentStore, rootStore} from "@/stores/index.js";
-import ContentList from "@/pages/search/content/list/ContentList.jsx";
-import ActionsToolbar from "@/pages/search/content/actions-toolbar/ActionsToolbar.jsx";
+import ContentList from "@/pages/content/list/ContentList.jsx";
+import ActionsToolbar from "@/pages/content/actions-toolbar/ActionsToolbar.jsx";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 
 const Content = observer(({show}) => {
@@ -49,14 +49,9 @@ const Content = observer(({show}) => {
     if(rootStore.tenantStore.rootFolder) {
       LoadData();
     }
-  }, [rootStore.tenantStore.rootFolder]);
-
-  useEffect(() => {
-    HandleGetResults(currentPage, pageSize);
-  }, [pageSize, currentPage]);
+  }, [rootStore.tenantStore.rootFolder, pageSize, currentPage]);
 
   if(!show) { return null; }
-  console.log("content", content)
 
   return (
     <Box>

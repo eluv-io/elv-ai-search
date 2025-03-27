@@ -9,7 +9,7 @@ import styles from "./Search.module.css";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
 import ClipsList from "@/pages/search/clips-list/ClipsList.jsx";
-import Content from "@/pages/search/content/Content.jsx";
+import Content from "@/pages/content/Content.jsx";
 
 const FilterToolbar = observer(({loadingSearch, resultsView, setResultsView}) => {
   const iconProps = {

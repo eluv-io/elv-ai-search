@@ -5,7 +5,7 @@ import {contentStore} from "@/stores/index.js";
 import {Button, Divider, Group, Modal, SegmentedControl, Text, TextInput, VisuallyHidden} from "@mantine/core";
 import {FilterIcon, GridIcon, ListIcon} from "@/assets/icons/index.js";
 import {IconFolder} from "@tabler/icons-react";
-import styles from "@/pages/search/content/Content.module.css";
+import styles from "@/pages/content/Content.module.css";
 
 const ActionsToolbar = observer(({viewType, setViewType}) => {
   const [showFolderModal, setShowFolderModal] = useState(false);
