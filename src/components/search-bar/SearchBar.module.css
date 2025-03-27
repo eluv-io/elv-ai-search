@@ -22,11 +22,6 @@
   }
 }
 
-.switchTrack {
-  background-color: var(--mantine-color-elv-gray-4);
-  border: none;
-}
-
 .switchThumb {
   border: none;
 }

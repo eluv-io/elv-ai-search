@@ -1,0 +1,4 @@
+.mantine-Switch-input:not(:checked) + .mantine-Switch-track {
+  background-color: var(--mantine-color-elv-gray-4) !important;
+  border: none;
+}

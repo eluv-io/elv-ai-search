@@ -15,6 +15,9 @@ const MusicGrid = observer(() => {
               clips={clips[song]}
               song={song}
               view={searchStore.resultsViewType}
+              loading={searchStore.loadingSearch}
+              ToggleLoading={() => searchStore.ToggleLoadingSearch()}
+              enablePagination={false}
             />
           </Box>
         ))

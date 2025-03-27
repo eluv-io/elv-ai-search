@@ -141,48 +141,17 @@ const Clip = observer(({
 });
 
 const ClipsGrid = observer(({
-  clips,
+  clips=[],
   song,
   cols=4,
-  HandleNextPage
+  loading,
+  HandleSetPage,
+  HandlePageSizeChange,
+  pagination={},
+  pageSizeOptions,
+  enablePagination=true
 }) => {
-  if(!clips) {
-    clips = searchStore.searchResults || [];
-  }
-
-  const SetPage = async(page) => {
-    try {
-      searchStore.ToggleLoadingSearch();
-      searchStore.SetPagination({page});
-      await HandleNextPage({page: searchStore.pagination.currentPage});
-    } finally {
-      searchStore.ToggleLoadingSearch();
-    }
-  };
-
-  const HandlePageSizeChange = async(value) => {
-    try {
-      searchStore.ToggleLoadingSearch();
-      await searchStore.UpdatePageSize({pageSize: parseInt(value)});
-    } finally {
-      searchStore.ToggleLoadingSearch();
-    }
-  };
-
-  const GetPageSizeOptions = () => {
-    let options;
-    if(searchStore.searchContentType === "IMAGES") {
-      options = [35, 70, 105, 140];
-    } else if(searchStore.searchContentType === "VIDEOS") {
-      options = [20, 40, 60, 80];
-    }
-
-    return options.map(num => (
-      {value: num.toString(), label: num.toString(), disabled: searchStore.pagination.searchTotal < num}
-    ));
-  };
-
-  if(searchStore.loadingSearch) {
+  if(loading) {
     return (
       <Flex justify="center">
         <Loader />
@@ -211,28 +180,28 @@ const ClipsGrid = observer(({
       </SimpleGrid>
 
       {
-        !searchStore.loadingSearch &&
+        (enablePagination && !loading && Object.keys(pagination).length > 0) &&
         <Group gap={24} mt={48}>
           <Text>
             {
-              `${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.searchTotal?.toLocaleString()}`
+              `${pagination.firstResult}-${pagination.lastResult} / ${pagination.searchTotal?.toLocaleString()}`
             }
           </Text>
           <Group ml="auto" align="center" gap={0}>
             <Text fz="sm" mr={8}>Results Per Page</Text>
             <Select
               w={75}
-              disabled={searchStore.pagination.searchTotal <= searchStore.pagination.pageSize}
-              data={GetPageSizeOptions()}
-              value={searchStore.pagination.pageSize.toString()}
+              disabled={pagination.searchTotal <= pagination.pageSize}
+              data={pageSizeOptions}
+              value={pagination.pageSize.toString()}
               onChange={HandlePageSizeChange}
               size="xs"
               mr={16}
             />
             <Pagination
-              total={searchStore.pagination.totalPages}
-              onChange={SetPage}
-              value={searchStore.pagination.currentPage}
+              total={pagination.totalPages}
+              onChange={HandleSetPage}
+              value={pagination.currentPage}
             />
           </Group>
         </Group>

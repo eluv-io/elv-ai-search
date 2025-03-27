@@ -108,6 +108,38 @@ const SearchResults = observer(({HandleNextPage, resultsView}) => {
     image: 7
   };
 
+  const HandlePageSizeChange = async(value) => {
+    try {
+      searchStore.ToggleLoadingSearch();
+      await searchStore.UpdatePageSize({pageSize: parseInt(value)});
+    } finally {
+      searchStore.ToggleLoadingSearch();
+    }
+  };
+
+  const SetPage = async(page) => {
+    try {
+      searchStore.ToggleLoadingSearch();
+      searchStore.SetPagination({page});
+      await HandleNextPage({page: searchStore.pagination.currentPage});
+    } finally {
+      searchStore.ToggleLoadingSearch();
+    }
+  };
+
+  const GetPageSizeOptions = () => {
+    let options;
+    if(searchStore.searchContentType === "IMAGES") {
+      options = [35, 70, 105, 140];
+    } else if(searchStore.searchContentType === "VIDEOS") {
+      options = [20, 40, 60, 80];
+    }
+
+    return options.map(num => (
+      {value: num.toString(), label: num.toString(), disabled: searchStore.pagination.searchTotal < num}
+    ));
+  };
+
   if(searchStore.musicSettingEnabled) {
     return <MusicGrid />;
   }
@@ -139,7 +171,11 @@ const SearchResults = observer(({HandleNextPage, resultsView}) => {
           <ClipsGrid
             clips={searchStore.searchResults}
             cols={cols}
-            HandleNextPage={HandleNextPage}
+            HandleSetPage={SetPage}
+            HandlePageSizeChange={HandlePageSizeChange}
+            loading={searchStore.loadingSearch}
+            pagination={searchStore.pagination}
+            pageSizeOptions={GetPageSizeOptions()}
           /> :
           <ClipsList
             clips={searchStore.searchResults}
@@ -223,7 +259,11 @@ const Search = observer(() => {
         setFuzzySearchValue={setFuzzySearchValue}
       />
       <Content
-        show={(!(searchStore.searchResults || []).length || loadingSearch)}
+        show={
+          !(searchStore.searchResults || []).length &&
+          !loadingSearch &&
+          !searchStore.musicSettingEnabled
+        }
       />
 
       {/* Active search */}

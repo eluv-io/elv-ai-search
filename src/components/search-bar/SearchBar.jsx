@@ -396,7 +396,7 @@ const SearchBar = observer(({
         searchStore.searchContentType !== "IMAGES" &&
         <Switch
           size="xxl"
-          classNames={{track: styles.switchTrack, thumb: styles.switchThumb}}
+          classNames={{thumb: styles.switchThumb}}
           thumbIcon={searchStore.musicSettingEnabled ? <MusicIcon color="var(--mantine-color-elv-violet-3)" /> : <MusicIcon color="var(--mantine-color-elv-gray-3)" />}
           checked={searchStore.musicSettingEnabled}
           onChange={() => searchStore.ToggleMusicSetting()}
