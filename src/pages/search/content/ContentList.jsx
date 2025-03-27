@@ -112,6 +112,29 @@ const DateCell = observer(({date}) => {
   );
 });
 
+const ObjectCell = observer(({versionHash}) => {
+  if(!versionHash) { return <EmptyTableCell />; }
+
+  const clipboard = useClipboard({timeout: 2000});
+
+  return (
+    <Group gap={8}>
+      <Text fz={14} fw={500} c="elv-gray.8" truncate="end" maw={80} lh={1}>
+        { versionHash }
+      </Text>
+      <Tooltip label={clipboard.copied ? "Copied": "Copy"} position="bottom">
+        <ActionIcon
+          variant="transparent"
+          size="xs"
+          onClick={() => clipboard.copy(versionHash)}
+        >
+          <IconCopy color="var(--mantine-color-elv-gray-8)" height={16} />
+        </ActionIcon>
+      </Tooltip>
+    </Group>
+  );
+});
+
 const TagsCell = observer(({tags}) => {
   if(!tags || tags.length === 0) { return <EmptyTableCell />; }
 
@@ -144,6 +167,7 @@ const TableCell = observer(({isFolder, type, ...props}) => {
     "type": FolderCondition(<TypeCell {...props} />),
     "access": FolderCondition(<AccessCell {...props} />),
     "date": FolderCondition(<DateCell {...props} />),
+    "object": FolderCondition(<ObjectCell {...props} />),
     "tags": FolderCondition(<TagsCell {...props} />)
   };
 
@@ -234,7 +258,17 @@ const ContentList = observer(({records, loading}) => {
               />
             )
           },
-          {accessor: "contentObject", title: "Content Object"},
+          {
+            accessor: "contentObject",
+            title: "Content Object",
+            render: record => (
+              <TableCell
+                type="object"
+                versionHash={record.hash}
+                isFolder={record._isFolder}
+              />
+            )
+          },
           {
             accessor: "tags",
             title: "Tags",
