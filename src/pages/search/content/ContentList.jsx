@@ -199,7 +199,8 @@ const TablePagination = observer(({
   paging,
   pageSize,
   HandleChangePageSize,
-  HandleNextPage
+  currentPage,
+  setCurrentPage
 }) => {
   if(loading || !paging) { return null; }
 
@@ -218,9 +219,9 @@ const TablePagination = observer(({
   return (
     <Group gap={24} mt={48}>
       <Text fz={14} fw={500}>
-        {
-          `${paging.first}-${paging.last} / ${paging.items.toLocaleString()}`
-        }
+        {/*{*/}
+        {/*  `${paging.current === 0 ? 1 : paging.current}-${paging.last} / ${paging.items.toLocaleString()}`*/}
+        {/*}*/}
       </Text>
       <Group ml="auto" align="center" gap={0}>
         <Text fz="sm" mr={8}>Results Per Page</Text>
@@ -235,8 +236,8 @@ const TablePagination = observer(({
         />
         <Pagination
           total={paging.pages}
-          value={paging.current}
-          onChange={HandleNextPage}
+          value={currentPage}
+          onChange={setCurrentPage}
         />
       </Group>
     </Group>
@@ -248,37 +249,15 @@ const ContentList = observer(({
   paging,
   loading,
   HandleChangePageSize,
-  HandleNextPage,
-  pageSize
+  pageSize,
+  currentPage,
+  setCurrentPage
 }) => {
   const [selectedRecords, setSelectedRecords] = useState([]);
   // TODO: Add action/state for selectedRecords
 
   return (
     <Box>
-      <Text size="xl" c="elv-gray.8" fw={700} lh={1} mb={6}>
-        All Content
-      </Text>
-      <Group gap={10} mb={24}>
-        <Text size="sm" fw={700} lh={1} fs="italic" c="elv-gray.8">
-          { rootStore.tenantStore.tenantName }
-        </Text>
-        <Text fw={400} size="sm" lh={1} c="elv-gray.8">
-          { rootStore.tenantStore.tenantId }
-        </Text>
-      </Group>
-
-      <Group gap={0} mb={12}>
-        <Button variant="transparent" size="md" leftSection={<FilterIcon />} c="elv-gray.8">
-          Filter
-        </Button>
-        <Button leftSection={<IconFolder />} size="md">
-          New Folder
-        </Button>
-      </Group>
-
-      <Divider c="elv-gray.1" mb={24} />
-
       <DataTable
         highlightOnHover
         records={records}
@@ -364,7 +343,8 @@ const ContentList = observer(({
         paging={paging}
         pageSize={pageSize}
         HandleChangePageSize={HandleChangePageSize}
-        HandleNextPage={HandleNextPage}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
       />
     </Box>
   );
