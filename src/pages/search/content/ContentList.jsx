@@ -1,10 +1,22 @@
 import {observer} from "mobx-react-lite";
-import {ActionIcon, AspectRatio, Box, Button, Divider, Group, Image, Stack, Text, Tooltip} from "@mantine/core";
+import {
+  ActionIcon,
+  AspectRatio,
+  Box,
+  Button,
+  Divider,
+  Group,
+  Image,
+  Pagination, Select,
+  Stack,
+  Text,
+  Tooltip
+} from "@mantine/core";
 import {DataTable} from "mantine-datatable";
 import {IconCopy, IconFolder} from "@tabler/icons-react";
 import {FilterIcon, ImageIcon, VideoClipIcon} from "@/assets/icons/index.js";
 import {FormatTime} from "@/utils/helpers.js";
-import {rootStore} from "@/stores/index.js";
+import {contentStore, rootStore, searchStore} from "@/stores/index.js";
 import {useState} from "react";
 import styles from "./ContentList.module.css";
 import {permissionLevels} from "@eluvio/elv-client-js/src/client/ContentAccess.js";
@@ -182,7 +194,51 @@ const TableCell = observer(({isFolder, type, ...props}) => {
   return cellMap[type];
 });
 
-const ContentList = observer(({records, loading}) => {
+const TablePagination = observer(({loading, paging}) => {
+  if(loading || !paging) { return null; }
+
+  const HandlePageSizeChange = async(value) => {
+    try {
+      // searchStore.ToggleLoadingSearch();
+      await searchStore.UpdatePageSize({pageSize: parseInt(value)});
+    } finally {
+      // searchStore.ToggleLoadingSearch();
+    }
+  };
+
+  const GetPageSizeOptions = () => {
+    const options = [20, 40, 60, 80];
+
+    return options.map(num => (
+      {
+        value: num.toString(),
+        label: num.toString(),
+        disabled: paging.items < num
+      }
+    ));
+  };
+
+  return (
+    <Group ml="auto" align="center" gap={0}>
+      <Text fz="sm" mr={8}>Results Per Page</Text>
+      <Select
+        w={75}
+        disabled={contentStore.pagination.pageSize >= paging.items}
+        data={GetPageSizeOptions()}
+        value={contentStore.pagination.pageSize.toString()}
+        onChange={HandlePageSizeChange}
+        size="xs"
+        mr={16}
+      />
+      <Pagination
+        total={paging.pages}
+        value={paging.current}
+      />
+    </Group>
+  );
+});
+
+const ContentList = observer(({records, paging, loading}) => {
   const [selectedRecords, setSelectedRecords] = useState([]);
   // TODO: Add action/state for selectedRecords
 
@@ -290,6 +346,10 @@ const ContentList = observer(({records, loading}) => {
         ]}
         selectedRecords={selectedRecords}
         onSelectedRecordsChange={setSelectedRecords}
+      />
+      <TablePagination
+        loading={loading}
+        paging={paging}
       />
     </Box>
   );

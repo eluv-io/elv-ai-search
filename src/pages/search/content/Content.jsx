@@ -6,6 +6,7 @@ import ContentList from "@/pages/search/content/ContentList.jsx";
 
 const Content = observer(({show}) => {
   const [content, setContent] = useState([]);
+  const [paging, setPaging] = useState(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -16,7 +17,9 @@ const Content = observer(({show}) => {
           filterByFolder: false,
           parentFolder: rootStore.tenantStore.rootFolder
         });
-        setContent(contentMetadata);
+
+        setContent(contentMetadata.content);
+        setPaging(contentMetadata.paging);
       } finally {
         setLoading(false);
       }
@@ -33,6 +36,7 @@ const Content = observer(({show}) => {
     <Box>
       <ContentList
         records={content}
+        paging={paging}
         loading={loading}
       />
     </Box>

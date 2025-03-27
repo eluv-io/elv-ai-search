@@ -4,6 +4,14 @@ import {flow, makeAutoObservable} from "mobx";
 class ContentStore {
   rootFolderId;
 
+  // Pagination
+  pageSize = 20;
+  totalResults;
+  totalPages;
+  currentPage = 0;
+  previousPages; // Number of previous pages
+  nextPages; // Number of next pages
+
   constructor(rootStore) {
     makeAutoObservable(this);
 
@@ -13,6 +21,41 @@ class ContentStore {
   get client() {
     return this.rootStore.client;
   }
+
+  get pagination() {
+    // const currentPage = this.endResult / this.pageSize;
+    // const searchTotal = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
+    // const totalResultsPerPage = searchTotal;
+    // const totalPages = Math.ceil(searchTotal / this.pageSize);
+
+    return {
+      pageSize: this.pageSize,
+      currentPage: this.currentPage,
+      totalPages: this.totalPages,
+      totalResults: this.totalResults,
+      previousPages: this.previousPages,
+      nextPages: this.nextPages,
+      // startResult: this.startResult,
+      // endResult: this.endResult,
+      // Calculated values
+      // totalResultsPerPage, // total for current page
+      // searchTotal,
+      // firstResult: this.startResult + 1,
+      // lastResult: Math.min(searchTotal, this.endResult)
+    };
+  }
+
+  UpdatePageSize = flow(function * ({pageSize}) {
+    this.ResetPagination();
+    // this.ResetSearch();
+
+    this.pageSize = pageSize;
+
+    // yield this.GetNextPageResults({
+    //   fuzzySearchValue: this.currentSearch.terms,
+    //   page: 1
+    // });
+  });
 
   GetContentData = flow(function * ({
     parentFolder,
@@ -42,6 +85,7 @@ class ContentStore {
         field: sortBy
       }
     });
+    console.log("data", data)
 
     const content = data.versions || [];
 
@@ -76,7 +120,10 @@ class ContentStore {
       }
     );
 
-    return content;
+    return {
+      content,
+      paging: data.paging
+    };
   });
 
   GetContentTags = flow(function * ({
