@@ -47,35 +47,6 @@ const ActionsToolbar = observer(({viewType, setViewType}) => {
   );
 });
 
-const ListView = observer(({
-  show,
-  content,
-  paging,
-  loading,
-  pageSize,
-  setCurrentPage,
-  HandleChangePageSize
-}) => {
-  if(!show) { return null; }
-
-  return (
-    <ContentList
-      records={content}
-      paging={paging}
-      loading={loading}
-      pageSize={pageSize}
-      setCurrentPage={setCurrentPage}
-      HandleChangePageSize={HandleChangePageSize}
-    />
-  );
-});
-
-const GridView = observer(() => {
-  return (
-    <Box></Box>
-  );
-});
-
 const Content = observer(({show}) => {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState([]);
@@ -140,16 +111,17 @@ const Content = observer(({show}) => {
 
       <ActionsToolbar viewType={viewType} setViewType={setViewType} />
 
-      <ListView
-        show={viewType === "LIST"}
-        content={content}
-        paging={paging}
-        loading={loading}
-        pageSize={pageSize}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-        HandleChangePageSize={HandleChangePageSize}
-      />
+      {
+        viewType === "LIST" &&
+        <ContentList
+          records={content}
+          paging={paging}
+          loading={loading}
+          pageSize={pageSize}
+          setCurrentPage={setCurrentPage}
+          HandleChangePageSize={HandleChangePageSize}
+        />
+      }
     </Box>
   );
 });
