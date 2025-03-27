@@ -396,14 +396,14 @@ const ContentList = observer(({
         selectedRecords={selectedRecords}
         onSelectedRecordsChange={setSelectedRecords}
       />
-      <TablePagination
-        loading={loading}
-        paging={paging}
-        pageSize={pageSize}
-        HandleChangePageSize={HandleChangePageSize}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
-      />
+      {/*<TablePagination*/}
+      {/*  loading={loading}*/}
+      {/*  paging={paging}*/}
+      {/*  pageSize={pageSize}*/}
+      {/*  HandleChangePageSize={HandleChangePageSize}*/}
+      {/*  currentPage={currentPage}*/}
+      {/*  setCurrentPage={setCurrentPage}*/}
+      {/*/>*/}
     </Box>
   );
 });
