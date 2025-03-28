@@ -35,28 +35,11 @@ class ContentStore {
     };
   }
 
-  // ResetPagination = () => {
-  //   this.pageSize = 35;
-  //   this.totalPages = null;
-  //   this.totalResults = null;
-  //   this.currentPage = 0;
-  // };
-  //
-  // UpdatePageSize = flow(function * ({pageSize}) {
-  //   // this.ResetPagination();
-  //
-  //   this.pageSize = pageSize;
-  //
-  //   // yield this.GetNextPageResults({
-  //   //   fuzzySearchValue: this.currentSearch.terms,
-  //   //   page: 1
-  //   // });
-  // });
-
   GetContentData = flow(function * ({
     parentFolder,
     filterByFolder=true,
-    sortBy="asset_type",
+    filterExcludeFolder=false,
+    sortOptions, // {field: string, desc: boolean}
     start,
     limit
   }={}) {
@@ -66,10 +49,15 @@ class ContentStore {
       filterOptions.push("tag:eq:elv:folder");
     }
 
+    if(filterExcludeFolder) {
+      filterOptions.push("tag:ne:elv:folder");
+    }
+
     if(parentFolder) {
       filterOptions.push(`group:eq:${parentFolder}`);
     }
 
+    // TODO: Sort with folders first
     const data = yield this.client.TenantContent({
       filter: filterOptions,
       select: [
@@ -79,9 +67,7 @@ class ContentStore {
         "offerings/default/media_struct/streams/video/duration/float",
         "offerings/default/media_struct/streams/audio/duration/float"
       ],
-      sort: {
-        field: sortBy
-      },
+      sortOptions,
       start,
       limit
     });
@@ -152,7 +138,8 @@ class ContentStore {
     name,
     displayTitle,
     tags,
-    queryFields
+    queryFields,
+    groupIds=[]
   }){
     try {
       const {objectId, writeToken} = yield this.client.CreateContentFolder({
@@ -161,6 +148,13 @@ class ContentStore {
         displayTitle,
         tags,
         queryFields
+      });
+
+      yield this.client.AddContentObjectFolders({
+        libraryId,
+        objectId,
+        writeToken,
+        groupIds
       });
 
       yield this.client.FinalizeContentObject({

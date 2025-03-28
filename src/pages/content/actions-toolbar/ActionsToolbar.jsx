@@ -7,7 +7,7 @@ import {FilterIcon, GridIcon, ListIcon} from "@/assets/icons/index.js";
 import {IconFolder} from "@tabler/icons-react";
 import styles from "@/pages/content/Content.module.css";
 
-const ActionsToolbar = observer(({viewType, setViewType}) => {
+const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
   const [showFolderModal, setShowFolderModal] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -29,8 +29,11 @@ const ActionsToolbar = observer(({viewType, setViewType}) => {
         // TODO: Add folder breadcrumb system
         libraryId: (contentStore.rootFolderId || "").replace("iq__", "ilib"),
         name: values.name,
-        displayTitle: values.displayTitle
+        displayTitle: values.displayTitle,
+        groupIds: [contentStore.rootFolderId]
       });
+
+      await HandleGetResults();
     } finally {
       setShowFolderModal(false);
       setSaving(false);

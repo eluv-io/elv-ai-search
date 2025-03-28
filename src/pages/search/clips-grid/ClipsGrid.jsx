@@ -101,13 +101,13 @@ const Clip = observer(({
         {
           !_clipType &&
           <Box>
-            <Group gap={8}>
+            <Group gap={8} wrap="no-wrap" w="100%">
               {
                 _assetType ?
                   <ImageIcon color="var(--mantine-color-elv-green-7)" width={20} height={20} /> :
                   <VideoClipIcon color="var(--mantine-color-elv-red-4)" width={20} height={20} />
               }
-              <Text size="md" fw={400} c="elv-black.1" lh={1}>
+              <Text size="md" fw={400} c="elv-black.1" lh={1} truncate="end">
                 { id }
               </Text>
             </Group>

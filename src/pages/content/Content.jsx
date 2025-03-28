@@ -68,7 +68,11 @@ const Content = observer(({show}) => {
         </Text>
       </Group>
 
-      <ActionsToolbar viewType={viewType} setViewType={setViewType} />
+      <ActionsToolbar
+        viewType={viewType}
+        setViewType={setViewType}
+        HandleGetResults={() => HandleGetResults(currentPage, pageSize)}
+      />
 
       {
         viewType === "LIST" &&
