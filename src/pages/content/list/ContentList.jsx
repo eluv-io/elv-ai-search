@@ -28,7 +28,7 @@ import {useState} from "react";
 import styles from "./ContentList.module.css";
 import {permissionLevels} from "@eluvio/elv-client-js/src/client/ContentAccess.js";
 import {useClipboard} from "@mantine/hooks";
-import {searchStore} from "@/stores/index.js";
+import {contentStore, searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 
@@ -363,8 +363,12 @@ const ContentList = observer(({
         classNames={{header: styles.tableHeader}}
         minHeight={(!records || records.length === 0) ? 130 : 75}
         onRowClick={({record}) => {
-          searchStore.SetSelectedSearchResult({result: record});
-          navigate(record.id);
+          if(record._isFolder) {
+            contentStore.UpdateContentFolder(record);
+          } else {
+            searchStore.SetSelectedSearchResult({result: record});
+            navigate(record.id);
+          }
         }}
         columns={[
           {

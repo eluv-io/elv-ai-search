@@ -3,6 +3,7 @@ import {flow, makeAutoObservable} from "mobx";
 // Store for managing content object
 class ContentStore {
   contentObjects;
+  contentFolder;
 
   // Pagination
   pageSize = 20;
@@ -26,6 +27,14 @@ class ContentStore {
     return this.rootStore.tenantStore.rootFolder;
   }
 
+  get contentFolderName() {
+    return this.contentFolder? this.contentFolder._title : "";
+  }
+
+  get contentFolderId() {
+    return this.contentFolder?.id || this.rootStore.tenantStore.rootFolder;
+  }
+
   get pagination() {
     return {
       pageSize: this.pageSize,
@@ -36,6 +45,10 @@ class ContentStore {
       nextPages: this.nextPages,
     };
   }
+
+  UpdateContentFolder = (value) => {
+    this.contentFolder = value;
+  };
 
   GetContentData = flow(function * ({
     parentFolder,

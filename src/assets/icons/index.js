@@ -1,4 +1,5 @@
 import ApproveIcon from "./ApproveIcon.jsx";
+import ArrowBackIcon from "./ArrowBackIcon.jsx";
 import ArrowLeftIcon from "./ArrowLeftIcon.jsx";
 import ArrowRightIcon from "./ArrowRightIcon.jsx";
 import CameraIcon from "./CameraIcon.jsx";
@@ -35,6 +36,7 @@ import WaveIcon from "./media-types/WaveIcon.jsx";
 
 export {
   ApproveIcon,
+  ArrowBackIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
   CameraIcon,
