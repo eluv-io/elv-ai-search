@@ -56,6 +56,8 @@ const SummaryHashtagsSection = observer(({
     LoadSummary();
   }, []);
 
+  if(!loading && (!info || info.error)) { return null; }
+
   return (
     <>
       <Box bg="elv-gray.4" p={8} className={styles.textBox}>
@@ -104,6 +106,7 @@ const ShareModal = observer(({
     <Modal
       opened={opened}
       onClose={onClose}
+      closeOnClickOutside={false}
       size="xxl"
       title={
         <Group gap={8} w="100%" wrap="nowrap">

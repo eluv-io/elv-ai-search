@@ -30,6 +30,7 @@ import {permissionLevels} from "@eluvio/elv-client-js/src/client/ContentAccess.j
 import {useClipboard} from "@mantine/hooks";
 import {searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
+import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 
 const EmptyTableCell = () => {
   return <Text c="elv-gray.9">---</Text>;
@@ -212,60 +213,69 @@ const TableCell = observer(({isFolder, type, ...props}) => {
   return cellMap[type];
 });
 
-const ActionsCell = observer(() => {
+const ActionsCell = observer(({record, setModalData}) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   const options = [
     {id: "rename-option", Icon: <IconPencilMinus size={16} />, label: "Rename"},
     {id: "duplicate-option", Icon: <CopyIcon width={16} height={16} />, label: "Duplicate"},
     {id: "organize-option", Icon: <IconFolderBolt size={16} />, label: "Organize"},
     {id: "edit-tags-option", Icon: <EditTagIcon size={16} />, label: "Edit Tags"},
-    {id: "share-option", Icon: <ShareIcon width={16} height={16} />, label: "Share"},
+    {id: "share-option", Icon: <ShareIcon width={16} height={16} />, label: "Share", HandleClick: () => {
+        setModalData({
+          id: record.id,
+          title: record._title,
+          open: true,
+          assetType: record._assetType
+        });
+      }},
     {id: "divider-1", divider: true},
     {id: "delete-option", Icon: <TrashIcon size={16} />, label: "Delete"},
   ];
 
-  const [opened, setOpened] = useState(false);
-
   return (
-    <Menu
-      ml="auto"
-      position="bottom-end"
-      opened={opened}
-      onChange={setOpened}
-    >
-      <Menu.Target>
-        <ActionIcon
-          variant="transparent"
-          onClick={(e) => {
-            e.stopPropagation();
-            setOpened(prev => !prev);
-          }}
-        >
-          <VerticalDotsIcon color="var(--mantine-color-elv-gray-8)" />
-        </ActionIcon>
-      </Menu.Target>
-      <Menu.Dropdown>
-        {
-          options
-            .filter(item => !item.hide)
-            .map(item => (
-              item.divider ?
-                <Menu.Divider key={item.id} /> :
-                <Menu.Item
-                  key={item.id}
-                  leftSection={item.Icon}
-                  color="var(--mantine-color-elv-gray-9)"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    item.onClick();
-                  }}
-                  disabled={item.disabled}
-                >
-                  { item.label }
-                </Menu.Item>
-            ))
-        }
-      </Menu.Dropdown>
-    </Menu>
+    <>
+      <Menu
+        ml="auto"
+        position="bottom-end"
+        opened={menuOpen}
+        onChange={setMenuOpen}
+      >
+        <Menu.Target>
+          <ActionIcon
+            variant="transparent"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMenuOpen(true);
+            }}
+          >
+            <VerticalDotsIcon color="var(--mantine-color-elv-gray-8)" />
+          </ActionIcon>
+        </Menu.Target>
+        <Menu.Dropdown>
+          {
+            options
+              .filter(item => !item.hide)
+              .map(item => (
+                item.divider ?
+                  <Menu.Divider key={item.id} /> :
+                  <Menu.Item
+                    key={item.id}
+                    leftSection={item.Icon}
+                    color="var(--mantine-color-elv-gray-9)"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      item.HandleClick();
+                    }}
+                    disabled={item.disabled}
+                  >
+                    { item.label }
+                  </Menu.Item>
+              ))
+          }
+        </Menu.Dropdown>
+      </Menu>
+    </>
   );
 });
 
@@ -329,7 +339,17 @@ const ContentList = observer(({
   currentPage,
   setCurrentPage
 }) => {
+  const initModalData = {
+    id: null,
+    open: false,
+    onClose: null,
+    title: null,
+    assetType: false
+  };
+
   const [selectedRecords, setSelectedRecords] = useState([]);
+  const [modalData, setModalData] = useState(initModalData);
+
   const navigate = useNavigate();
   // TODO: Add action/state for selectedRecords
 
@@ -419,8 +439,10 @@ const ContentList = observer(({
             accessor: "actions",
             title: "",
             width: 60,
-            render: () => (
+            render: (record) => (
               <ActionsCell
+                record={record}
+                setModalData={setModalData}
               />
             )
           }
@@ -435,6 +457,14 @@ const ContentList = observer(({
         HandleChangePageSize={HandleChangePageSize}
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
+      />
+
+      <ShareModal
+        opened={modalData.open}
+        onClose={() => setModalData(initModalData)}
+        objectId={modalData.id}
+        title={modalData.title}
+        assetType={modalData.assetType}
       />
     </Box>
   );
