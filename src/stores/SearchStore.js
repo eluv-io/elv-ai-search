@@ -610,6 +610,7 @@ class SearchStore {
             result["_score"] = this.GetSearchScore({score: result.score});
             result["_assetType"] = true;
             result["_clipType"] = false;
+            result["_contentType"] = false;
 
             url = await this.rootStore.GetFilePath({
               objectId: result.id,
@@ -639,6 +640,7 @@ class SearchStore {
 
             result["_assetType"] = false;
             result["_clipType"] = true;
+            result["_contentType"] = false;
             result["_score"] = this.GetSearchScore({clip: result});
             result["_title"] = result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
             result["_id"] = `${result.id}-${result.start_time}-${result.end_time}`;

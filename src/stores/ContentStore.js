@@ -2,6 +2,8 @@ import {flow, makeAutoObservable} from "mobx";
 
 // Store for managing content object
 class ContentStore {
+  contentObjects;
+
   // Pagination
   pageSize = 20;
   totalResults;
@@ -102,11 +104,14 @@ class ContentStore {
         contentObject["_duration"] = duration;
         contentObject["_title"] = contentObject.meta?.public?.asset_metadata?.display_title || contentObject.meta?.public?.name || contentObject.id;
         contentObject["_clipType"] = false;
+        contentObject["_contentType"] = true;
         contentObject["_index"] = i;
 
         return contentObject;
       }
     );
+
+    this.contentObjects = content;
 
     return {
       content,

@@ -3,7 +3,7 @@ import {ArrowLeftIcon, ArrowRightIcon} from "@/assets/icons/index.js";
 import {useNavigate} from "react-router-dom";
 import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 import {observer} from "mobx-react-lite";
-import {searchStore, overlayStore} from "@/stores/index.js";
+import {searchStore, overlayStore, contentStore} from "@/stores/index.js";
 
 const ResultDetailsNavToolbar = observer(() => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const ResultDetailsNavToolbar = observer(() => {
   const HandleNavClip = async(prev) => {
     const currentClip = searchStore.selectedSearchResult;
     let newIndex = prev ? (currentClip._index - 1) : (currentClip._index + 1);
-    let clips = searchStore.searchResults || [];
+    let clips = currentClip._contentType ? (contentStore.contentObjects || []) : (searchStore.searchResults || []);
     let newClip = clips?.[newIndex];
 
     if(newClip) {
@@ -27,12 +27,16 @@ const ResultDetailsNavToolbar = observer(() => {
         const newPage = prev ? (searchStore.pagination.currentPage - 1) : (searchStore.pagination.currentPage + 1);
         newIndex = prev ? (searchStore.pagination.pageSize - 1)  : 0;
 
-        await searchStore.GetNextPageResults({
-          fuzzySearchValue: searchStore.currentSearch.terms,
-          page: newPage
-        });
+        if(currentClip._contentType) {
+          clips = contentStore.contentObjects || [];
+        } else {
+          await searchStore.GetNextPageResults({
+            fuzzySearchValue: searchStore.currentSearch.terms,
+            page: newPage
+          });
 
-        clips = searchStore.searchResults || [];
+          clips = searchStore.searchResults || [];
+        }
         let newClip = clips[newIndex];
 
         if(newClip) {
