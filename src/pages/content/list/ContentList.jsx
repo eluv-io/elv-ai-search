@@ -92,6 +92,7 @@ const TitleCell = ({
 const TypeCell = observer(({assetType, duration}) => {
   let content;
 
+  // TODO: Find better way to determine type
   if(assetType) {
     content = (
       <>
@@ -99,7 +100,7 @@ const TypeCell = observer(({assetType, duration}) => {
         <Text fz={14} fw={500} c="elv-gray.8" lh={1}>Image</Text>
       </>
     );
-  } else {
+  } else if(duration) {
     content = (
       <>
         <VideoClipIcon color="var(--mantine-color-elv-red-4)" />
@@ -119,6 +120,8 @@ const TypeCell = observer(({assetType, duration}) => {
         </Stack>
       </>
     );
+  } else {
+    return <EmptyTableCell />;
   }
 
   return (

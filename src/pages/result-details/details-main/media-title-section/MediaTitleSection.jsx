@@ -203,8 +203,8 @@ const MediaTitleSection = observer(({
         {
           title ?
             (
-              <Group wrap="nowrap" align="center" gap={6} flex="0 1 0%">
-                <Title order={2} c="elv-gray.8" lineClamp={1} >
+              <Group wrap="nowrap" align="center" gap={6} flex="1 1 50%">
+                <Title order={2} c="elv-gray.8" lineClamp={1}>
                   { title }
                 </Title>
                 {
@@ -227,7 +227,9 @@ const MediaTitleSection = observer(({
         {
           searchStore.selectedSearchResult._assetType &&
           <Group gap={3} mr={40} wrap="nowrap" w="100%" flex="1 1 0%" miw={0}>
-            <Text c="elv-gray.8" fw={400} size="sm" truncate="end">{ searchStore.selectedSearchResult.id }</Text>
+            <Text c="elv-gray.8" fw={400} size="sm" truncate="end">
+              { searchStore.selectedSearchResult.id }
+            </Text>
             <Tooltip
               label={clipboard.copied ? "Copied" : "Copy ID"}
               position="bottom"

@@ -2,7 +2,7 @@ import {observer} from "mobx-react-lite";
 import {ActionIcon, Button, Flex, Group, Text, Tooltip} from "@mantine/core";
 import {LinkIcon} from "@/assets/icons/index.js";
 import {searchStore} from "@/stores/index.js";
-import {TimeInterval} from "@/utils/helpers.js";
+import {FormatTime, TimeInterval} from "@/utils/helpers.js";
 import {IconCopy} from "@tabler/icons-react";
 import styles from "./MediaSecondaryInfo.module.css";
 import {useClipboard} from "@mantine/hooks";
@@ -16,7 +16,13 @@ const MediaSecondaryInfo = observer(({downloadUrl, embedUrl}) => {
     <Flex direction="row" align="center" mt={12} mb={12}>
       <Text c="elv-gray.8" mr={20} fw={400}>
         {
-          TimeInterval({startTime: searchStore.selectedSearchResult.start_time, endTime: searchStore.selectedSearchResult.end_time})
+          (searchStore.selectedSearchResult.start_time || searchStore.selectedSearchResult.end_time) ?
+          TimeInterval({startTime: searchStore.selectedSearchResult.start_time, endTime: searchStore.selectedSearchResult.end_time}) :
+            FormatTime({
+              time: searchStore.selectedSearchResult._duration,
+              millisecondsFormat: false,
+              hideHour: true
+            })
         }
       </Text>
       <Group gap={3}>

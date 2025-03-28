@@ -33,7 +33,7 @@ const Card = ({startTime, text}) => {
 const DescriptionPanel = observer(() => {
   const clip = searchStore.selectedSearchResult;
   const llavaTagKey = Object.keys(clip?._tags || {}).find(tagKey => tagKey.toLowerCase().includes("llava"));
-  const llavaTags = clip._tags?.[llavaTagKey].items;
+  const llavaTags = clip._tags?.[llavaTagKey]?.items;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
