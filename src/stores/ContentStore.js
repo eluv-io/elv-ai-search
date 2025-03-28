@@ -77,7 +77,7 @@ class ContentStore {
     yield this.client.utils.LimitedMap(
       10,
       content,
-      async contentObject => {
+      async (contentObject, i) => {
         let tags, permission;
         const objectId = contentObject.id;
         const duration = contentObject.meta?.offerings?.default?.media_struct?.streams?.video?.duration?.float || contentObject.meta?.offerings?.default?.media_struct?.streams?.audio?.duration?.float;
@@ -102,6 +102,7 @@ class ContentStore {
         contentObject["_duration"] = duration;
         contentObject["_title"] = contentObject.meta?.public?.asset_metadata?.display_title || contentObject.meta?.public?.name || contentObject.id;
         contentObject["_clipType"] = false;
+        contentObject["_index"] = i;
 
         return contentObject;
       }
