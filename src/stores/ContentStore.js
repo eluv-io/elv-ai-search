@@ -81,8 +81,7 @@ class ContentStore {
         "commit/timestamp",
         "public/name",
         "public/asset_metadata/display_title",
-        "offerings/default/media_struct/streams/video/duration/float",
-        "offerings/default/media_struct/streams/audio/duration/float"
+        "offerings/default/media_struct/duration_rat"
       ],
       sortOptions,
       start,
@@ -97,7 +96,8 @@ class ContentStore {
       async (contentObject, i) => {
         let tags, permission;
         const objectId = contentObject.id;
-        const duration = contentObject.meta?.offerings?.default?.media_struct?.streams?.video?.duration?.float || contentObject.meta?.offerings?.default?.media_struct?.streams?.audio?.duration?.float;
+        const durationArray = contentObject.meta?.offerings?.default?.media_struct?.duration_rat.split("/");
+        const duration = durationArray ? (durationArray[0] / durationArray[1]) : null;
 
         try {
           tags = await this.GetContentTags({
