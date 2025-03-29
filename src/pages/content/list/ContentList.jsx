@@ -176,6 +176,8 @@ const ObjectCell = observer(({versionHash}) => {
 });
 
 const TagsCell = observer(({tags}) => {
+  tags = (tags || []).filter(tag => !tag?.startsWith("elv:"));
+
   if(!tags || tags.length === 0) { return <EmptyTableCell />; }
 
   return (
