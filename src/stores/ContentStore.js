@@ -1,4 +1,5 @@
 import {flow, makeAutoObservable} from "mobx";
+import {ORG_TAGS} from "@/utils/constants.js";
 
 // Store for managing content object
 class ContentStore {
@@ -51,32 +52,24 @@ class ContentStore {
   };
 
   GetContentData = flow(function * ({
-    parentFolder,
-    filterByTypes=[], // mez, live_stream, master, index, folder
+    filterOptions={}, // {types: mez, live_stream, master, index, folder, group: groupID}
     sortOptions, // {field: string, desc: boolean}
     start,
     limit
   }={}) {
-    const filterOptions = [];
+    const filter = [];
 
-    if(parentFolder) {
-      filterOptions.push(`group:eq:${parentFolder}`);
+    if(filterOptions.group) {
+      filter.push(`group:eq:${filterOptions.group}`);
     }
 
-    const types = {
-      "mez": "elv:vod:mez",
-      "master": "elv:vod:master",
-      "live_stream": "elv:live_stream",
-      "folder": "elv:folder"
-    };
-
-    filterByTypes.forEach(type => {
-      filterOptions.push(`tag:eq:${types[type]}`);
+    (filterOptions.types || []).forEach(type => {
+      filter.push(`tag:eq:${ORG_TAGS[type]}`);
     });
 
     // TODO: Sort with folders first
     const data = yield this.client.TenantContent({
-      filter: filterOptions,
+      filter,
       select: [
         "commit/timestamp",
         "public/name",

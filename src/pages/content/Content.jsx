@@ -26,8 +26,10 @@ const Content = observer(({show}) => {
   const HandleGetFolders = async() => {
     try {
       const folderMetadata = await contentStore.GetContentData({
-        filterByTypes: ["folder"],
-        parentFolder: contentStore.rootFolderId
+        filterOptions: {
+          types: ["folder"],
+          group: contentStore.rootFolderId
+        }
       });
 
       setFolderContent(folderMetadata.content);
@@ -41,7 +43,7 @@ const Content = observer(({show}) => {
       setLoading(true);
 
       const contentMetadata = await contentStore.GetContentData({
-        filterByTypes: ["mez"],
+        filterOptions: {types: ["mez"]},
         start: ((currentPage - 1) * pageSize),
         limit: limit
       });
