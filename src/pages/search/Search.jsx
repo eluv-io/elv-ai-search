@@ -260,7 +260,7 @@ const Search = observer(() => {
       />
       <Content
         show={
-          !(searchStore.searchResults || []).length &&
+          !searchStore.activeSearch &&
           !loadingSearch &&
           !searchStore.musicSettingEnabled
         }

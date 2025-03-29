@@ -43,6 +43,7 @@ class SearchStore {
   loadingSearchResult = false;
   musicSettingEnabled = false;
   loadingSearch = false;
+  activeSearch = false;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -757,6 +758,7 @@ class SearchStore {
       newResultsVideoPaginated[page] = videoResults?.contents;
     }
 
+    this.activeSearch = true;
     if(cacheResults) {
       this.SetCurrentSearch({
         videoResults: videoResults?.contents,

@@ -14,8 +14,8 @@ import {
   TextInput
 } from "@mantine/core";
 import {useEffect, useState} from "react";
-import {searchStore, tenantStore} from "@/stores/index.js";
-import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
+import {contentStore, searchStore, tenantStore} from "@/stores/index.js";
+import {ArrowBackIcon, CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
 import {useDebouncedValue} from "@mantine/hooks";
@@ -344,6 +344,21 @@ const SearchBar = observer(({
 
   return (
     <Flex direction="row" align="center" justify="center" w="100%" mb={24}>
+      {
+        searchStore.activeSearch &&
+        <Group gap={12} wrap="no-wrap" flex="0 1 20%">
+          <ActionIcon
+            variant="transparent"
+            c="elv-gray.8"
+            onClick={() => contentStore.UpdateContentFolder(null)}
+          >
+            <ArrowBackIcon />
+          </ActionIcon>
+          <Text size="xl" c="elv-gray.8" fw={700} lh={1} lineClamp={1}>
+            All Content
+          </Text>
+        </Group>
+      }
       <Flex w="100%" pos="relative" align="center">
         <TextInput
           w="100%"

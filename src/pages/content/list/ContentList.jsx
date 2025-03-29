@@ -6,6 +6,7 @@ import {
   Group,
   Image,
   Menu,
+  Modal,
   Pagination,
   Select,
   Stack,
@@ -47,7 +48,7 @@ const TitleCell = ({
   const clipboard = useClipboard();
 
   const titleText = (
-    <Text fz={16} fw={700} c="elv-gray.8" maw={400} truncate="end" lh={1}>
+    <Text fz={16} fw={700} c="elv-gray.8" maw={400} truncate="end" lh="normal">
       { title }
     </Text>
   );
@@ -68,7 +69,7 @@ const TitleCell = ({
         <Stack gap={6}>
           { titleText }
           <Group gap={8}>
-            <Text fz={12} fw={400} c="elv-gray.8" lh={1}>
+            <Text fz={12} fw={400} c="elv-gray.8" lh="normal">
               { id }
             </Text>
             <Tooltip label={clipboard.copied ? "Copied": "Copy"} position="bottom">
@@ -339,15 +340,21 @@ const ContentList = observer(({
   currentPage,
   setCurrentPage
 }) => {
-  const initModalData = {
+  const initShareModalData = {
     id: null,
     open: false,
-    onClose: null,
     title: null,
     assetType: false
   };
 
+  const initModalData = {
+    title: null,
+    open: false,
+    children: null
+  };
+
   const [selectedRecords, setSelectedRecords] = useState([]);
+  const [shareModalData, setShareModalData] = useState(initShareModalData);
   const [modalData, setModalData] = useState(initModalData);
 
   const navigate = useNavigate();
@@ -464,12 +471,19 @@ const ContentList = observer(({
       />
 
       <ShareModal
+        opened={shareModalData.open}
+        onClose={() => setShareModalData(initShareModalData)}
+        objectId={shareModalData.id}
+        title={shareModalData.title}
+        assetType={shareModalData.assetType}
+      />
+      <Modal
         opened={modalData.open}
         onClose={() => setModalData(initModalData)}
-        objectId={modalData.id}
         title={modalData.title}
-        assetType={modalData.assetType}
-      />
+      >
+        { modalData.children || null }
+      </Modal>
     </Box>
   );
 });

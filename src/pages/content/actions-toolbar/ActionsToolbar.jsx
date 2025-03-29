@@ -27,7 +27,7 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
       setSaving(true);
       await contentStore.CreateContentFolder({
         // TODO: Add folder breadcrumb system
-        libraryId: (contentStore.rootFolderId || "").replace("iq__", "ilib"),
+        libraryId: await contentStore.client.ContentObjectLibraryId({objectId: contentStore.rootFolderId}),
         name: values.name,
         displayTitle: values.displayTitle,
         groupIds: [contentStore.rootFolderId]

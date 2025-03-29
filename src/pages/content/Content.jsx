@@ -16,22 +16,37 @@ import {ArrowBackIcon} from "@/assets/icons/index.js";
 const Content = observer(({show}) => {
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState([]);
+  const [folderContent, setFolderContent] = useState([]);
   const [viewType, setViewType] = useState("LIST");
 
   const [paging, setPaging] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
+  const HandleGetFolders = async() => {
+    try {
+      const folderMetadata = await contentStore.GetContentData({
+        filterByTypes: ["folder"],
+        parentFolder: contentStore.rootFolderId
+      });
+
+      setFolderContent(folderMetadata.content);
+    } catch(error) {
+      console.error(error);
+    }
+  };
+
   const HandleGetResults = async(page, limit) => {
     try {
       setLoading(true);
 
       const contentMetadata = await contentStore.GetContentData({
-        filterByFolder: false,
-        parentFolder: contentStore.contentFolderId,
+        filterByTypes: ["mez"],
         start: ((currentPage - 1) * pageSize),
         limit: limit
       });
+
+      await HandleGetFolders();
 
       setContent(contentMetadata.content);
       setPaging(contentMetadata.paging);
@@ -79,15 +94,15 @@ const Content = observer(({show}) => {
             {
               breadcrumbs
                 .map((name, i) => (
-                  <>
-                    <Text key={name} size="xl" c="elv-gray.8" fw={700} lh={1}>
+                  <Group key={name}>
+                    <Text size="xl" c="elv-gray.8" fw={700} lh={1}>
                       { name }
                     </Text>
                     {
                       (i !== breadcrumbs.length - 1) &&
                       <IconChevronRight />
                     }
-                  </>
+                  </Group>
                 ))
             }
           </Group>
@@ -105,13 +120,13 @@ const Content = observer(({show}) => {
       <ActionsToolbar
         viewType={viewType}
         setViewType={setViewType}
-        HandleGetResults={() => HandleGetResults(currentPage, pageSize)}
+        HandleGetResults={() => HandleGetFolders()}
       />
 
       {
         viewType === "LIST" &&
         <ContentList
-          records={content}
+          records={[...folderContent, ...content]}
           paging={paging}
           loading={loading}
           pageSize={pageSize}

@@ -52,25 +52,27 @@ class ContentStore {
 
   GetContentData = flow(function * ({
     parentFolder,
-    filterByFolder=true,
-    filterExcludeFolder=false,
+    filterByTypes=[], // mez, live_stream, master, index, folder
     sortOptions, // {field: string, desc: boolean}
     start,
     limit
   }={}) {
     const filterOptions = [];
 
-    if(filterByFolder) {
-      filterOptions.push("tag:eq:elv:folder");
-    }
-
-    if(filterExcludeFolder) {
-      filterOptions.push("tag:ne:elv:folder");
-    }
-
     if(parentFolder) {
       filterOptions.push(`group:eq:${parentFolder}`);
     }
+
+    const types = {
+      "mez": "elv:vod:mez",
+      "master": "elv:vod:master",
+      "live_stream": "elv:live_stream",
+      "folder": "elv:folder"
+    };
+
+    filterByTypes.forEach(type => {
+      filterOptions.push(`tag:eq:${types[type]}`);
+    });
 
     // TODO: Sort with folders first
     const data = yield this.client.TenantContent({
