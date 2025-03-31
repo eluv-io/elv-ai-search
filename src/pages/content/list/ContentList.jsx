@@ -32,6 +32,7 @@ import {useClipboard} from "@mantine/hooks";
 import {contentStore, searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
+import {MEDIA_TYPES} from "@/utils/constants.js";
 
 const EmptyTableCell = () => {
   return <Text c="elv-gray.9">---</Text>;
@@ -91,44 +92,32 @@ const TitleCell = ({
   }
 };
 
-const TypeCell = observer(({assetType, duration}) => {
-  let content;
+const TypeCell = observer(({mediaType, duration}) => {
+  const data = MEDIA_TYPES[mediaType];
+  const durationArray = duration ? duration.split("/") : [];
+  const durationDisplay = durationArray.length > 0 ? (durationArray[0] / durationArray[1]) : null;
 
-  // TODO: Find better way to determine type
-  if(assetType) {
-    content = (
-      <>
-        <ImageIcon color="var(--mantine-color-elv-green-7)" />
-        <Text fz={14} fw={500} c="elv-gray.8" lh={1}>Image</Text>
-      </>
-    );
-  } else if(duration) {
-    content = (
-      <>
-        <VideoClipIcon color="var(--mantine-color-elv-red-4)" />
-        <Stack gap={3}>
-          <Text fz={14} fw={500} c="elv-gray.8" lh={1}>Video</Text>
-          <Text fz={12} fw={400} c="elv-gray.8" lh={1}>
-            {
-              duration ?
-                FormatTime({
-                  time: duration,
-                  millisecondsFormat: false,
-                  hideHour: true
-                }) :
-                ""
-            }
-          </Text>
-        </Stack>
-      </>
-    );
-  } else {
-    return <EmptyTableCell />;
-  }
+  if(!data) { return <EmptyTableCell />; }
 
   return (
     <Group gap={8}>
-      { content }
+      <data.Icon color={`var(--mantine-color-${data.iconColor})`} />
+      <Stack gap={3}>
+        <Text fz={14} fw={500} c="elv-gray.8" lh={1}>
+          { data.label }
+        </Text>
+        <Text fz={12} fw={400} c="elv-gray.8" lh={1}>
+          {
+            durationDisplay ?
+              FormatTime({
+                time: durationDisplay,
+                millisecondsFormat: false,
+                hideHour: true
+              }) :
+              ""
+          }
+        </Text>
+      </Stack>
     </Group>
   );
 });
@@ -399,8 +388,8 @@ const ContentList = observer(({
               <TableCell
                 type="type"
                 isFolder={record._isFolder}
-                assetType={record._assetType}
-                duration={record._duration}
+                mediaType={record._queryFields?.media_type}
+                duration={record._queryFields?.duration}
               />
             )
           },

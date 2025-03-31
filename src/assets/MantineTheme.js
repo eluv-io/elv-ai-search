@@ -39,7 +39,7 @@ const theme = createTheme({
     "elv-violet": [
       "#f9e9ff",
       "#ebcfff",
-      "#d29cff",
+      "#bd6dff", // eluvio color
       "#b964ff", // eluvio color
       "#a437fe",
       "#971afe",
@@ -48,6 +48,18 @@ const theme = createTheme({
       "#8f5aff", // eluvio color
       "#5f00b3",
       "#380c61", // eluvio color
+    ],
+    "elv-blue-violet": [
+      "#eaeaff",
+      "#d0d0ff",
+      "#9e9efe",
+      "#6a6afb", // eluvio color
+      "#3c3bf9",
+      "#201ff8",
+      "#1010f9",
+      "#0105de",
+      "#0002c7",
+      "#0000b0"
     ],
     "elv-gray": [
       "#f5f5f5",

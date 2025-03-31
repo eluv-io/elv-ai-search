@@ -73,8 +73,7 @@ class ContentStore {
       select: [
         "commit/timestamp",
         "public/name",
-        "public/asset_metadata/display_title",
-        "offerings/default/media_struct/duration_rat"
+        "public/asset_metadata/display_title"
       ],
       sortOptions,
       start,
@@ -87,10 +86,9 @@ class ContentStore {
       10,
       content,
       async (contentObject, i) => {
-        let tags, permission;
+        let tags, queryFields, permission;
+
         const objectId = contentObject.id;
-        const durationArray = contentObject.meta?.offerings?.default?.media_struct?.duration_rat.split("/");
-        const duration = durationArray ? (durationArray[0] / durationArray[1]) : null;
 
         try {
           tags = await this.GetContentTags({
@@ -101,18 +99,28 @@ class ContentStore {
         }
 
         try {
+          queryFields = await this.GetQueryFields({
+            objectId
+          });
+        } catch(error) {
+          console.error(`Skipping query fields for ${objectId}`);
+        }
+
+        try {
           permission = await this.client.Permission({objectId});
         } catch(error) {
           console.error(`Skipping permission for ${objectId}`);
         }
 
         contentObject["_tags"] = tags;
+        contentObject["_queryFields"] = queryFields;
         contentObject["_isFolder"] = (tags || []).includes("elv:folder");
         contentObject["_permission"] = permission;
-        contentObject["_duration"] = duration;
         contentObject["_title"] = contentObject.meta?.public?.asset_metadata?.display_title || contentObject.meta?.public?.name || contentObject.id;
+        // Flags for distinguishing between clips, non-clips, images
         contentObject["_clipType"] = false;
         contentObject["_contentType"] = true;
+        // Index used for clip navigation
         contentObject["_index"] = i;
 
         return contentObject;
@@ -139,11 +147,33 @@ class ContentStore {
 
       return this.client.ContentTags({
         libraryId,
-        objectId
+        objectId,
+        versionHash
       });
     } catch(error) {
       console.error(`Unable to get tags for ${objectId}`, error);
       return [];
+    }
+  });
+
+  GetQueryFields = flow(function * ({
+    libraryId,
+    objectId,
+    versionHash
+  }) {
+    try {
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId, versionHash});
+      }
+
+      return this.client.ContentQueryFields({
+        libraryId,
+        objectId,
+        versionHash
+      });
+    } catch(error) {
+      console.error(`Unable to get query fields for ${objectId}`, error);
+      return {};
     }
   });
 
