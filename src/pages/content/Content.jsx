@@ -22,7 +22,8 @@ const Content = observer(({show}) => {
 
   const [paging, setPaging] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
+  // const [pageSize, setPageSize] = useState(20);
+  const pageSize = 20;
 
   const {ref, inViewport} = useInViewport();
 
@@ -46,7 +47,10 @@ const Content = observer(({show}) => {
       setLoading(true);
 
       const contentMetadata = await contentStore.GetContentData({
-        filterOptions: {types: ["mez"]},
+        filterOptions: {
+          types: ["mez"],
+          group: contentStore.contentFolderId
+        },
         start: ((currentPage - 1) * pageSize),
         limit: limit
       });
@@ -66,19 +70,19 @@ const Content = observer(({show}) => {
     }
   };
 
-  const HandleChangePageSize = (value) => {
-    setPageSize(value);
-  };
+  // const HandleChangePageSize = (value) => {
+  //   setPageSize(value);
+  // };
 
   useEffect(() => {
     const LoadData = async() => {
       await HandleGetResults(currentPage, pageSize);
     };
 
-    if(contentStore.contentFolderId) {
+    // if(contentStore.contentFolderId) {
       LoadData();
-    }
-  }, [contentStore.contentFolderId, pageSize, currentPage]);
+    // }
+  }, [contentStore.contentFolderId, currentPage]);
 
   useEffect(() => {
     if(inViewport && !loading && (currentPage < paging?.pages)) {
@@ -143,7 +147,11 @@ const Content = observer(({show}) => {
       {
         viewType === "LIST" &&
         <ListItems
-          records={[...folderContent, ...content]}
+          records={
+          contentStore.contentFolderId ?
+            content :
+            [...folderContent, ...content]
+        }
           loading={loading}
         />
       }

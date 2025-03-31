@@ -4,7 +4,7 @@ import {ORG_TAGS} from "@/utils/constants.js";
 // Store for managing content object
 class ContentStore {
   contentObjects;
-  contentFolder;
+  contentFolder; // stores the currently navigated folder
 
   // Pagination
   pageSize = 20;
@@ -24,6 +24,7 @@ class ContentStore {
     return this.rootStore.client;
   }
 
+  // Stores content_folder_root in Properties library
   get rootFolderId() {
     return this.rootStore.tenantStore.rootFolder;
   }
@@ -33,7 +34,7 @@ class ContentStore {
   }
 
   get contentFolderId() {
-    return this.contentFolder?.id || this.rootStore.tenantStore.rootFolder;
+    return this.contentFolder?.id;
   }
 
   get pagination() {

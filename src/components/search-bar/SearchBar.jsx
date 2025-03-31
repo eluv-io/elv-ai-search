@@ -313,7 +313,6 @@ const SearchBar = observer(({
 }) => {
   useEffect(() => {
     const {terms} = searchStore.currentSearch;
-    console.log("terms", terms)
     if(terms) {
       setFuzzySearchValue(terms);
     } else {
