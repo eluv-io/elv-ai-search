@@ -296,7 +296,6 @@ const TablePagination = observer(({
   return (
     <Group gap={24} mt={48}>
       <Text fz={14} fw={500}>
-        {/* TODO: Figure out if paging.last is buggy */}
         {/*{*/}
         {/*  `${paging.current === 0 ? 1 : paging.current}-${paging.last} / ${paging.items.toLocaleString()}`*/}
         {/*}*/}
@@ -324,12 +323,7 @@ const TablePagination = observer(({
 
 const ContentList = observer(({
   records,
-  paging,
-  loading,
-  HandleChangePageSize,
-  pageSize,
-  currentPage,
-  setCurrentPage
+  loading
 }) => {
   const initShareModalData = {
     id: null,
@@ -451,14 +445,6 @@ const ContentList = observer(({
         ]}
         selectedRecords={selectedRecords}
         onSelectedRecordsChange={setSelectedRecords}
-      />
-      <TablePagination
-        loading={loading}
-        paging={paging}
-        pageSize={pageSize}
-        HandleChangePageSize={HandleChangePageSize}
-        currentPage={currentPage}
-        setCurrentPage={setCurrentPage}
       />
 
       <ShareModal

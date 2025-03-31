@@ -12,6 +12,7 @@ import ActionsToolbar from "@/pages/content/actions-toolbar/ActionsToolbar.jsx";
 import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
 import {IconChevronRight} from "@tabler/icons-react";
 import {ArrowBackIcon} from "@/assets/icons/index.js";
+import {useInViewport} from "@mantine/hooks";
 
 const Content = observer(({show}) => {
   const [loading, setLoading] = useState(false);
@@ -22,6 +23,8 @@ const Content = observer(({show}) => {
   const [paging, setPaging] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+
+  const {ref, inViewport} = useInViewport();
 
   const HandleGetFolders = async() => {
     try {
@@ -48,9 +51,15 @@ const Content = observer(({show}) => {
         limit: limit
       });
 
-      await HandleGetFolders();
+      if(page === 1) {
+        await HandleGetFolders();
+      }
 
-      setContent(contentMetadata.content);
+      setContent(prev =>
+        currentPage === 1 ?
+          contentMetadata.content :
+          ([...prev || [], ...contentMetadata.content])
+      );
       setPaging(contentMetadata.paging);
     } finally {
       setLoading(false);
@@ -70,6 +79,12 @@ const Content = observer(({show}) => {
       LoadData();
     }
   }, [contentStore.contentFolderId, pageSize, currentPage]);
+
+  useEffect(() => {
+    if(inViewport && !loading && (currentPage < paging?.pages)) {
+      setCurrentPage(prev => prev + 1);
+    }
+  }, [inViewport, loading, currentPage, paging]);
 
   if(!show) { return null; }
 
@@ -129,12 +144,7 @@ const Content = observer(({show}) => {
         viewType === "LIST" &&
         <ContentList
           records={[...folderContent, ...content]}
-          paging={paging}
           loading={loading}
-          pageSize={pageSize}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          HandleChangePageSize={HandleChangePageSize}
         />
       }
 
@@ -142,7 +152,13 @@ const Content = observer(({show}) => {
         viewType === "GRID" &&
         <ClipsGrid
           clips={content}
+          enablePagination={false}
+          enableInfiniteScroll
         />
+      }
+      {
+        !loading &&
+        <Box ref={ref} h={20} />
       }
     </Box>
   );
