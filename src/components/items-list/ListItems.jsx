@@ -18,15 +18,13 @@ import {IconCopy, IconFolder, IconFolderBolt, IconPencilMinus} from "@tabler/ico
 import {
   CopyIcon,
   EditTagIcon,
-  ImageIcon,
   ShareIcon,
   TrashIcon,
   VerticalDotsIcon,
-  VideoClipIcon
 } from "@/assets/icons/index.js";
 import {FormatTime} from "@/utils/helpers.js";
 import {useState} from "react";
-import styles from "./ContentList.module.css";
+import styles from "./ListItems.module.css";
 import {permissionLevels} from "@eluvio/elv-client-js/src/client/ContentAccess.js";
 import {useClipboard} from "@mantine/hooks";
 import {contentStore, searchStore} from "@/stores/index.js";
@@ -321,7 +319,7 @@ const TablePagination = observer(({
   );
 });
 
-const ContentList = observer(({
+const ListItems = observer(({
   records,
   loading
 }) => {
@@ -351,7 +349,7 @@ const ContentList = observer(({
         highlightOnHover
         records={records}
         fetching={loading}
-        idAccessor="id"
+        idAccessor={({start_time, end_time, id}) => `${id}-${start_time || ""}-${end_time || ""}`}
         classNames={{header: styles.tableHeader}}
         minHeight={(!records || records.length === 0) ? 130 : 75}
         onRowClick={({record}) => {
@@ -465,4 +463,4 @@ const ContentList = observer(({
   );
 });
 
-export default ContentList;
+export default ListItems;

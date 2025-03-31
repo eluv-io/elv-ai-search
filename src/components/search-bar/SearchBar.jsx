@@ -313,8 +313,11 @@ const SearchBar = observer(({
 }) => {
   useEffect(() => {
     const {terms} = searchStore.currentSearch;
+    console.log("terms", terms)
     if(terms) {
       setFuzzySearchValue(terms);
+    } else {
+      setFuzzySearchValue("");
     }
   }, [searchStore.currentSearch.terms]);
 
@@ -350,7 +353,7 @@ const SearchBar = observer(({
           <ActionIcon
             variant="transparent"
             c="elv-gray.8"
-            onClick={() => contentStore.UpdateContentFolder(null)}
+            onClick={() => searchStore.ClearSearch()}
           >
             <ArrowBackIcon />
           </ActionIcon>

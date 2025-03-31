@@ -1,7 +1,7 @@
 import {observer} from "mobx-react-lite";
 import {searchStore} from "@/stores/index.js";
 import {Box} from "@mantine/core";
-import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
+import ClipsGrid from "@/components/items-grid/GridItems.jsx";
 
 const MusicGrid = observer(() => {
   const clips = searchStore.currentSearch?.resultsBySong || {};

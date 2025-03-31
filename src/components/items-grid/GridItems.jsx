@@ -50,7 +50,7 @@ const ImageContent = observer(({imageSrc, title}) => {
   }
 });
 
-const Clip = observer(({
+const GridItem = observer(({
   clip,
   song
  }) => {
@@ -64,7 +64,6 @@ const Clip = observer(({
         searchStore.SetSelectedSearchResult({result: clip});
         navigate(id);
       }}
-      key={`grid-item-${id}`}
     >
       <Flex direction="column" gap={6}>
         <AspectRatio
@@ -155,7 +154,7 @@ const Clip = observer(({
   );
 });
 
-const ClipsGrid = observer(({
+const GridItems = observer(({
   clips=[],
   song,
   cols=4,
@@ -185,7 +184,7 @@ const ClipsGrid = observer(({
       <SimpleGrid cols={cols} spacing="lg">
         {
           clips.map((clip, i) => (
-            <Clip
+            <GridItem
               key={`clip-result-${clip.id}-${clip.start_time}-${i}`}
               clip={clip}
               song={song}
@@ -225,4 +224,4 @@ const ClipsGrid = observer(({
   );
 });
 
-export default ClipsGrid;
+export default GridItems;

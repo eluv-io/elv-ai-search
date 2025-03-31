@@ -6,10 +6,10 @@ import {useState} from "react";
 import {searchStore} from "@/stores/index.js";
 import {GridIcon, ListIcon} from "@/assets/icons/index.js";
 import styles from "./Search.module.css";
-import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
+import GridItems from "@/components/items-grid/GridItems.jsx";
 import MusicGrid from "@/pages/search/music-grid/MusicGrid.jsx";
-import ClipsList from "@/pages/search/clips-list/ClipsList.jsx";
 import Content from "@/pages/content/Content.jsx";
+import ListItems from "@/components/items-list/ListItems.jsx";
 
 const FilterToolbar = observer(({loadingSearch, resultsView, setResultsView}) => {
   const iconProps = {
@@ -168,7 +168,7 @@ const SearchResults = observer(({HandleNextPage, resultsView}) => {
       </Group>
       {
         resultsView === "GRID" ?
-          <ClipsGrid
+          <GridItems
             clips={searchStore.searchResults}
             cols={cols}
             HandleSetPage={SetPage}
@@ -177,9 +177,9 @@ const SearchResults = observer(({HandleNextPage, resultsView}) => {
             pagination={searchStore.pagination}
             pageSizeOptions={GetPageSizeOptions()}
           /> :
-          <ClipsList
-            clips={searchStore.searchResults}
-            HandleNextPage={HandleNextPage}
+          <ListItems
+            records={searchStore.searchResults}
+            loading={searchStore.loadingSearch}
           />
       }
     </>

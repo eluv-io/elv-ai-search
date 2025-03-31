@@ -7,9 +7,9 @@ import {
 } from "@mantine/core";
 import {useEffect, useState} from "react";
 import {contentStore, rootStore} from "@/stores/index.js";
-import ContentList from "@/pages/content/list/ContentList.jsx";
+import ListItems from "@/components/items-list/ListItems.jsx";
 import ActionsToolbar from "@/pages/content/actions-toolbar/ActionsToolbar.jsx";
-import ClipsGrid from "@/pages/search/clips-grid/ClipsGrid.jsx";
+import ClipsGrid from "@/components/items-grid/GridItems.jsx";
 import {IconChevronRight} from "@tabler/icons-react";
 import {ArrowBackIcon} from "@/assets/icons/index.js";
 import {useInViewport} from "@mantine/hooks";
@@ -142,7 +142,7 @@ const Content = observer(({show}) => {
 
       {
         viewType === "LIST" &&
-        <ContentList
+        <ListItems
           records={[...folderContent, ...content]}
           loading={loading}
         />

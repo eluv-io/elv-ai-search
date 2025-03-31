@@ -163,7 +163,8 @@ class SearchStore {
     highScoreImageResults,
     resultsViewType,
     resultsImagePaginated,
-    resultsVideoPaginated
+    resultsVideoPaginated,
+    activeSearch
   }) => {
     this.highScoreImageResults = highScoreImageResults;
     this.highScoreVideoResults = highScoreVideoResults;
@@ -175,6 +176,7 @@ class SearchStore {
     this.resultsViewType = resultsViewType;
     this.resultsImagePaginated = resultsImagePaginated;
     this.resultsVideoPaginated = resultsVideoPaginated;
+    this.activeSearch = activeSearch;
   };
 
   SetSearchIndex = ({index}) => {
@@ -506,16 +508,17 @@ class SearchStore {
     };
   });
 
-  ResetSearch = () => {
+  ResetSearch = (clearActiveSearch=false) => {
     this.SetCurrentSearch({
       resultsBySong: null,
       videoResults: null,
       imageResults: null,
       highScoreResults: null,
       index: this.currentSearch.index,
-      terms: this.currentSearch.terms,
+      terms: clearActiveSearch ? null : this.currentSearch.terms,
       resultsViewType: "ALL",
-      resultsImagePaginated: null
+      resultsImagePaginated: null,
+      activeSearch: !clearActiveSearch
     });
 
     this.ResetPagination();
@@ -526,6 +529,10 @@ class SearchStore {
     this.searchTotal = null;
     this.startResult = 0;
     this.endResult = null;
+  };
+
+  ClearSearch = () => {
+    this.ResetSearch(true);
   };
 
   GetCoverImage = flow(function * ({song, queryParams}) {
@@ -758,7 +765,6 @@ class SearchStore {
       newResultsVideoPaginated[page] = videoResults?.contents;
     }
 
-    this.activeSearch = true;
     if(cacheResults) {
       this.SetCurrentSearch({
         videoResults: videoResults?.contents,
@@ -770,7 +776,8 @@ class SearchStore {
         terms: fuzzySearchValue,
         resultsViewType,
         resultsVideoPaginated: newResultsVideoPaginated,
-        resultsImagePaginated: newResultsImagePaginated
+        resultsImagePaginated: newResultsImagePaginated,
+        activeSearch: true
       });
     }
   });
