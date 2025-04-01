@@ -34,7 +34,7 @@ const Content = observer(({show}) => {
       const folderMetadata = await contentStore.GetContentData({
         filterOptions: {
           types: ["folder"],
-          group: contentStore.rootFolderId
+          group: contentStore.rootFolder?.objectId
         }
       });
 
@@ -94,6 +94,7 @@ const Content = observer(({show}) => {
 
   if(!show) { return null; }
 
+  // TODO: Add breadcrumb system
   const breadcrumbs = ["All Content", contentStore.contentFolderName].filter(e => !!e);
 
   return (

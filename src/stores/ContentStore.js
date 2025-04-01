@@ -25,7 +25,7 @@ class ContentStore {
   }
 
   // Stores content_folder_root in Properties library
-  get rootFolderId() {
+  get rootFolder() {
     return this.rootStore.tenantStore.rootFolder;
   }
 
@@ -35,6 +35,10 @@ class ContentStore {
 
   get contentFolderId() {
     return this.contentFolder?.id;
+  }
+
+  get currentFolderId() {
+    return this.contentFolderId || this.rootFolder?.objectId;
   }
 
   get pagination() {

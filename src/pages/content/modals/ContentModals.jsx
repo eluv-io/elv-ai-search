@@ -1,6 +1,9 @@
 import {Button, Group, Text, TextInput, Title} from "@mantine/core";
 import styles from "@/pages/content/Content.module.css";
 import {isNotEmpty, useForm} from "@mantine/form";
+import {useState} from "react";
+import {contentStore} from "@/stores/index.js";
+import {observer} from "mobx-react-lite";
 
 export const ModalTitle = ({Icon, title}) => {
   return (
@@ -77,11 +80,13 @@ export const RenameModal = ({
   );
 };
 
-export const NewFolderModal = ({
-  HandleSubmit,
+export const NewFolderModal = observer(({
+  payload={}, // libraryId: string, groupIds: []
   CloseModal,
-  saving
+  RefreshCallback
 }) => {
+  const [saving, setSaving] = useState(false);
+
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
@@ -92,6 +97,25 @@ export const NewFolderModal = ({
       name: isNotEmpty("Enter a folder name")
     }
   });
+
+  const {libraryId, groupIds} = payload;
+
+  const HandleSubmit = async(values) => {
+    try {
+      setSaving(true);
+      await contentStore.CreateContentFolder({
+        libraryId,
+        name: values.name,
+        displayTitle: values.displayTitle,
+        groupIds
+      });
+
+      await RefreshCallback();
+    } finally {
+      CloseModal();
+      setSaving(false);
+    }
+  };
 
   return (
     <form onSubmit={form.onSubmit(HandleSubmit)}>
@@ -117,4 +141,4 @@ export const NewFolderModal = ({
       <FooterActions CloseModal={CloseModal} saving={saving} />
     </form>
   );
-};
+});

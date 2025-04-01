@@ -8,25 +8,6 @@ import {NewFolderModal} from "@/pages/content/modals/ContentModals.jsx";
 
 const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
   const [showFolderModal, setShowFolderModal] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const HandleSubmit = async(values) => {
-    try {
-      setSaving(true);
-      await contentStore.CreateContentFolder({
-        // TODO: Add folder breadcrumb system
-        libraryId: await contentStore.client.ContentObjectLibraryId({objectId: contentStore.rootFolderId}),
-        name: values.name,
-        displayTitle: values.displayTitle,
-        groupIds: [contentStore.rootFolderId]
-      });
-
-      await HandleGetResults();
-    } finally {
-      setShowFolderModal(false);
-      setSaving(false);
-    }
-  };
 
   return (
     <>
@@ -76,8 +57,11 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
         centered
       >
         <NewFolderModal
-          HandleSubmit={HandleSubmit}
-          saving={saving}
+          RefreshCallback={() => HandleGetResults()}
+          payload={{
+            libraryId: contentStore.rootFolder?.objectId,
+            groupIds: [contentStore.currentFolderId]
+          }}
           CloseModal={() => setShowFolderModal(false)}
         />
       </Modal>

@@ -74,7 +74,13 @@ class TenantStore {
     }
 
     this.loadedIndexes = true;
-    this.rootFolder = tenantMeta?.content_folder_root;
+    const rootFolderId = tenantMeta?.content_folder_root;
+    const rootFolderLibrary = yield this.client.ContentObjectLibraryId({objectId: rootFolderId});
+
+    this.rootFolder = {
+      objectId: rootFolderId,
+      libraryId: rootFolderLibrary
+    };
 
     return {
       indexes: indexes || [],
