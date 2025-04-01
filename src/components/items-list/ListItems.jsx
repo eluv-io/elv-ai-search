@@ -93,8 +93,6 @@ const TitleCell = ({
 
 const TypeCell = observer(({mediaType, duration}) => {
   const data = MEDIA_TYPES[mediaType];
-  const durationArray = duration ? duration.split("/") : [];
-  const durationDisplay = durationArray.length > 0 ? (durationArray[0] / durationArray[1]) : null;
 
   if(!data) { return <EmptyTableCell />; }
 
@@ -107,9 +105,9 @@ const TypeCell = observer(({mediaType, duration}) => {
         </Text>
         <Text fz={12} fw={400} c="elv-gray.8" lh={1}>
           {
-            durationDisplay ?
+            duration ?
               FormatTime({
-                time: durationDisplay,
+                time: parseInt(duration || ""),
                 millisecondsFormat: false,
                 hideHour: true
               }) :

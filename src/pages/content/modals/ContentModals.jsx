@@ -94,8 +94,7 @@ export const NewFolderModal = observer(({
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
-      name: "",
-      displayTitle: ""
+      name: ""
     },
     validate: {
       name: isNotEmpty("Enter a folder name")
@@ -127,21 +126,12 @@ export const NewFolderModal = observer(({
         label="Name"
         size="lg"
         mb={16}
-        placeholder="Internal name (e.g., Folder - Public Demos"
+        placeholder="Untitled folder"
         classNames={{label: styles.inputLabel}}
         key={form.key("name")}
         {...form.getInputProps("name")}
         withAsterisk
       />
-      <TextInput
-        label="Display Title"
-        size="lg"
-        placeholder="Visible title (e.g., Public Demos)"
-        classNames={{label: styles.inputLabel}}
-        key={form.key("displayTitle")}
-        {...form.getInputProps("displayTitle")}
-      />
-
       <FooterActions CloseModal={CloseModal} saving={saving} submitText="Create" />
     </form>
   );

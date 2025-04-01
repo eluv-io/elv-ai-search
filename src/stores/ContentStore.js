@@ -77,8 +77,7 @@ class ContentStore {
       filter,
       select: [
         "commit/timestamp",
-        "public/name",
-        "public/asset_metadata/display_title"
+        "public/name"
       ],
       sortOptions,
       start,
@@ -121,7 +120,7 @@ class ContentStore {
         contentObject["_queryFields"] = queryFields;
         contentObject["_isFolder"] = (tags || []).includes("elv:folder");
         contentObject["_permission"] = permission;
-        contentObject["_title"] = contentObject.meta?.public?.asset_metadata?.display_title || contentObject.meta?.public?.name || contentObject.id;
+        contentObject["_title"] = contentObject.meta?.public?.name || contentObject.id;
         // Flags for distinguishing between clips, non-clips, images
         contentObject["_clipType"] = false;
         contentObject["_contentType"] = true;
