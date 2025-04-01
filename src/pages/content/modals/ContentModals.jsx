@@ -17,7 +17,11 @@ export const ModalTitle = ({Icon, title}) => {
   );
 };
 
-const FooterActions = ({CloseModal, saving}) => {
+const FooterActions = ({
+  CloseModal,
+  saving,
+  submitText="Submit"
+}) => {
   return (
     <Group gap={6} justify="flex-end" mt={24}>
       <Button
@@ -39,7 +43,7 @@ const FooterActions = ({CloseModal, saving}) => {
         w={135}
       >
         <Text size="md" fw={600}>
-          Create
+          { submitText }
         </Text>
       </Button>
     </Group>
@@ -75,7 +79,7 @@ export const RenameModal = ({
         {...form.getInputProps("displayTitle")}
       />
 
-      <FooterActions CloseModal={CloseModal} saving={saving} />
+      <FooterActions CloseModal={CloseModal} saving={saving} submitText="Rename" />
     </form>
   );
 };
@@ -138,7 +142,7 @@ export const NewFolderModal = observer(({
         {...form.getInputProps("displayTitle")}
       />
 
-      <FooterActions CloseModal={CloseModal} saving={saving} />
+      <FooterActions CloseModal={CloseModal} saving={saving} submitText="Create" />
     </form>
   );
 });
