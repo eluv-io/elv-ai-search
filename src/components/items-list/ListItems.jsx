@@ -31,6 +31,7 @@ import {contentStore, searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import {MEDIA_TYPES} from "@/utils/constants.js";
+import {ModalTitle, RenameModal} from "@/pages/content/modals/ContentModals.jsx";
 
 const EmptyTableCell = () => {
   return <Text c="elv-gray.9">---</Text>;
@@ -203,24 +204,56 @@ const TableCell = observer(({isFolder, type, ...props}) => {
   return cellMap[type];
 });
 
-const ActionsCell = observer(({record, setModalData}) => {
+const ActionsCell = observer(({record, setModalData, CloseModal}) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const options = [
-    {id: "rename-option", Icon: <IconPencilMinus size={16} />, label: "Rename"},
-    {id: "duplicate-option", Icon: <CopyIcon width={16} height={16} />, label: "Duplicate"},
-    {id: "organize-option", Icon: <IconFolderBolt size={16} />, label: "Organize"},
-    {id: "edit-tags-option", Icon: <EditTagIcon size={16} />, label: "Edit Tags"},
-    {id: "share-option", Icon: <ShareIcon width={16} height={16} />, label: "Share", HandleClick: () => {
+    {
+      id: "rename-option",
+      Icon: <IconPencilMinus size={16} />,
+      label: "Rename",
+      HandleClick: () => {
+        setModalData({
+          id: record.id,
+          title: <ModalTitle title="Rename" Icon={IconPencilMinus} />,
+          children: <RenameModal CloseModal={CloseModal} />,
+          open: true
+        });
+      }
+    },
+    {
+      id: "duplicate-option",
+      Icon: <CopyIcon width={16} height={16} />,
+      label: "Duplicate"
+    },
+    {
+      id: "organize-option",
+      Icon: <IconFolderBolt size={16} />,
+      label: "Organize"
+    },
+    {
+      id: "edit-tags-option",
+      Icon: <EditTagIcon size={16} />,
+      label: "Edit Tags"
+    },
+    {
+      id: "share-option",
+      Icon: <ShareIcon width={16} height={16} />,
+      label: "Share", HandleClick: () => {
         setModalData({
           id: record.id,
           title: record._title,
           open: true,
           assetType: record._assetType
         });
-      }},
+      }
+      },
     {id: "divider-1", divider: true},
-    {id: "delete-option", Icon: <TrashIcon size={16} />, label: "Delete"},
+    {
+      id: "delete-option",
+      Icon: <TrashIcon size={16} />,
+      label: "Delete"
+    },
   ];
 
   return (
@@ -437,6 +470,7 @@ const ListItems = observer(({
               <ActionsCell
                 record={record}
                 setModalData={setModalData}
+                CloseModal={() => setModalData(initModalData)}
               />
             )
           }
@@ -456,6 +490,7 @@ const ListItems = observer(({
         opened={modalData.open}
         onClose={() => setModalData(initModalData)}
         title={modalData.title}
+        centered
       >
         { modalData.children || null }
       </Modal>

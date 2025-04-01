@@ -1,8 +1,10 @@
 import {observer} from "mobx-react-lite";
 import {
   ActionIcon,
-  Box, Flex,
-  Group, Stack,
+  Box,
+  Flex,
+  Group,
+  Stack,
   Text
 } from "@mantine/core";
 import {useEffect, useState} from "react";
