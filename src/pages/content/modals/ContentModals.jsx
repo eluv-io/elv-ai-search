@@ -53,30 +53,48 @@ const FooterActions = ({
 export const DuplicateModal = () => {};
 
 export const RenameModal = ({
-  HandleSubmit,
+  objectId,
+  defaultValue,
   CloseModal,
-  saving
+  RefreshCallback
 }) => {
+  const [saving, setSaving] = useState(false);
+
   const form = useForm({
     mode: "uncontrolled",
     initialValues: {
-      name: "",
-      displayTitle: ""
+      name: defaultValue
     },
     validate: {
       name: isNotEmpty("Enter a folder name")
     }
   });
 
+  const HandleSubmit = async(values) => {
+    try {
+      setSaving(true);
+
+      await contentStore.UpdateContentName({
+        objectId,
+        values: values.name
+      });
+
+      await RefreshCallback();
+    } finally {
+      setSaving(false);
+      CloseModal();
+    }
+  };
+
   return (
     <form onSubmit={form.onSubmit(HandleSubmit)}>
       <TextInput
-        label="Display Title"
+        label="Name"
         size="lg"
-        placeholder="Visible title (e.g., Public Demos)"
+        placeholder="Untitled folder"
         classNames={{label: styles.inputLabel}}
-        key={form.key("displayTitle")}
-        {...form.getInputProps("displayTitle")}
+        key={form.key("name")}
+        {...form.getInputProps("name")}
       />
 
       <FooterActions CloseModal={CloseModal} saving={saving} submitText="Rename" />

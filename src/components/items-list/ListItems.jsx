@@ -202,7 +202,7 @@ const TableCell = observer(({isFolder, type, ...props}) => {
   return cellMap[type];
 });
 
-const ActionsCell = observer(({record, setModalData, CloseModal}) => {
+const ActionsCell = observer(({record, setModalData, setShareModalData, CloseModal}) => {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const options = [
@@ -214,7 +214,15 @@ const ActionsCell = observer(({record, setModalData, CloseModal}) => {
         setModalData({
           id: record.id,
           title: <ModalTitle title="Rename" Icon={IconPencilMinus} />,
-          children: <RenameModal CloseModal={CloseModal} />,
+          CloseModal,
+          children: (
+            <RenameModal
+              defaultValue={record._title}
+              CloseModal={CloseModal}
+              objectId={record.id}
+              RefreshCallback={() => {}}
+            />
+          ),
           open: true
         });
       }
@@ -237,14 +245,17 @@ const ActionsCell = observer(({record, setModalData, CloseModal}) => {
     {
       id: "share-option",
       Icon: <ShareIcon width={16} height={16} />,
-      label: "Share", HandleClick: () => {
-        setModalData({
-          id: record.id,
-          title: record._title,
-          open: true,
-          assetType: record._assetType
-        });
-      }
+      label: "Share",
+      HandleClick: () => setShareModalData({open: true})
+      // HandleClick: () => {
+      //   setModalData({
+      //     id: record.id,
+      //     title: record._title,
+      //     open: true,
+      //     assetType: record._assetType,
+      //     children: <ShareModal />
+      //   });
+      // }
       },
     {id: "divider-1", divider: true},
     {
@@ -374,6 +385,8 @@ const ListItems = observer(({
   const navigate = useNavigate();
   // TODO: Add action/state for selectedRecords
 
+  const CloseModal = () => setModalData({...modalData, open: false});
+
   return (
     <Box>
       <DataTable
@@ -468,7 +481,8 @@ const ListItems = observer(({
               <ActionsCell
                 record={record}
                 setModalData={setModalData}
-                CloseModal={() => setModalData(initModalData)}
+                setShareModalData={setShareModalData}
+                CloseModal={CloseModal}
               />
             )
           }
@@ -479,15 +493,16 @@ const ListItems = observer(({
 
       <ShareModal
         opened={shareModalData.open}
-        onClose={() => setShareModalData(initShareModalData)}
+        onClose={() => setShareModalData({...shareModalData, open: false})}
         objectId={shareModalData.id}
         title={shareModalData.title}
         assetType={shareModalData.assetType}
       />
       <Modal
         opened={modalData.open}
-        onClose={() => setModalData(initModalData)}
+        onClose={CloseModal}
         title={modalData.title}
+        size={480}
         centered
       >
         { modalData.children || null }

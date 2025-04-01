@@ -216,6 +216,40 @@ class ContentStore {
       return {};
     }
   });
+
+  UpdateContentName = flow(function * ({
+    libraryId,
+    objectId,
+    value
+  }) {
+    try {
+      if(!libraryId) {
+        libraryId = yield this.client.ContentObjectLibraryId({objectId});
+      }
+
+      const {writeToken} = yield this.client.EditContentObject({
+        libraryId,
+        objectId
+      });
+
+      yield this.client.ReplaceMetadata({
+        libraryId,
+        objectId,
+        writeToken,
+        metadataSubtree: "public/name",
+        metadata: value
+      });
+
+      yield this.client.FinalizeContentObject({
+        libraryId,
+        objectId,
+        writeToken,
+        commitMessage: "Update name"
+      });
+    } catch(error) {
+      console.error(`Unable to update metadata for ${objectId}`, error);
+    }
+  });
 }
 
 export default ContentStore;
