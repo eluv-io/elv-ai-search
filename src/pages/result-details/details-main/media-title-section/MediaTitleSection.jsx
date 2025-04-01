@@ -204,7 +204,7 @@ const MediaTitleSection = observer(({
           title ?
             (
               <Group wrap="nowrap" align="center" gap={6} flex="1 1 50%">
-                <Title order={2} c="elv-gray.8" lineClamp={1}>
+                <Title order={2} c="elv-gray.8" lineClamp={1} style={{wordBreak: "break-all"}} >
                   { title }
                 </Title>
                 {
