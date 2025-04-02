@@ -1,4 +1,4 @@
-import {Box, Button, Group, List, Select, SimpleGrid, Text, TextInput, Title} from "@mantine/core";
+import {Box, Button, Flex, Group, List, Loader, Select, SimpleGrid, Text, TextInput, Title} from "@mantine/core";
 import {isNotEmpty, useForm} from "@mantine/form";
 import {useEffect, useState} from "react";
 import {contentStore} from "@/stores/index.js";
@@ -25,7 +25,8 @@ export const ModalTitle = ({Icon, title}) => {
 const FooterActions = ({
   CloseModal,
   saving,
-  submitText="Submit"
+  submitText="Submit",
+  disableSubmit
 }) => {
   return (
     <Group gap={6} justify="flex-end" mt={24}>
@@ -43,7 +44,7 @@ const FooterActions = ({
       <Button
         type="submit"
         size="sm"
-        disabled={saving}
+        disabled={saving || disableSubmit}
         loading={saving}
         w={135}
       >
@@ -163,43 +164,72 @@ export const NewFolderModal = observer(({
 export const OrganizeModal = observer(({CloseModal}) => {
   const [folderContent, setFolderContent] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const HandleGetFolders = async(groupId) => {
+    try {
+      setLoading(true);
+
+      const folderMetadata = await contentStore.GetContentData({
+        filterOptions: {
+          types: ["folder"],
+          group: groupId
+        }
+      });
+
+      setFolderContent(folderMetadata.content);
+    } catch(error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const HandleGetFolders = async() => {
-      try {
-        const folderMetadata = await contentStore.GetContentData({
-          filterOptions: {
-            types: ["folder"],
-            group: contentStore.rootFolder?.objectId
-          }
-        });
-
-        setFolderContent(folderMetadata.content);
-      } catch(error) {
-        console.error(error);
-      }
-    };
-    HandleGetFolders();
+    HandleGetFolders(contentStore.rootFolder?.objectId);
   }, []);
+  // TODO: Figure out folder system. What to show when empty + breadcrumbs
 
   return (
     <>
       {
-        folderContent.length > 0 ?
+        loading ?
+          (
+            <Flex w="100%" justify="center">
+              <Loader />
+            </Flex>
+          ) :
+        // (folderContent.length > 0) ?
           (
             <DataTable
               records={folderContent}
+              classNames={{header: styles.tableHeader}}
+              highlightOnHover
+              onRowClick={async({record}) => await HandleGetFolders(record.id)}
               columns={[
                 {
                   accessor: "type",
                   title: "Type",
-                  render: () => <IconFolder />
+                  render: () => <IconFolder color="var(--mantine-color-elv-gray-8)" />
+                },
+                {
+                  accessor: "_title",
+                  title: "Name",
+                  render: (record) => (
+                    <Text fz={14} fw={500} c="elv-gray.8">{ record._title }</Text>
+                  )
                 }
               ]}
             />
-          ) : "No folders found"
+          )
+          // : "No folders found"
       }
-      <FooterActions CloseModal={CloseModal} saving={saving} submitText="Move" />
+      <FooterActions
+        CloseModal={CloseModal}
+        saving={saving}
+        submitText="Move"
+        disableSubmit={folderContent.length === 0 && !loading}
+      />
     </>
   );
 });

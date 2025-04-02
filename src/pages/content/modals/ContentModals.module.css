@@ -13,3 +13,8 @@
   flex-shrink: 0;
 }
 
+.tableHeader {
+  color: var(--mantine-color-elv-gray-8);
+  font-size: 14px;
+  font-weight: 700;
+}
