@@ -12,7 +12,8 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
     title: "",
     open: false,
     children: null,
-    size: "md"
+    size: "md",
+    paddingDefault: true
   };
 
   const [modalData, setModalData] = useState(initModalData);
@@ -32,6 +33,7 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
               open: true,
               size: "xl",
               title: "Add or Remove Filters",
+              paddingDefault: false,
               children: <FilterModal CloseModal={CloseModal} />
             });
           }}
@@ -44,6 +46,7 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
           onClick={() => {
             setModalData({
               open: true,
+              paddingDefault: true,
               title: (
                 <Group gap={8} w="100%" wrap="nowrap">
                   <IconFolder height={24} width={24} />
@@ -97,7 +100,7 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
         onClose={() => setModalData({...modalData, open: false})}
         title={modalData.title}
         size={modalData.size}
-        classNames={{header: styles.modalHeader, body: styles.modalBody}}
+        classNames={modalData.paddingDefault ? {} : {header: styles.modalHeader, body: styles.modalBody}}
         // padding="28px 40px 55px"
         centered
       >
