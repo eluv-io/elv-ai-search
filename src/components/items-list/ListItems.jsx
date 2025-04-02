@@ -260,15 +260,6 @@ const ActionsCell = observer(({record, setModalData, setShareModalData, CloseMod
       Icon: <ShareIcon width={16} height={16} />,
       label: "Share",
       HandleClick: () => setShareModalData({open: true})
-      // HandleClick: () => {
-      //   setModalData({
-      //     id: record.id,
-      //     title: record._title,
-      //     open: true,
-      //     assetType: record._assetType,
-      //     children: <ShareModal />
-      //   });
-      // }
       },
     {id: "divider-1", divider: true},
     {

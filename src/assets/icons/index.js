@@ -2,6 +2,7 @@ import ApproveIcon from "./ApproveIcon.jsx";
 import ArrowBackIcon from "./ArrowBackIcon.jsx";
 import ArrowLeftIcon from "./ArrowLeftIcon.jsx";
 import ArrowRightIcon from "./ArrowRightIcon.jsx";
+import CalendarIcon from "./CalendarIcon.jsx";
 import CameraIcon from "./CameraIcon.jsx";
 import CollapseIcon from "./CollapseIcon.jsx";
 import CopyIcon from "./CopyIcon.jsx";
@@ -39,6 +40,7 @@ export {
   ArrowBackIcon,
   ArrowLeftIcon,
   ArrowRightIcon,
+  CalendarIcon,
   CameraIcon,
   CollapseIcon,
   CopyIcon,

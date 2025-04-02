@@ -168,7 +168,7 @@ const Content = observer(({show}) => {
       }
       {
         !loading &&
-        <Box ref={ref} h={20} />
+        <Box ref={ref} h={20} mt={30} />
       }
     </Box>
   );

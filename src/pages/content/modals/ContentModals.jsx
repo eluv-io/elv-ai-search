@@ -1,11 +1,14 @@
-import {Box, Button, Group, List, Text, TextInput, Title} from "@mantine/core";
+import {Box, Button, Group, List, Select, SimpleGrid, Text, TextInput, Title} from "@mantine/core";
 import {isNotEmpty, useForm} from "@mantine/form";
 import {useEffect, useState} from "react";
 import {contentStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {DataTable} from "mantine-datatable";
-import {IconFolder} from "@tabler/icons-react";
+import {IconClock, IconFolder} from "@tabler/icons-react";
 import styles from "./ContentModals.module.css";
+import {MEDIA_TYPES} from "@/utils/constants.js";
+import {DatePickerInput} from "@mantine/dates";
+import {CalendarIcon} from "@/assets/icons/index.js";
 
 export const ModalTitle = ({Icon, title}) => {
   return (
@@ -222,3 +225,83 @@ export const DeleteModal = observer(({CloseModal, titles=[]}) => {
     </Box>
   );
 });
+
+export const FilterModal = () => {
+  const form = useForm({
+    mode: "uncontrolled",
+    initialValues: {
+      type: "video",
+      access: "public",
+      dateRange: [],
+      tags: "",
+      duration: ""
+    }
+  });
+
+  const HandleSubmit = (values) => {
+    console.log('values', values)
+  };
+
+  const inputSize = "lg";
+
+  return (
+    <Box>
+      <Group mb={12}>
+        <Button onClick={HandleSubmit} ml="auto">
+          <Text fw={600} fz={14} tt="uppercase">
+            Apply
+          </Text>
+        </Button>
+      </Group>
+      <Box>
+        <form onSubmit={form.onSubmit(HandleSubmit)}>
+          <SimpleGrid spacing={20} cols={2}>
+            <Select
+              label="Primary Type"
+              size={inputSize}
+              data={Object.keys(MEDIA_TYPES).map(type => (
+                {label: MEDIA_TYPES[type].label, value: type}
+              ))}
+              key="type"
+              {...form.getInputProps("type")}
+            />
+            <Select
+              label="Access"
+              size={inputSize}
+              data={[
+                {label: "Public", value: "public"}
+              ]}
+              key="access"
+              {...form.getInputProps("access")}
+            />
+            <DatePickerInput
+              type="range"
+              size={inputSize}
+              label="Date Range"
+              placeholder="Select a range"
+              rightSection={<CalendarIcon />}
+              maxDate={new Date()}
+              key="dateRange"
+              {...form.getInputProps("dateRange")}
+            />
+            <TextInput
+              label="Tags"
+              placeholder="Enter tags, separated by commas"
+              size={inputSize}
+              key="tags"
+              {...form.getInputProps("tags")}
+            />
+            <TextInput
+              label="Duration"
+              placeholder="Select a range"
+              size={inputSize}
+              rightSection={<IconClock />}
+              key="duration"
+              {...form.getInputProps("duration")}
+            />
+          </SimpleGrid>
+        </form>
+      </Box>
+    </Box>
+  );
+};

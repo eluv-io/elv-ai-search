@@ -157,6 +157,16 @@ const theme = createTheme({
         }
       })
     },
+    InputWrapper: {
+      styles: () => ({
+        label: {
+          "fontWeight": 600,
+          "fontSize": rem(16),
+          "color": "var(--mantine-color-elv-gray-8)",
+          "marginBottom": "2px"
+        }
+      })
+    },
     Modal: {
       styles: () => ({
         root: {
