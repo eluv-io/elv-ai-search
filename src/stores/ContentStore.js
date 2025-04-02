@@ -3,7 +3,11 @@ import {ORG_TAGS} from "@/utils/constants.js";
 
 // Store for managing content object
 class ContentStore {
-  contentObjects;
+  contentObjects = {};
+  contentFolders = {};
+  contentLoaded = false;
+
+  // Navigation
   contentFolder; // stores the currently navigated folder
 
   // Pagination
@@ -41,6 +45,14 @@ class ContentStore {
     return this.contentFolderId || this.rootFolder?.objectId;
   }
 
+  get contentFolderRecords() {
+    return Object.values(this.contentFolders || {});
+  }
+
+  get contentObjectRecords() {
+    return Object.values(this.contentObjects || {});
+  }
+
   get pagination() {
     return {
       pageSize: this.pageSize,
@@ -60,8 +72,9 @@ class ContentStore {
     filterOptions={}, // {types: mez, live_stream, master, index, folder, group: groupID}
     sortOptions, // {field: string, desc: boolean}
     start,
-    limit
-  }={}) {
+    limit,
+    cacheType // folder, content
+  }) {
     const filter = [];
 
     if(filterOptions.group) {
@@ -76,7 +89,6 @@ class ContentStore {
     const data = yield this.client.TenantContent({
       filter,
       select: [
-        "commit/timestamp",
         "public/name"
       ],
       sortOptions,
@@ -85,6 +97,8 @@ class ContentStore {
     });
 
     const content = data.versions || [];
+    let contentObjects = {};
+    let contentFolders = {};
 
     yield this.client.utils.LimitedMap(
       10,
@@ -127,11 +141,23 @@ class ContentStore {
         // Index used for clip navigation
         contentObject["_index"] = i;
 
+        if(cacheType === "folder") {
+          contentFolders[objectId] = contentObject;
+        } else if(cacheType === "content") {
+          contentObjects[objectId] = contentObject;
+        }
+
         return contentObject;
       }
     );
 
-    this.contentObjects = content;
+    if(cacheType === "folder") {
+      this.contentFolders = contentFolders;
+    } else if(cacheType === "content") {
+      this.contentObjects = contentObjects;
+    }
+
+    this.contentLoaded = true;
 
     return {
       content,

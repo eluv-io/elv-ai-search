@@ -47,6 +47,7 @@ const TitleCell = ({
 }) => {
   const clipboard = useClipboard();
 
+  // { title.replace(/^[A-Za-z0-9]+(?:\/)?\s*-\s*/, "") }
   const titleText = (
     <Text fz={16} fw={700} c="elv-gray.8" maw={400} truncate="end" lh="normal">
       { title }
@@ -441,12 +442,12 @@ const ListItems = observer(({
             )
           },
           {
-            accessor: "lastModified",
-            title: "Last Modified",
+            accessor: "date",
+            title: "Date",
             render: record => (
               <TableCell
                 type="date"
-                date={record.meta?.commit?.timestamp}
+                date={record._queryFields?.date}
                 isFolder={record._isFolder}
               />
             )

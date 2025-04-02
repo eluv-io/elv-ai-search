@@ -108,7 +108,6 @@ const ShareModal = observer(({
       onClose={onClose}
       closeOnClickOutside={false}
       size="xxl"
-      closeOnClickOutside={false}
       title={
         <Group gap={8} w="100%" wrap="nowrap">
           <ShareIcon height={22} width={22} className={styles.shareIcon} />
