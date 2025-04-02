@@ -261,16 +261,17 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
                       }}
                     >
                       {
-                        indexes.map(item => (
+                        indexes.map((item) => (
                           <Menu.Item
-                            key={item.id}
+                            key={`${item.name}`}
                             mb={12}
+                            component="div"
                             disabled={!!searchStore.customIndex}
                           >
                             <Radio
                               classNames={{body: styles.radioBody}}
                               description={
-                                <Group gap={8}>
+                                <Group gap={8} component="span">
                                   { item.id }
                                   <Tooltip label={clipboard.copied ? "Copied" : "Copy"}>
                                     <ActionIcon
