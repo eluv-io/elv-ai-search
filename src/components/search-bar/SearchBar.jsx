@@ -3,21 +3,23 @@ import {
   Box,
   Button,
   Checkbox,
-  CloseIcon,
-  Flex,
+  CloseIcon, CopyButton,
+  Flex, Group,
   Loader,
   Menu,
   Radio,
   Switch,
   Text,
-  TextInput
+  TextInput,
+  Tooltip
 } from "@mantine/core";
 import {useEffect, useState} from "react";
 import {searchStore, tenantStore} from "@/stores/index.js";
-import {CameraIcon, DownArrowIcon, GearIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
+import {CameraIcon, CopyIcon, DownArrowIcon, GearIcon, LinkIcon, MusicIcon, SubmitIcon} from "@/assets/icons";
 import {observer} from "mobx-react-lite";
 import styles from "@/components/search-bar/SearchBar.module.css";
-import {useDebouncedValue} from "@mantine/hooks";
+import {useClipboard, useDebouncedValue} from "@mantine/hooks";
+import SecondaryButton from "@/components/secondary-action-icon/SecondaryActionIcon.jsx";
 
 const AdvancedSection = observer(({
   show,
@@ -155,6 +157,7 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
   const [loadingSearchFields, setLoadingSearchFields] = useState(false);
   const [indexes, setIndexes] = useState([]);
   const [indexMenuOpen, setIndexMenuOpen] = useState(false);
+  const clipboard = useClipboard({timeout: 2000});
 
   const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
   const [debouncedValue] = useDebouncedValue(searchStore.customIndex, 500);
@@ -264,8 +267,24 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
                           >
                             <Radio
                               classNames={{body: styles.radioBody}}
+                              description={
+                                <Group gap={8}>
+                                  { item.id }
+                                  <Tooltip label={clipboard.copied ? "Copied" : "Copy"}>
+                                    <ActionIcon
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        clipboard.copy(item.id);
+                                      }}
+                                      size="xs"
+                                      variant="transparent"
+                                    >
+                                      <CopyIcon color="var(--mantine-color-elv-neutral-5)" />
+                                    </ActionIcon>
+                                  </Tooltip>
+                                </Group>
+                              }
                               label={item.name || item.id}
-                              description={item.name ? item.id : ""}
                               value={item.id}
                             />
                           </Menu.Item>
