@@ -1,9 +1,11 @@
-import {Button, Group, Text, TextInput, Title} from "@mantine/core";
-import styles from "@/pages/content/Content.module.css";
+import {Box, Button, Group, List, Text, TextInput, Title} from "@mantine/core";
 import {isNotEmpty, useForm} from "@mantine/form";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {contentStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
+import {DataTable} from "mantine-datatable";
+import {IconFolder} from "@tabler/icons-react";
+import styles from "./ContentModals.module.css";
 
 export const ModalTitle = ({Icon, title}) => {
   return (
@@ -152,5 +154,71 @@ export const NewFolderModal = observer(({
       />
       <FooterActions CloseModal={CloseModal} saving={saving} submitText="Create" />
     </form>
+  );
+});
+
+export const OrganizeModal = observer(({CloseModal}) => {
+  const [folderContent, setFolderContent] = useState([]);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    const HandleGetFolders = async() => {
+      try {
+        const folderMetadata = await contentStore.GetContentData({
+          filterOptions: {
+            types: ["folder"],
+            group: contentStore.rootFolder?.objectId
+          }
+        });
+
+        setFolderContent(folderMetadata.content);
+      } catch(error) {
+        console.error(error);
+      }
+    };
+    HandleGetFolders();
+  }, []);
+
+  return (
+    <>
+      {
+        folderContent.length > 0 ?
+          (
+            <DataTable
+              records={folderContent}
+              columns={[
+                {
+                  accessor: "type",
+                  title: "Type",
+                  render: () => <IconFolder />
+                }
+              ]}
+            />
+          ) : "No folders found"
+      }
+      <FooterActions CloseModal={CloseModal} saving={saving} submitText="Move" />
+    </>
+  );
+});
+
+export const DeleteModal = observer(({CloseModal, titles=[]}) => {
+  const [saving, setSaving] = useState(false);
+
+  return (
+    <Box w="100%">
+      <Text c="elv-gray.8" fz={14} fw={400}>Are you sure you want to delete these files? This action is permanent and cannot be undone. Please confirm to proceed.</Text>
+      <List withPadding w="100%">
+        {
+          titles.map((title, i) => (
+            <List.Item key={`${title}-${i}`} maw="100%">
+              <Text c="elv-gray.8" fz={14} fw={400} lineClamp={5} className={styles.listItem} w="90%">
+                { title }
+              </Text>
+            </List.Item>
+          ))
+        }
+      </List>
+      <FooterActions CloseModal={CloseModal} saving={saving} submitText="Delete" />
+    </Box>
   );
 });

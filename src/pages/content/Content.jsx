@@ -24,7 +24,6 @@ const Content = observer(({show}) => {
 
   const [paging, setPaging] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  // const [pageSize, setPageSize] = useState(20);
   const pageSize = 20;
 
   const {ref, inViewport} = useInViewport();

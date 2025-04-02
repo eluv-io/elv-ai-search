@@ -31,7 +31,7 @@ import {contentStore, searchStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import ShareModal from "@/pages/result-details/share-modal/ShareModal.jsx";
 import {MEDIA_TYPES} from "@/utils/constants.js";
-import {ModalTitle, RenameModal} from "@/pages/content/modals/ContentModals.jsx";
+import {DeleteModal, ModalTitle, OrganizeModal, RenameModal} from "@/pages/content/modals/ContentModals.jsx";
 
 const EmptyTableCell = () => {
   return <Text c="elv-gray.9">---</Text>;
@@ -236,7 +236,19 @@ const ActionsCell = observer(({record, setModalData, setShareModalData, CloseMod
     {
       id: "organize-option",
       Icon: <IconFolderBolt size={16} />,
-      label: "Organize"
+      label: "Organize",
+      HandleClick: () => {
+        setModalData({
+          id: record.id,
+          title: <ModalTitle title="Organize" />,
+          open: true,
+          children: (
+            <OrganizeModal
+              CloseModal={CloseModal}
+            />
+          )
+        });
+      }
     },
     {
       id: "edit-tags-option",
@@ -262,7 +274,20 @@ const ActionsCell = observer(({record, setModalData, setShareModalData, CloseMod
     {
       id: "delete-option",
       Icon: <TrashIcon size={16} />,
-      label: "Delete"
+      label: "Delete",
+      HandleClick: () => {
+        setModalData({
+          id: record.id,
+          title: <ModalTitle title="Delete" Icon={TrashIcon} />,
+          open: true,
+          children: (
+            <DeleteModal
+              CloseModal={CloseModal}
+              titles={[record._title]}
+            />
+          )
+        });
+      }
     },
   ];
 
