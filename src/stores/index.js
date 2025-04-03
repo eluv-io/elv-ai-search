@@ -229,7 +229,7 @@ class RootStore {
     const baseUrl = UrlJoin(coreBase, corePath);
     let url = new URL(baseUrl);
     console.log("url", url)
-    url.hash = UrlJoin(objectId, prefix || "");
+    url.hash = UrlJoin((currentUrl.hostname.includes("v3-dev") ? libraryId : ""), objectId, prefix || "");
 
     url = url.toString();
 
