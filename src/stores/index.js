@@ -222,13 +222,12 @@ class RootStore {
     }
 
     const corePath = `/apps/${videoEditorKey}`;
-    let url = new URL(window.location.toString());
-    url.pathname = corePath;
-    console.log("url", url)
-
+    const currentUrl = new URL(window.location.toString());
     // eslint-disable-next-line no-undef
-    // const baseUrl = UrlJoin(EluvioConfiguration.coreUrl, corePath);
-    // let url = new URL(baseUrl);
+    const coreBase = currentUrl.includes("v3-dev") ? EluvioConfiguration.coreDevUrl : EluvioConfiguration.coreUrl;
+
+    const baseUrl = UrlJoin(coreBase, corePath);
+    let url = new URL(baseUrl);
     url.hash = UrlJoin(libraryId, objectId, prefix || "");
 
     url = url.toString();
@@ -236,6 +235,7 @@ class RootStore {
     if(startTime || endTime) {
       url = `${url}?${startTime ? `st=${startTime}` : ""}${endTime ? `&et=${endTime}` : ""}`;
     }
+    console.log("url", url)
 
     return url;
   };
