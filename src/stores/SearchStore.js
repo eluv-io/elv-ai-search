@@ -688,6 +688,7 @@ class SearchStore {
       };
     } catch(error) {
       console.error("Unable to perform search", error);
+      return {};
     }
   });
 

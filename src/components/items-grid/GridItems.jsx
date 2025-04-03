@@ -96,7 +96,7 @@ const GridItem = observer(({
             imageSrc={clip._imageSrc}
             title={clip._title}
             objectId={clip.id}
-            duration={clip._queryFields.duration}
+            duration={clip._queryFields?.duration}
           />
         </AspectRatio>
         <Flex wrap="nowrap" mt={10} align="center" justify="space-between">
