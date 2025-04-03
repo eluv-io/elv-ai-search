@@ -237,6 +237,30 @@ class RootStore {
 
     return url;
   };
+
+  GetImageUrl = flow(function * ({libraryId, objectId, duration=""}) {
+    if(!libraryId) {
+      libraryId = yield this.client.ContentObjectLibraryId({objectId});
+    }
+
+    let timeSeconds;
+
+    if(duration) {
+      timeSeconds = (parseInt(duration) > 120) ? 60 : (parseInt(duration) / 2);
+    }
+
+    const url = yield this.client.Rep({
+      libraryId,
+      objectId,
+      rep: "frame/default/video",
+      makeAccessRequest: true,
+      queryParams: {
+        t: timeSeconds
+      }
+    });
+
+    return url;
+  });
 }
 
 export const rootStore = new RootStore();

@@ -13,39 +13,61 @@ import {
   UnstyledButton
 } from "@mantine/core";
 import {observer} from "mobx-react-lite";
-import {searchStore} from "@/stores/index.js";
+import {searchStore, rootStore} from "@/stores/index.js";
 import {useNavigate} from "react-router-dom";
 import {ScaleImage, TimeInterval} from "@/utils/helpers.js";
 import {ApproveIcon, EyeIcon, ImageIcon, MusicIcon, VideoClipIcon} from "@/assets/icons/index.js";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
-const ImageContent = observer(({imageSrc, title}) => {
+const ImageContent = observer(({imageSrc, title, objectId, duration}) => {
   const [imageFailed, setImageFailed] = useState(false);
   const [loaded, setLoaded] = useState(false);
+  const [image, setImage] = useState(null);
 
-  if(imageSrc && !imageFailed) {
-    return (
-      <Skeleton visible={!loaded} w="100%" h="100%">
-        <Image
-          bg="elv-gray.4"
-          key={imageSrc}
-          radius="lg"
-          loading="lazy"
-          w="100%"
-          h="100%"
-          src={ScaleImage({url: imageSrc, width: 400})}
-          onError={() => setImageFailed(true)}
-          onLoad={() => setLoaded(true)}
-        />
-      </Skeleton>
-    );
-  } else {
+  useEffect(() => {
+    const LoadImage = async() => {
+      try {
+        if(imageSrc) {
+          setImage(imageSrc);
+          return;
+        }
+
+        const url = await rootStore.GetImageUrl({
+          objectId,
+          duration
+        });
+
+        setImage(url);
+      } catch(error) {
+        console.error("Unable to load image", error);
+      }
+    };
+
+    LoadImage();
+  }, []);
+
+  if(imageFailed && loaded) {
     return (
       <Flex bg="black" align="center" justify="center" p={16}>
         <Text c="white" fz="sm" style={{whiteSpace: "pre-line", wordBreak: "break-word"}}>
           { title }
         </Text>
       </Flex>
+    );
+  } else {
+    return (
+      <Skeleton visible={!loaded} w="100%" h="100%">
+        <Image
+          bg="elv-gray.4"
+          radius="lg"
+          loading="lazy"
+          w="100%"
+          h="100%"
+          src={ScaleImage({url: image, width: 400})}
+          onError={() => setImageFailed(true)}
+          onLoad={() => setLoaded(true)}
+        />
+      </Skeleton>
     );
   }
 });
@@ -73,6 +95,8 @@ const GridItem = observer(({
           <ImageContent
             imageSrc={clip._imageSrc}
             title={clip._title}
+            objectId={clip.id}
+            duration={clip._queryFields.duration}
           />
         </AspectRatio>
         <Flex wrap="nowrap" mt={10} align="center" justify="space-between">
