@@ -35,7 +35,7 @@ class SearchStore {
   resultsVideoPaginated = {};
 
   // High score results
-  highScore = 60;
+  highScore = 40;
   highScoreVideoResults = null;
   highScoreImageResults = null;
 

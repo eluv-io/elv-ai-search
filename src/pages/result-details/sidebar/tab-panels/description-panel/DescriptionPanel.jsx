@@ -77,7 +77,7 @@ const DescriptionPanel = observer(() => {
             startTime={item.start_time}
             text={item.text}
           />
-        )) : "No tags"
+        )) : ""
       }
     </Box>
   );
