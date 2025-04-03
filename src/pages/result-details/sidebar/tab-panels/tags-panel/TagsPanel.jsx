@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import {observer} from "mobx-react-lite";
-import {Box, Accordion, AccordionControl, Text, Loader, Flex} from "@mantine/core";
+import {Box, Accordion, AccordionControl, Loader, Flex} from "@mantine/core";
 import {CollapseIcon} from "@/assets/icons/index.js";
 import TagsTable from "@/pages/result-details/sidebar/tab-panels/tags-panel/TagsTable.jsx";
 import {searchStore, tagStore} from "@/stores/index.js";
@@ -21,7 +21,6 @@ const AccordionItems = (() => {
     } else {
       return (
         <Box mt={8} mb={8}>
-          <Text size="xs">No tags</Text>
         </Box>
       );
     }
