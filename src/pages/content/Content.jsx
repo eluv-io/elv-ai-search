@@ -11,7 +11,7 @@ import {useEffect, useState} from "react";
 import {contentStore, rootStore} from "@/stores/index.js";
 import ListItems from "@/components/items-list/ListItems.jsx";
 import ActionsToolbar from "@/pages/content/actions-toolbar/ActionsToolbar.jsx";
-import ClipsGrid from "@/components/items-grid/GridItems.jsx";
+import GridItems from "@/components/items-grid/GridItems.jsx";
 import {IconChevronRight} from "@tabler/icons-react";
 import {ArrowBackIcon} from "@/assets/icons/index.js";
 import {useInViewport} from "@mantine/hooks";
@@ -160,7 +160,7 @@ const Content = observer(({show}) => {
 
       {
         viewType === "GRID" &&
-        <ClipsGrid
+        <GridItems
           clips={content}
           enablePagination={false}
           enableInfiniteScroll
@@ -168,7 +168,7 @@ const Content = observer(({show}) => {
       }
       {
         !loading &&
-        <Box ref={ref} h={20} mt={30} />
+        <Box ref={ref} h={20} mt={100} />
       }
     </Box>
   );

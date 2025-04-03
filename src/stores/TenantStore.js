@@ -39,7 +39,7 @@ class TenantStore {
       return [];
     }
 
-    if(this.loadedIndexes && this.rootFolder) {
+    if(this.loadedIndexes) {
       return Object.values(this.searchIndexes || {});
     }
 
@@ -75,7 +75,7 @@ class TenantStore {
 
     this.loadedIndexes = true;
     const rootFolderId = tenantMeta?.content_folder_root;
-    const rootFolderLibrary = yield this.client.ContentObjectLibraryId({objectId: rootFolderId});
+    const rootFolderLibrary = rootFolderId ? yield this.client.ContentObjectLibraryId({objectId: rootFolderId}) : null;
 
     this.rootFolder = {
       objectId: rootFolderId,

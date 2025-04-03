@@ -43,13 +43,13 @@ const TitleCell = ({
   imageAspectRatio="1 / 1",
   title,
   id,
+  truncate="start",
   ...props
 }) => {
   const clipboard = useClipboard();
 
-  // { title.replace(/^[A-Za-z0-9]+(?:\/)?\s*-\s*/, "") }
   const titleText = (
-    <Text fz={16} fw={700} c="elv-gray.8" maw={400} truncate="end" lh="normal">
+    <Text fz={16} fw={700} c="elv-gray.8" maw={500} truncate={truncate} lh="normal">
       { title }
     </Text>
   );
@@ -174,18 +174,8 @@ const TagsCell = observer(({tags}) => {
   );
 });
 
-const AccessCell = observer(({permission}) => {
-  if(!Object.hasOwn(permissionLevels, permission)) {
-    return <EmptyTableCell />;
-  }
-
-  return (
-    <Text fz={14} fw={500} c="elv-gray.8">
-      {
-        permissionLevels[permission].short
-      }
-    </Text>
-  );
+const AccessCell = observer(() => {
+  return <EmptyTableCell />;
 });
 
 const TableCell = observer(({isFolder, type, ...props}) => {
@@ -429,7 +419,7 @@ const ListItems = observer(({
               <TableCell
                 type="title"
                 isFolder={record._isFolder}
-                title={record._title}
+                title={record._queryFields?.title}
                 id={record.id}
               />
             )
@@ -453,7 +443,6 @@ const ListItems = observer(({
               <TableCell
                 type="access"
                 isFolder={record._isFolder}
-                permission={record._permission}
               />
             )
           },

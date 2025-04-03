@@ -88,9 +88,6 @@ class ContentStore {
     // TODO: Sort with folders first
     const data = yield this.client.TenantContent({
       filter,
-      select: [
-        "public/name"
-      ],
       sortOptions,
       start,
       limit
@@ -104,7 +101,7 @@ class ContentStore {
       10,
       content,
       async (contentObject, i) => {
-        let tags, queryFields, permission;
+        let tags, queryFields;
 
         const objectId = contentObject.id;
 
@@ -124,17 +121,10 @@ class ContentStore {
           console.error(`Skipping query fields for ${objectId}`);
         }
 
-        try {
-          permission = await this.client.Permission({objectId});
-        } catch(error) {
-          console.error(`Skipping permission for ${objectId}`);
-        }
-
         contentObject["_tags"] = tags;
         contentObject["_queryFields"] = queryFields;
         contentObject["_isFolder"] = (tags || []).includes("elv:folder");
-        contentObject["_permission"] = permission;
-        contentObject["_title"] = contentObject.meta?.public?.name || contentObject.id;
+        contentObject["_title"] = queryFields.title;
         // Flags for distinguishing between clips, non-clips, images
         contentObject["_clipType"] = false;
         contentObject["_contentType"] = true;

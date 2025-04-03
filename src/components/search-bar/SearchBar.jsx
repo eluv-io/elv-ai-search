@@ -184,7 +184,7 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
         setIndexes(tenantIndexes || []);
         setLoadingIndexes(false);
 
-        if(tenantIndexes.length === 0) {
+        if(tenantIndexes?.length === 0) {
           setShowAdvancedOptions(true);
         }
 
@@ -243,7 +243,7 @@ const IndexMenu = observer(({HandleUpdateSearchField}) => {
           <DownArrowIcon color="var(--mantine-color-elv-gray-3)" />
         </ActionIcon>
       </Menu.Target>
-      <Menu.Dropdown p={24} style={{left: "300px"}}>
+      <Menu.Dropdown p={24} style={{left: "90px"}}>
         {
           loadingIndexes ?
             <Loader /> :
