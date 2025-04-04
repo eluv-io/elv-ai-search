@@ -163,7 +163,9 @@ const CaptionDisplayView = observer(({
   return (
     <Box>
       <Group gap={0} w="100%">
-        <Title order={4} c="elv-gray.8" lh={1} maw={480} textWrap="wrap">{ title }</Title>
+        <Flex flex="1 1 70%">
+          <Title order={4} c="elv-gray.8" lh={1} lineClamp={1} w="100%">{ title }</Title>
+        </Flex>
         <Group ml="auto" gap={6}>
           {
             editEnabled ?
