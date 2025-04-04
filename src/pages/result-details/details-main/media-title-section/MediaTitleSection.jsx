@@ -121,7 +121,9 @@ const MediaTitleSection = observer(({
   showInfoCard,
   setShowInfoCard,
   mediaType,
-  TYPE_DATA
+  TYPE_DATA,
+  playFullVideo,
+  setPlayFullVideo
 }) => {
   const [loading, setLoading] = useState(false);
   const [embedUrl, setEmbedUrl] = useState(null);
@@ -327,7 +329,12 @@ const MediaTitleSection = observer(({
           </Tooltip>
         </Group>
       </Group>
-      <MediaSecondaryInfo embedUrl={embedUrl} downloadUrl={downloadUrl} />
+      <MediaSecondaryInfo
+        embedUrl={embedUrl}
+        downloadUrl={downloadUrl}
+        playFullVideo={playFullVideo}
+        setPlayFullVideo={setPlayFullVideo}
+      />
       <InfoCard
         show={showInfoCard && hasInfoData}
         info={TYPE_DATA[mediaType]}

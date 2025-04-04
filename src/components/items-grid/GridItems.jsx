@@ -222,7 +222,6 @@ const GridItems = observer(({
         <Group gap={24} mt={48}>
           <Text>
             {
-              `${pagination.firstResult}-${pagination.lastResult} / ${pagination.searchTotal?.toLocaleString()}`
               `${searchStore.pagination.firstResult}-${searchStore.pagination.endResult} / ${searchStore.searchTotal}`
             }
           </Text>

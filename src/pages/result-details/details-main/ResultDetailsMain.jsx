@@ -22,6 +22,7 @@ const ResultDetailsMain = observer(({
   const [openedShareModal, {open: openModal, close: closeModal}] = useDisclosure(false);
   const [currentStars, setCurrentStars] = useState(null);
   const [showInfoCard, setShowInfoCard] = useState(false);
+  const [playFullVideo, setPlayFullVideo] = useState(false);
 
   const searchTerm = searchStore.currentSearch.terms;
   const indexId = searchStore.currentSearch.index;
@@ -51,7 +52,7 @@ const ResultDetailsMain = observer(({
       });
     }
     catch (error) {
-       
+
       console.error("Did not update rating store, reverting to previous state");
       setCurrentStars(currentStars);
     }
@@ -83,7 +84,7 @@ const ResultDetailsMain = observer(({
         });
         setCurrentStars(stars?.feedback_item?.rating);
       } catch (error) {
-         
+
         console.error("Error fetching stars:", error);
       }
     };
@@ -122,7 +123,7 @@ const ResultDetailsMain = observer(({
             )}
           </Transition>
         }
-        <MediaItem clip={clip} mediaRef={mediaRef} />
+        <MediaItem clip={clip} mediaRef={mediaRef} playFullVideo={playFullVideo} />
       </Box>
 
       <Skeleton visible={searchStore.loadingSearchResult}>
@@ -135,6 +136,8 @@ const ResultDetailsMain = observer(({
           setShowInfoCard={setShowInfoCard}
           mediaType={mediaType}
           TYPE_DATA={TYPE_DATA}
+          playFullVideo={playFullVideo}
+          setPlayFullVideo={setPlayFullVideo}
         />
 
         <AIContentSection

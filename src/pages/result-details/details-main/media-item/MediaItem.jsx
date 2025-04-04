@@ -6,7 +6,7 @@ import {EluvioPlayerParameters} from "@eluvio/elv-player-js";
 import PlayerParameters from "@eluvio/elv-player-js/lib/player/PlayerParameters.js";
 import {searchStore, videoStore} from "@/stores/index.js";
 
-const MediaItem = ({clip}) => {
+const MediaItem = ({clip, playFullVideo}) => {
   const mediaRef = useRef(null);
   const [imageFailed, setImageFailed] = useState(false);
 
@@ -52,7 +52,6 @@ const MediaItem = ({clip}) => {
                     fallbackSrc={`https://placehold.co/600x400?text=${clip._title}`}
                     fit="contain"
                     w="100%"
-                    // mah={900}
                     h="100%"
                     onError={() => setImageFailed(true)}
                   />
@@ -76,8 +75,8 @@ const MediaItem = ({clip}) => {
             },
           }}
           playoutParameters={{
-            clipStart: clip.start_time ? (clip.start_time / 1000) : null,
-            clipEnd: clip.end_time ? (clip.end_time / 1000) : null,
+            clipStart: (!playFullVideo && clip.start_time) ? (clip.start_time / 1000) : null,
+            clipEnd: (!playFullVideo && clip.end_time) ? (clip.end_time / 1000) : null,
             ignoreTrimming: true,
             permanentPoster: PlayerParameters.permanentPoster.ON
           }}
