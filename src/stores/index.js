@@ -223,12 +223,10 @@ class RootStore {
 
     const corePath = `/apps/${videoEditorKey}`;
     const currentUrl = new URL(window.location.toString());
-    // eslint-disable-next-line no-undef
-    const coreBase = currentUrl.hostname.includes("v3-dev") ? EluvioConfiguration.coreDevUrl : EluvioConfiguration.coreUrl;
 
-    const baseUrl = UrlJoin(coreBase, corePath);
+    // eslint-disable-next-line no-undef
+    const baseUrl = UrlJoin(EluvioConfiguration.coreUrl, corePath);
     let url = new URL(baseUrl);
-    console.log("url", url)
     url.hash = UrlJoin((currentUrl.hostname.includes("v3-dev") ? "" : libraryId), objectId, prefix || "");
 
     url = url.toString();
