@@ -439,7 +439,9 @@ const SummarySection = observer(({clip}) => {
                       }
                     }}
                   >
-                    Generate Summary
+                    <Text fw={600} fz={14}>
+                      Generate Summary
+                    </Text>
                   </Button>
                 )
             }
