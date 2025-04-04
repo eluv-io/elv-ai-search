@@ -79,7 +79,7 @@ class SearchStore {
     const currentPage = this.endResult / this.pageSize;
     const searchTotal = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
     const totalResultsPerPage = searchTotal;
-    const totalPages = Math.ceil(searchTotal / this.pageSize);
+    const totalPages = Math.ceil(this.searchTotal / this.pageSize);
 
     return {
       pageSize: this.pageSize,
@@ -600,6 +600,7 @@ class SearchStore {
 
       if(page === 1) {
         this.searchTotal = results.pagination?.total;
+        console.log("search total", this.searchTotal)
       }
 
       editedContents = yield Promise.all(

@@ -189,6 +189,7 @@ const ClipsGrid = observer(({
       </Flex>
     );
   }
+  console.log("pagination", searchStore.pagination)
 
   return (
     <>
@@ -215,7 +216,7 @@ const ClipsGrid = observer(({
         <Group gap={24} mt={48}>
           <Text>
             {
-              `${searchStore.pagination.firstResult}-${searchStore.pagination.lastResult} / ${searchStore.pagination.searchTotal?.toLocaleString()}`
+              `${searchStore.pagination.firstResult}-${searchStore.pagination.endResult} / ${searchStore.searchTotal}`
             }
           </Text>
           <Group ml="auto" align="center" gap={0}>
