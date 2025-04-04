@@ -216,7 +216,7 @@ class RootStore {
   }) => {
     // eslint-disable-next-line no-undef
     const videoEditorKey = Object.keys(EluvioConfiguration.apps || {})
-      .find(key => key.toLowerCase().includes("video intelligence editor") || key.toLowerCase().includes("video-intelligence-editor"));
+      .find(key => key.toLowerCase().includes("video intelligence editor") || key.toLowerCase().includes("video editor") || key.toLowerCase().includes("video-intelligence-editor"));
 
     if(!videoEditorKey) {
       throw Error("Unable to determine fabric browser URL");
