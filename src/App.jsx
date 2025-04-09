@@ -14,6 +14,7 @@ import SideNavigation from "@/components/side-navigation/SideNavigation.jsx";
 import AppRoutes from "./Routes.jsx";
 import {rootStore, uiStore} from "@/stores";
 import ErrorBanner from "@/components/error-banner/ErrorBanner.jsx";
+import {Notifications} from "@mantine/notifications";
 
 const App = observer(() => {
   return (
@@ -25,6 +26,7 @@ const App = observer(() => {
         >
           <SideNavigation />
           <AppShell.Main>
+            <Notifications zIndex={1000} position="top-right" autoClose={5000} />
             <ErrorBanner />
             {
               rootStore.loaded ?

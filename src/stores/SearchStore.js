@@ -608,7 +608,6 @@ class SearchStore {
 
       if(page === 1) {
         this.searchTotal = results.pagination?.total;
-        console.log("search total", this.searchTotal)
       }
 
       editedContents = yield Promise.all(
