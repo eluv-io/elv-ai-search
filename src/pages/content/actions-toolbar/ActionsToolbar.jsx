@@ -57,7 +57,7 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
                 <NewFolderModal
                   RefreshCallback={() => HandleGetResults()}
                   payload={{
-                    libraryId: contentStore.rootFolder?.objectId,
+                    libraryId: contentStore.rootFolder?.libraryId,
                     groupIds: [contentStore.currentFolderId]
                   }}
                   CloseModal={CloseModal}

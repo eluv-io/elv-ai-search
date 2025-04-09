@@ -229,7 +229,7 @@ class ContentStore {
       });
     } catch(error) {
       console.error("Unable to create content folder", error);
-      return {};
+      throw error;
     }
   });
 

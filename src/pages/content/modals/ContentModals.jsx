@@ -9,6 +9,7 @@ import styles from "./ContentModals.module.css";
 import {MEDIA_TYPES} from "@/utils/constants.js";
 import {DatePickerInput} from "@mantine/dates";
 import {CalendarIcon} from "@/assets/icons/index.js";
+import {notifications} from "@mantine/notifications";
 
 export const ModalTitle = ({Icon, title}) => {
   return (
@@ -138,9 +139,20 @@ export const NewFolderModal = observer(({
       });
 
       await RefreshCallback();
+
+      notifications.show({
+        title: "Folder created",
+        message: "New folder successfully created"
+      });
     } finally {
       CloseModal();
       setSaving(false);
+
+      notifications.show({
+        title: "Error",
+        color: "red",
+        message: "Unable to create folder"
+      });
     }
   };
 
