@@ -49,7 +49,7 @@ const TitleCell = ({
   const clipboard = useClipboard();
 
   const titleText = (
-    <Text fz={16} fw={700} c="elv-gray.8" maw={500} truncate={truncate} lh="normal">
+    <Text fz={16} fw={700} c="elv-gray.8" maw={500} truncate={truncate} lh="normal" ta="left">
       { title }
     </Text>
   );

@@ -9,6 +9,7 @@ class TenantStore {
   libraries;
   rootFolder;
   tenantName;
+  contentSpace;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -80,6 +81,12 @@ class TenantStore {
     this.rootFolder = {
       objectId: rootFolderId,
       libraryId: rootFolderLibrary
+    };
+
+    const contentSpaceId = yield this.client.ContentSpaceId();
+    this.contentSpace = {
+      objectId: contentSpaceId,
+      libraryId: contentSpaceId.replace("ispc", "ilib")
     };
 
     return {

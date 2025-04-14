@@ -15,81 +15,66 @@ import GridItems from "@/components/items-grid/GridItems.jsx";
 import {IconChevronRight} from "@tabler/icons-react";
 import {ArrowBackIcon} from "@/assets/icons/index.js";
 import {useInViewport} from "@mantine/hooks";
+import useData from "@/hooks/useData.js";
 
 const Content = observer(({show}) => {
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const [content, setContent] = useState([]);
-  const [folderContent, setFolderContent] = useState([]);
   const [viewType, setViewType] = useState("LIST");
 
-  const [paging, setPaging] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
+  const [pageVersion, setPageVersion] = useState(1);
 
   const {ref, inViewport} = useInViewport();
 
-  const HandleGetFolders = async() => {
-    try {
-      const folderMetadata = await contentStore.GetContentData({
-        filterOptions: {
-          types: ["folder"],
-          group: contentStore.rootFolder?.objectId
-        }
-      });
+  // const {data: permissionData} = useData(
+  //   () => rootStore.userStore.GetLibraryPermissions({libraryId: rootStore.tenantStore.rootFolder?.libraryId}),
+  //   [rootStore.tenantStore.rootFolder]
+  // );
 
-      setFolderContent(folderMetadata.content);
-    } catch(error) {
-      console.error(error);
-    }
-  };
-
-  const HandleGetResults = async(page, limit) => {
-    try {
-      setLoading(true);
-
-      const contentMetadata = await contentStore.GetContentData({
+  useData(
+    () => {
+      contentStore.GetContentData({
         filterOptions: {
           types: ["mez"],
           group: contentStore.contentFolderId
         },
         start: ((currentPage - 1) * pageSize),
-        limit: limit
+        limit: pageSize,
+        cacheType: "content"
       });
+    },
+    [contentStore.contentFolderId, currentPage, pageSize]
+  );
 
-      if(page === 1) {
-        await HandleGetFolders();
+  useData(
+    () => contentStore.GetContentData({
+      filterOptions: {
+        types: ["folder"],
+        group: contentStore.currentFolderId
+      },
+      cacheType: "folder"
+    }),
+    [contentStore.currentFolderId]
+  );
+
+  useEffect(() => {
+    if(!inViewport || contentStore.loading) { return; }
+
+    const timeout = setTimeout(() => {
+      if(
+        currentPage < contentStore.paging?.pages &&
+        inViewport
+      ) {
+        setCurrentPage(prev => prev + 1);
       }
+    }, 100);
 
-      setContent(prev =>
-        currentPage === 1 ?
-          contentMetadata.content :
-          ([...prev || [], ...contentMetadata.content])
-      );
-      setPaging(contentMetadata.paging);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // const HandleChangePageSize = (value) => {
-  //   setPageSize(value);
-  // };
-
-  useEffect(() => {
-    const LoadData = async() => {
-      await HandleGetResults(currentPage, pageSize);
+    return () => {
+      clearTimeout(timeout);
     };
-
-    // if(contentStore.contentFolderId) {
-      LoadData();
-    // }
-  }, [contentStore.contentFolderId, currentPage]);
-
-  useEffect(() => {
-    if(inViewport && !loading && (currentPage < paging?.pages)) {
-      setCurrentPage(prev => prev + 1);
-    }
-  }, [inViewport, loading, currentPage, paging]);
+  }, [inViewport, contentStore.loading, currentPage, contentStore.paging]);
 
   if(!show) { return null; }
 
@@ -97,7 +82,7 @@ const Content = observer(({show}) => {
   const breadcrumbs = ["All Content", contentStore.contentFolderName].filter(e => !!e);
 
   return (
-    <Box>
+    <Box key={`content-page-${pageVersion}`}>
       {/* TODO: Add folder breadcrumbs */}
       <Flex align="flex-start" gap={8}>
         {
@@ -143,7 +128,7 @@ const Content = observer(({show}) => {
       <ActionsToolbar
         viewType={viewType}
         setViewType={setViewType}
-        HandleGetResults={() => HandleGetFolders()}
+        RefreshCallback={() => setPageVersion(prev => prev + 1)}
       />
 
       {
@@ -152,22 +137,22 @@ const Content = observer(({show}) => {
           records={
           contentStore.contentFolderId ?
             content :
-            [...folderContent, ...content]
+            [...contentStore.contentFolderRecords, ...contentStore.contentObjectRecords]
         }
-          loading={loading}
+          loading={contentStore.loading}
         />
       }
 
       {
         viewType === "GRID" &&
         <GridItems
-          clips={content}
+          clips={contentStore.contentObjectRecords}
           enablePagination={false}
           enableInfiniteScroll
         />
       }
       {
-        !loading &&
+        !contentStore.loading &&
         <Box ref={ref} h={20} mt={100} />
       }
     </Box>

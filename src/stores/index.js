@@ -11,6 +11,7 @@ import OverlayStore from "@/stores/OverlayStore.js";
 import UrlJoin from "url-join";
 import TagStore from "@/stores/TagStore.js";
 import ContentStore from "@/stores/ContentStore.js";
+import UserStore from "@/stores/UserStore.js";
 
 // Store for loading data on app load
 class RootStore {
@@ -32,6 +33,7 @@ class RootStore {
     this.ratingStore = new RatingStore(this);
     this.tagStore = new TagStore(this);
     this.contentStore = new ContentStore(this);
+    this.userStore = new UserStore(this);
     this.Initialize();
   }
 
@@ -275,6 +277,7 @@ export const highlightsStore = rootStore.highlightsStore;
 export const ratingStore = rootStore.ratingStore;
 export const tagStore = rootStore.tagStore;
 export const contentStore = rootStore.contentStore;
+export const userStore = rootStore.userStore;
 
 if(import.meta.hot) {
   if (import.meta.hot.data.store) {

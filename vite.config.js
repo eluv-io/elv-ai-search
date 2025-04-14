@@ -35,7 +35,8 @@ export default defineConfig({
       "@/assets": fileURLToPath(new URL("./src/assets", import.meta.url)),
       "@/pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
       "@/stores": fileURLToPath(new URL("./src/stores", import.meta.url)),
-      "@/utils": fileURLToPath(new URL("./src/utils", import.meta.url))
+      "@/utils": fileURLToPath(new URL("./src/utils", import.meta.url)),
+      "@/hooks": fileURLToPath(new URL("./src/hooks", import.meta.url))
     }
   }
 });

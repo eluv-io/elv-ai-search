@@ -7,7 +7,7 @@ import {IconFolder} from "@tabler/icons-react";
 import {FilterModal, NewFolderModal} from "@/pages/content/modals/ContentModals.jsx";
 import styles from "./ActionsToolbar.module.css";
 
-const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
+const ActionsToolbar = observer(({viewType, setViewType, RefreshCallback}) => {
   const initModalData = {
     title: "",
     open: false,
@@ -55,7 +55,7 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
               ),
               children: (
                 <NewFolderModal
-                  RefreshCallback={() => HandleGetResults()}
+                  RefreshCallback={RefreshCallback}
                   payload={{
                     libraryId: contentStore.rootFolder?.libraryId,
                     groupIds: [contentStore.currentFolderId]
@@ -101,7 +101,6 @@ const ActionsToolbar = observer(({viewType, setViewType, HandleGetResults}) => {
         title={modalData.title}
         size={modalData.size}
         classNames={modalData.paddingDefault ? {} : {header: styles.modalHeader, body: styles.modalBody}}
-        // padding="28px 40px 55px"
         centered
       >
         { modalData.children || ""}

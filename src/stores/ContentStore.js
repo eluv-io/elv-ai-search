@@ -1,22 +1,27 @@
-import {flow, makeAutoObservable} from "mobx";
+import {flow, makeAutoObservable, runInAction} from "mobx";
 import {ORG_TAGS} from "@/utils/constants.js";
 
 // Store for managing content object
 class ContentStore {
   contentObjects = {};
   contentFolders = {};
+  paging = {};
   contentLoaded = false;
+  loading = false;
 
-  // Navigation
-  contentFolder; // stores the currently navigated folder
+  // ---- Navigation ------------------------------
+  // Stores the currently navigated folder
+  contentFolder;
 
-  // Pagination
+  // ---- Pagination ------------------------------
   pageSize = 20;
   totalResults;
   totalPages;
   currentPage = 0;
-  previousPages; // Number of previous pages
-  nextPages; // Number of next pages
+  // Number of previous pages
+  previousPages;
+  // Number of next pages
+  nextPages;
 
   constructor(rootStore) {
     makeAutoObservable(this);
@@ -28,27 +33,58 @@ class ContentStore {
     return this.rootStore.client;
   }
 
-  // Stores content_folder_root in Properties library
+  /**
+   * Returns the root folder object from the tenant store.
+   * Typically corresponds to 'content_folder_root' in the Properties library.
+   *
+   * @returns {Object} - The root folder if set.
+   */
   get rootFolder() {
     return this.rootStore.tenantStore.rootFolder;
   }
 
+  /**
+   * Returns the title of the currently selected content folder.
+   *
+   * @returns {string} The folder title, or an empty string if no folder is selected.
+   */
   get contentFolderName() {
     return this.contentFolder? this.contentFolder._title : "";
   }
 
+  /**
+   * Returns the ID of the currently selected content folder.
+   *
+   * @returns {string | undefined} The folder ID, or undefined if no folder is selected.
+   */
   get contentFolderId() {
     return this.contentFolder?.id;
   }
 
+  /**
+   * Returns the ID of the currently selected content folder.
+   * Falls back to the root folder's object ID if no content folder is selected.
+   *
+   * @returns {string | undefined} The current folder ID.
+   */
   get currentFolderId() {
     return this.contentFolderId || this.rootFolder?.objectId;
   }
 
+  /**
+   * An array of content folders derived from the contentFolders map
+   *
+   * @returns {ContentFolders[]} - Array of content folders
+   */
   get contentFolderRecords() {
     return Object.values(this.contentFolders || {});
   }
 
+  /**
+   * An array of content objects derived from the contentObjects map
+   *
+   * @returns {ContentObject[]} - Array of content objects
+   */
   get contentObjectRecords() {
     return Object.values(this.contentObjects || {});
   }
@@ -75,84 +111,100 @@ class ContentStore {
     limit,
     cacheType // folder, content
   }) {
-    const filter = [];
+    try {
+      runInAction(() => {
+        this.loading = true;
+      });
 
-    if(filterOptions.group) {
-      filter.push(`group:eq:${filterOptions.group}`);
-    }
+      const filter = [];
 
-    (filterOptions.types || []).forEach(type => {
-      filter.push(`tag:eq:${ORG_TAGS[type]}`);
-    });
-
-    // TODO: Sort with folders first
-    const data = yield this.client.TenantContent({
-      filter,
-      sortOptions,
-      start,
-      limit
-    });
-
-    const content = data.versions || [];
-    let contentObjects = {};
-    let contentFolders = {};
-
-    yield this.client.utils.LimitedMap(
-      10,
-      content,
-      async (contentObject, i) => {
-        let tags, queryFields;
-
-        const objectId = contentObject.id;
-
-        try {
-          tags = await this.GetContentTags({
-            objectId
-          });
-        } catch(error) {
-          console.error(`Skipping tag for ${objectId}`);
-        }
-
-        try {
-          queryFields = await this.GetQueryFields({
-            objectId
-          });
-        } catch(error) {
-          console.error(`Skipping query fields for ${objectId}`);
-        }
-
-        contentObject["_tags"] = tags;
-        contentObject["_queryFields"] = queryFields;
-        contentObject["_isFolder"] = (tags || []).includes("elv:folder");
-        contentObject["_title"] = queryFields.title;
-        // Flags for distinguishing between clips, non-clips, images
-        contentObject["_clipType"] = false;
-        contentObject["_contentType"] = true;
-        // Index used for clip navigation
-        contentObject["_index"] = i;
-
-        if(cacheType === "folder") {
-          contentFolders[objectId] = contentObject;
-        } else if(cacheType === "content") {
-          contentObjects[objectId] = contentObject;
-        }
-
-        return contentObject;
+      if(filterOptions.group) {
+        filter.push(`group:eq:${filterOptions.group}`);
       }
-    );
 
-    if(cacheType === "folder") {
-      this.contentFolders = contentFolders;
-    } else if(cacheType === "content") {
-      this.contentObjects = contentObjects;
+      (filterOptions.types || []).forEach(type => {
+        filter.push(`tag:eq:${ORG_TAGS[type]}`);
+      });
+
+      const data = yield this.client.TenantContent({
+        filter,
+        sortOptions,
+        start,
+        limit
+      });
+
+      const content = data.versions || [];
+      let contentObjects = Object.assign({}, this.contentObjects) || {};
+      let contentFolders = {};
+
+      yield this.client.utils.LimitedMap(
+        10,
+        content,
+        async (contentObject, i) => {
+          let tags, queryFields;
+
+          const objectId = contentObject.id;
+
+          try {
+            tags = await this.GetContentTags({
+              objectId
+            });
+          } catch(error) {
+            console.error(`Skipping tag for ${objectId}`);
+          }
+
+          try {
+            queryFields = await this.GetQueryFields({
+              objectId
+            });
+          } catch(error) {
+            console.error(`Skipping query fields for ${objectId}`);
+          }
+
+          contentObject["_tags"] = tags;
+          contentObject["_queryFields"] = queryFields;
+          contentObject["_isFolder"] = (tags || []).includes("elv:folder");
+          contentObject["_title"] = queryFields?.title;
+          // Flags for distinguishing between clips, non-clips, images
+          contentObject["_clipType"] = false;
+          contentObject["_contentType"] = true;
+          // Index used for clip navigation
+          contentObject["_index"] = i;
+
+          if(cacheType === "folder") {
+            contentFolders[objectId] = contentObject;
+          } else if(cacheType === "content") {
+            contentObjects[objectId] = contentObject;
+          }
+
+          return contentObject;
+        }
+      );
+
+      if(cacheType === "folder") {
+        runInAction(() => {
+          this.contentFolders = contentFolders;
+        });
+      } else if(cacheType === "content") {
+        runInAction(() => {
+          this.contentObjects = contentObjects;
+        });
+      }
+
+      runInAction(() => {
+        this.contentLoaded = true;
+        this.loading = false;
+        this.paging = data.paging;
+      });
+
+      return {
+        content,
+        paging: data.paging
+      };
+    } catch(error) {
+      console.error("Unable to load content", error);
+      throw error;
     }
-
-    this.contentLoaded = true;
-
-    return {
-      content,
-      paging: data.paging
-    };
   });
 
   GetContentTags = flow(function * ({
