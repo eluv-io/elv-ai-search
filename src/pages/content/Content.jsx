@@ -136,8 +136,6 @@ const Content = observer(({show}) => {
         viewType === "LIST" &&
         <ListItems
           records={
-          contentStore.contentFolderId ?
-            contentStore.contentObjectRecords :
             [...contentStore.contentFolderRecords, ...contentStore.contentObjectRecords]
         }
           loading={contentStore.loading}

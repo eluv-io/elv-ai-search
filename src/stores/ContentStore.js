@@ -150,17 +150,9 @@ class ContentStore {
     this.contentFolders[folderId] = currentFolderMap;
   }
 
-  UpdateOrderedContentFolders(items) {
-    items.forEach(item => this.orderedContentFolderIds.push(item.id));
-  }
-
   ResetContentObjects() {
     this.contentObjects.clear();
     this.orderedContentObjectIds = [];
-  }
-
-  AddContentFolder(id, content) {
-    this.contentFolders.set(id, content);
   }
 
   ResetContentFolders() {
