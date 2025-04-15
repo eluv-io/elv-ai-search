@@ -3,12 +3,14 @@ import {ORG_TAGS} from "@/utils/constants.js";
 
 // Store for managing content object
 class ContentStore {
-  contentObjects = new Map();
-  contentFolders = new Map();
-  // Caches original order of content objects
-  orderedContentObjectIds = [];
-  // Caches original order of content folders
-  orderedContentFolderIds = [];
+  // Stores content items, organized by folder ID
+  contentObjects = {};
+  // Stores content folders, organized by parent folder ID
+  contentFolders = {};
+  // Tracks the original order of content item IDs, organized by folder ID
+  orderedContentObjectIds = {};
+  // Tracks the original order of folder IDs, organized by parent folder ID
+  orderedContentFolderIds = {};
   paging = {};
   loading = false;
 
@@ -80,10 +82,15 @@ class ContentStore {
    * @returns {ContentFolders[]} - Array of content folders
    */
   get contentFolderRecords() {
-    if(!this.contentFolders.values() || this.orderedContentFolderIds.length === 0) { return []; }
+    if(!this.currentFolderId || this.loading) { return []; }
 
-    return this.orderedContentFolderIds.map(id => this.contentFolders.get(id));
-    // return Array.from(this.contentFolders.values());
+    const orderedItemIds = this.orderedContentFolderIds[this.currentFolderId];
+    if(!orderedItemIds) { return []; }
+
+    const currentFolder = this.contentFolders[this.currentFolderId];
+    if(!currentFolder || Object.keys(currentFolder || {}).length === 0) { return []; }
+
+    return orderedItemIds.map(itemId => currentFolder[itemId]);
   }
 
   /**
@@ -92,9 +99,15 @@ class ContentStore {
    * @returns {ContentObject[]} - Array of content objects
    */
   get contentObjectRecords() {
-    if(!this.contentObjects.values() || this.orderedContentObjectIds.length === 0) { return []; }
+    if(!this.currentFolderId || this.loading) { return []; }
 
-    return this.orderedContentObjectIds.map(id => this.contentObjects.get(id));
+    const orderedItemIds = this.orderedContentObjectIds[this.currentFolderId];
+    if(!orderedItemIds) { return []; }
+
+    const currentFolder = this.contentObjects[this.currentFolderId];
+    if(!currentFolder || Object.keys(currentFolder || {}).length === 0) { return []; }
+
+    return orderedItemIds.map(itemId => currentFolder[itemId]);
   }
 
   get pagination() {
@@ -112,16 +125,33 @@ class ContentStore {
     this.contentFolder = value;
   }
 
-  UpdateOrderedContentObjects(items) {
-    items.forEach(item => this.orderedContentObjectIds.push(item.id));
+  UpdateContentObjectItems(items, folderId) {
+    const itemIds = items.map(item => item.id);
+    this.orderedContentObjectIds[folderId] = [...this.orderedContentObjectIds[folderId] || [], ...itemIds];
+
+    let currentFolderMap = {};
+
+    items.forEach(item => {
+      currentFolderMap[item.id] = item;
+    });
+
+    this.contentObjects[folderId] = {...this.contentObjects[folderId] || {}, ...currentFolderMap};
+  }
+
+  UpdateContentFolderItems(items=[], folderId) {
+    const itemIds = items.map(item => item.id);
+    this.orderedContentFolderIds[folderId] = itemIds;
+
+    let currentFolderMap = {};
+    items.forEach(item => {
+      currentFolderMap[item.id] = item;
+    });
+
+    this.contentFolders[folderId] = currentFolderMap;
   }
 
   UpdateOrderedContentFolders(items) {
     items.forEach(item => this.orderedContentFolderIds.push(item.id));
-  }
-
-  AddContentObject(id, content) {
-    this.contentObjects.set(id, content);
   }
 
   ResetContentObjects() {
@@ -208,20 +238,14 @@ class ContentStore {
           // Index used for clip navigation
           contentObject["_index"] = i;
 
-          if(cacheType === "folder") {
-            this.AddContentFolder(objectId, contentObject);
-          } else if(cacheType === "content") {
-            this.AddContentObject(objectId, contentObject);
-          }
-
           return contentObject;
         }
       );
 
       if(cacheType === "content") {
-        this.UpdateOrderedContentObjects(content);
+        this.UpdateContentObjectItems(content, this.currentFolderId);
       } else if(cacheType === "folder") {
-        this.UpdateOrderedContentFolders(content);
+        this.UpdateContentFolderItems(content, this.currentFolderId);
       }
 
       this.SetPaging(data.paging);

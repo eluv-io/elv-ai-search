@@ -65,6 +65,7 @@ const Content = observer(({show}) => {
     const timeout = setTimeout(() => {
       if(
         currentPage < contentStore.paging?.pages &&
+        contentStore.contentObjectRecords?.length > 0 &&
         inViewport
       ) {
         setCurrentPage(prev => prev + 1);
