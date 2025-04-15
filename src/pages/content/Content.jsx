@@ -18,10 +18,7 @@ import {useInViewport} from "@mantine/hooks";
 import useData from "@/hooks/useData.js";
 
 const Content = observer(({show}) => {
-  // const [loading, setLoading] = useState(false);
-  const [content, setContent] = useState([]);
   const [viewType, setViewType] = useState("LIST");
-
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 20;
   const [pageVersion, setPageVersion] = useState(1);
@@ -45,6 +42,7 @@ const Content = observer(({show}) => {
         cacheType: "content"
       });
     },
+    true,
     [contentStore.contentFolderId, currentPage, pageSize]
   );
 
@@ -54,8 +52,10 @@ const Content = observer(({show}) => {
         types: ["folder"],
         group: contentStore.currentFolderId
       },
-      cacheType: "folder"
+      cacheType: "folder",
+      sortOptions: {field: "title", desc: false}
     }),
+    !!contentStore.currentFolderId,
     [contentStore.currentFolderId]
   );
 
@@ -136,7 +136,7 @@ const Content = observer(({show}) => {
         <ListItems
           records={
           contentStore.contentFolderId ?
-            content :
+            contentStore.contentObjectRecords :
             [...contentStore.contentFolderRecords, ...contentStore.contentObjectRecords]
         }
           loading={contentStore.loading}

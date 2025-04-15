@@ -2,8 +2,8 @@ import {useEffect, useState} from "react";
 
 function useData(
   fetcher,
-  deps=[],
-  shouldFetch=true
+  shouldFetch,
+  deps=[]
 ) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);

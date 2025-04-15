@@ -1,12 +1,15 @@
-import {flow, makeAutoObservable, runInAction} from "mobx";
+import {flow, makeAutoObservable} from "mobx";
 import {ORG_TAGS} from "@/utils/constants.js";
 
 // Store for managing content object
 class ContentStore {
-  contentObjects = {};
-  contentFolders = {};
+  contentObjects = new Map();
+  contentFolders = new Map();
+  // Caches original order of content objects
+  orderedContentObjectIds = [];
+  // Caches original order of content folders
+  orderedContentFolderIds = [];
   paging = {};
-  contentLoaded = false;
   loading = false;
 
   // ---- Navigation ------------------------------
@@ -77,7 +80,10 @@ class ContentStore {
    * @returns {ContentFolders[]} - Array of content folders
    */
   get contentFolderRecords() {
-    return Object.values(this.contentFolders || {});
+    if(!this.contentFolders.values() || this.orderedContentFolderIds.length === 0) { return []; }
+
+    return this.orderedContentFolderIds.map(id => this.contentFolders.get(id));
+    // return Array.from(this.contentFolders.values());
   }
 
   /**
@@ -86,7 +92,9 @@ class ContentStore {
    * @returns {ContentObject[]} - Array of content objects
    */
   get contentObjectRecords() {
-    return Object.values(this.contentObjects || {});
+    if(!this.contentObjects.values() || this.orderedContentObjectIds.length === 0) { return []; }
+
+    return this.orderedContentObjectIds.map(id => this.contentObjects.get(id));
   }
 
   get pagination() {
@@ -100,9 +108,42 @@ class ContentStore {
     };
   }
 
-  UpdateContentFolder = (value) => {
+  UpdateContentFolder(value) {
     this.contentFolder = value;
-  };
+  }
+
+  UpdateOrderedContentObjects(items) {
+    items.forEach(item => this.orderedContentObjectIds.push(item.id));
+  }
+
+  UpdateOrderedContentFolders(items) {
+    items.forEach(item => this.orderedContentFolderIds.push(item.id));
+  }
+
+  AddContentObject(id, content) {
+    this.contentObjects.set(id, content);
+  }
+
+  ResetContentObjects() {
+    this.contentObjects.clear();
+    this.orderedContentObjectIds = [];
+  }
+
+  AddContentFolder(id, content) {
+    this.contentFolders.set(id, content);
+  }
+
+  ResetContentFolders() {
+    this.contentFolders.clear();
+  }
+
+  ToggleLoading() {
+    this.loading = !this.loading;
+  }
+
+  SetPaging(value) {
+    this.paging = value;
+  }
 
   GetContentData = flow(function * ({
     filterOptions={}, // {types: mez, live_stream, master, index, folder, group: groupID}
@@ -112,9 +153,7 @@ class ContentStore {
     cacheType // folder, content
   }) {
     try {
-      runInAction(() => {
-        this.loading = true;
-      });
+      this.ToggleLoading();
 
       const filter = [];
 
@@ -134,8 +173,6 @@ class ContentStore {
       });
 
       const content = data.versions || [];
-      let contentObjects = Object.assign({}, this.contentObjects) || {};
-      let contentFolders = {};
 
       yield this.client.utils.LimitedMap(
         10,
@@ -172,30 +209,23 @@ class ContentStore {
           contentObject["_index"] = i;
 
           if(cacheType === "folder") {
-            contentFolders[objectId] = contentObject;
+            this.AddContentFolder(objectId, contentObject);
           } else if(cacheType === "content") {
-            contentObjects[objectId] = contentObject;
+            this.AddContentObject(objectId, contentObject);
           }
 
           return contentObject;
         }
       );
 
-      if(cacheType === "folder") {
-        runInAction(() => {
-          this.contentFolders = contentFolders;
-        });
-      } else if(cacheType === "content") {
-        runInAction(() => {
-          this.contentObjects = contentObjects;
-        });
+      if(cacheType === "content") {
+        this.UpdateOrderedContentObjects(content);
+      } else if(cacheType === "folder") {
+        this.UpdateOrderedContentFolders(content);
       }
 
-      runInAction(() => {
-        this.contentLoaded = true;
-        this.loading = false;
-        this.paging = data.paging;
-      });
+      this.SetPaging(data.paging);
+      this.ToggleLoading();
 
       return {
         content,
