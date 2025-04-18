@@ -13,7 +13,7 @@ class SearchStore {
   };
 
   customIndex = "";
-  searchHostname = "ai-02";
+  searchHostname = "ai";
   searchSummaryType = "synopsis"; // synopsis, caption, caption2
   searchContentType; // ALL, IMAGES, VIDEOS
   resultsViewType; // Show all results vs results that have a high score.
