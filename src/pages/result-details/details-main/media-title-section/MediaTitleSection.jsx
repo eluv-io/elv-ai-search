@@ -184,7 +184,7 @@ const MediaTitleSection = observer(({
   }, [searchStore.selectedSearchResult]);
 
   const HandleOpenInVideoEditor = async() => {
-    const {id: objectId, qlib_id: libraryId, prefix, start_time, end_time} = searchStore.selectedSearchResult;
+    const {id: objectId, prefix, start_time, end_time} = searchStore.selectedSearchResult;
 
     rootStore.client.SendMessage({
       options: {
@@ -198,16 +198,6 @@ const MediaTitleSection = observer(({
       },
       noResponse: true
     });
-
-    // const url = rootStore.GetVideoEditorUrl({
-    //   libraryId,
-    //   objectId,
-    //   prefix,
-    //   startTime: start_time === undefined ? undefined : (start_time / 1000),
-    //   endTime: end_time === undefined ? undefined : (end_time / 1000)
-    // });
-    //
-    // window.open(url, "_blank");
   };
 
   return (
