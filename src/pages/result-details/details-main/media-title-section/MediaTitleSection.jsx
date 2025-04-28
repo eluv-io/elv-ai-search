@@ -8,6 +8,7 @@ import {useEffect, useState} from "react";
 import {CAPTION_KEYS} from "@/utils/data.js";
 import MediaSecondaryInfo from "@/pages/result-details/details-main/media-secondary-info/MediaSecondaryInfo.jsx";
 import {useClipboard} from "@mantine/hooks";
+import UrlJoin from "url-join";
 
 const ImageInfo = observer(({info}) => {
   return (
@@ -191,9 +192,11 @@ const MediaTitleSection = observer(({
         operation: "OpenLink",
         objectId,
         app: "video intelligence editor",
+        path: UrlJoin("#", objectId, prefix || "", "tags"),
         params: {
           st: start_time === undefined ? undefined : (start_time / 1000),
-          et: end_time === undefined ? undefined : (end_time / 1000)
+          et: end_time === undefined ? undefined : (end_time / 1000),
+          isolate: true
         }
       },
       noResponse: true
