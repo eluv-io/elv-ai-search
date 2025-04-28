@@ -189,7 +189,6 @@ const MediaTitleSection = observer(({
     rootStore.client.SendMessage({
       options: {
         operation: "OpenLink",
-        libraryId,
         objectId,
         app: "video intelligence editor",
         params: {
