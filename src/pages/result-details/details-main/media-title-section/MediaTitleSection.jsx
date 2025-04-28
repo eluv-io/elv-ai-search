@@ -186,15 +186,29 @@ const MediaTitleSection = observer(({
   const HandleOpenInVideoEditor = async() => {
     const {id: objectId, qlib_id: libraryId, prefix, start_time, end_time} = searchStore.selectedSearchResult;
 
-    const url = rootStore.GetVideoEditorUrl({
-      libraryId,
-      objectId,
-      prefix,
-      startTime: start_time === undefined ? undefined : (start_time / 1000),
-      endTime: end_time === undefined ? undefined : (end_time / 1000)
+    rootStore.client.SendMessage({
+      options: {
+        operation: "OpenLink",
+        libraryId,
+        objectId,
+        app: "video intelligence editor",
+        params: {
+          st: start_time === undefined ? undefined : (start_time / 1000),
+          et: end_time === undefined ? undefined : (end_time / 1000)
+        }
+      },
+      noResponse: true
     });
 
-    window.open(url, "_blank");
+    // const url = rootStore.GetVideoEditorUrl({
+    //   libraryId,
+    //   objectId,
+    //   prefix,
+    //   startTime: start_time === undefined ? undefined : (start_time / 1000),
+    //   endTime: end_time === undefined ? undefined : (end_time / 1000)
+    // });
+    //
+    // window.open(url, "_blank");
   };
 
   return (

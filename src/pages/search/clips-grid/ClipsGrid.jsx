@@ -189,7 +189,6 @@ const ClipsGrid = observer(({
       </Flex>
     );
   }
-  console.log("pagination", searchStore.pagination)
 
   return (
     <>
