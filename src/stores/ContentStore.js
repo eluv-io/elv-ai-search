@@ -1,5 +1,6 @@
-import {flow, makeAutoObservable} from "mobx";
+import {flow, makeAutoObservable, reaction} from "mobx";
 import {ORG_TAGS} from "@/utils/constants.js";
+import {GenerateCacheKey, GeneratePaginationCache} from "@/utils/contentHelpers.js";
 
 // Store for managing content object
 class ContentStore {
@@ -14,9 +15,11 @@ class ContentStore {
   paging = {};
   loading = false;
 
-  // ---- Navigation ------------------------------
+  // ---- Current UI State ------------------------
   // Stores the currently navigated folder
-  contentFolder;
+  currentFolder = null;
+  currentSort = {field: "title", desc: false};
+  currentFilter = {};
 
   // ---- Pagination ------------------------------
   pageSize = 20;
@@ -28,10 +31,22 @@ class ContentStore {
   // Number of next pages
   nextPages;
 
+  CACHE_TTL = 5 * 60 * 1000;
+
   constructor(rootStore) {
     makeAutoObservable(this);
 
     this.rootStore = rootStore;
+
+    reaction(
+      () => rootStore.tenantStore.rootFolder,
+      rootFolder => {
+        if(rootFolder) {
+          this.currentFolder = rootFolder;
+        }
+      },
+      { fireImmediately: true }
+    );
   }
 
   get client() {
@@ -49,31 +64,22 @@ class ContentStore {
   }
 
   /**
+   * Returns the ID of the currently selected content folder.
+   * Will be root folder ID when no folder is selected.
+   *
+   * @returns {string | undefined} The current folder ID.
+   */
+  get currentFolderId() {
+    return this.currentFolder?.objectId;
+  }
+
+  /**
    * Returns the title of the currently selected content folder.
    *
    * @returns {string} The folder title, or an empty string if no folder is selected.
    */
   get contentFolderName() {
-    return this.contentFolder? this.contentFolder._title : "";
-  }
-
-  /**
-   * Returns the ID of the currently selected content folder.
-   *
-   * @returns {string | undefined} The folder ID, or undefined if no folder is selected.
-   */
-  get contentFolderId() {
-    return this.contentFolder?.id;
-  }
-
-  /**
-   * Returns the ID of the currently selected content folder.
-   * Falls back to the root folder's object ID if no content folder is selected.
-   *
-   * @returns {string | undefined} The current folder ID.
-   */
-  get currentFolderId() {
-    return this.contentFolderId || this.rootFolder?.objectId;
+    return this.currentFolder? this.currentFolder._title : "";
   }
 
   /**
@@ -101,13 +107,23 @@ class ContentStore {
   get contentObjectRecords() {
     if(!this.currentFolderId || this.loading) { return []; }
 
-    const orderedItemIds = this.orderedContentObjectIds[this.currentFolderId];
+    const cacheKey = GenerateCacheKey({
+      folderId: this.currentFolderId,
+      sortBy: this.currentSort,
+      // TODO: Additional filter options
+      filter: {}
+    });
+    console.log("cache key", cacheKey)
+
+    const orderedItemIds = this.orderedContentObjectIds[cacheKey];
     if(!orderedItemIds) { return []; }
 
-    const currentFolder = this.contentObjects[this.currentFolderId];
+    const currentFolder = this.contentObjects[cacheKey];
+    console.log("this.contentObjects", this.contentObjects)
     if(!currentFolder || Object.keys(currentFolder || {}).length === 0) { return []; }
+    console.log("currentFolder", currentFolder)
 
-    return orderedItemIds.map(itemId => currentFolder[itemId]);
+    return orderedItemIds.map(itemId => currentFolder?.items[itemId]);
   }
 
   get pagination() {
@@ -122,12 +138,12 @@ class ContentStore {
   }
 
   UpdateContentFolder(value) {
-    this.contentFolder = value;
+    this.currentFolder = value;
   }
 
-  UpdateContentObjectItems(items, folderId) {
+  UpdateContentObjectItems({items, cacheKey, pagination}) {
     const itemIds = items.map(item => item.id);
-    this.orderedContentObjectIds[folderId] = [...this.orderedContentObjectIds[folderId] || [], ...itemIds];
+    this.orderedContentObjectIds[cacheKey] = [...this.orderedContentObjectIds[cacheKey] || [], ...itemIds];
 
     let currentFolderMap = {};
 
@@ -135,7 +151,21 @@ class ContentStore {
       currentFolderMap[item.id] = item;
     });
 
-    this.contentObjects[folderId] = {...this.contentObjects[folderId] || {}, ...currentFolderMap};
+    const fetchedPages = this.contentObjects[cacheKey]?.fetchedPages || [];
+
+    // Offset-based pagination
+    fetchedPages.push(pagination.currentStartIndex);
+
+    this.contentObjects[cacheKey] = {
+      items: {
+        ...this.contentObjects[cacheKey] || {},
+        ...currentFolderMap
+      },
+      pagination,
+      fetchedPages,
+      lastFetched: Date.now()
+    };
+    console.log("content objects", this.contentObjects)
   }
 
   UpdateContentFolderItems(items=[], folderId) {
@@ -175,6 +205,26 @@ class ContentStore {
     cacheType // folder, content
   }) {
     try {
+      const parentFolderId = this.currentFolderId;
+
+      const cacheKey = GenerateCacheKey({
+        folderId: parentFolderId,
+        sortBy: this.currentSort,
+        // TODO: Additional filter options
+        filter: {}
+      });
+      console.log("key", cacheKey)
+
+      const cachedObject = this.contentObjects[cacheKey];
+      console.log("cached object", cachedObject)
+
+      if(
+        cachedObject &&
+        (new Date() - (cachedObject.lastFetched || 0)) <= this.CACHE_TTL
+      ) {
+        return this.contentObjects[cacheKey];
+      }
+
       this.ToggleLoading();
 
       const filter = [];
@@ -233,11 +283,19 @@ class ContentStore {
           return contentObject;
         }
       );
+      console.log("paging", data.paging)
+      const pagination = GeneratePaginationCache(data.paging);
+      console.log("pagination", pagination)
+      console.log("CONTENT", content)
 
       if(cacheType === "content") {
-        this.UpdateContentObjectItems(content, this.currentFolderId);
+        this.UpdateContentObjectItems({
+          items: content,
+          cacheKey,
+          pagination
+        });
       } else if(cacheType === "folder") {
-        this.UpdateContentFolderItems(content, this.currentFolderId);
+        this.UpdateContentFolderItems(content, parentFolderId);
       }
 
       this.SetPaging(data.paging);

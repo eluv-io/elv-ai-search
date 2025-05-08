@@ -35,29 +35,29 @@ const Content = observer(({show}) => {
       contentStore.GetContentData({
         filterOptions: {
           types: ["mez"],
-          group: contentStore.contentFolderId
+          // group: contentStore.currentFolderId
         },
         start: ((currentPage - 1) * pageSize),
         limit: pageSize,
         cacheType: "content"
       });
     },
-    true,
-    [contentStore.contentFolderId, currentPage, pageSize]
+    !!contentStore.currentFolderId,
+    [contentStore.currentFolderId, currentPage, pageSize]
   );
 
-  useData(
-    () => contentStore.GetContentData({
-      filterOptions: {
-        types: ["folder"],
-        group: contentStore.currentFolderId
-      },
-      cacheType: "folder",
-      sortOptions: {field: "title", desc: false}
-    }),
-    !!contentStore.currentFolderId,
-    [contentStore.currentFolderId]
-  );
+  // useData(
+  //   () => contentStore.GetContentData({
+  //     filterOptions: {
+  //       types: ["folder"],
+  //       group: contentStore.currentFolderId
+  //     },
+  //     cacheType: "folder",
+  //     sortOptions: {field: "title", desc: false}
+  //   }),
+  //   !!contentStore.currentFolderId,
+  //   [contentStore.currentFolderId]
+  // );
 
   useEffect(() => {
     if(!inViewport || contentStore.loading) { return; }
@@ -92,7 +92,7 @@ const Content = observer(({show}) => {
               <ActionIcon
                 variant="transparent"
                 c="elv-gray.8"
-                onClick={() => contentStore.UpdateContentFolder(null)}
+                onClick={() => contentStore.UpdateContentFolder(contentStore.rootFolder)}
               >
                 <ArrowBackIcon />
               </ActionIcon>
