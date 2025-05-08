@@ -5,8 +5,8 @@ import styles from "@/components/side-navigation/SideNavigation.module.css";
 
 const NAV_LINKS = [
   {path: "/search", icon: <SearchIcon />, title: "Search"},
-  {path: "/create", icon: <CreateIcon />, title: "Create"},
-  {path: "/library", icon: <LibraryIcon />, title: "My Library"},
+  {path: "/create", icon: <CreateIcon />, title: "Create", disabled: true},
+  {path: "/library", icon: <LibraryIcon />, title: "My Library", disabled: true},
 ];
 
 const SideNavigation = () => {
@@ -16,7 +16,7 @@ const SideNavigation = () => {
   return (
     <AppShell.Navbar p="24 14">
       {
-        NAV_LINKS.map(({path, icon, title}) => (
+        NAV_LINKS.map(({path, icon, title, disabled}) => (
           <Tooltip
             label={title}
             key={`navigation-link-${path}`}
@@ -30,6 +30,7 @@ const SideNavigation = () => {
               onClick={() => navigate(path)}
               active={path === location.pathname}
               leftSection={icon}
+              disabled={disabled}
             />
           </Tooltip>
         ))
