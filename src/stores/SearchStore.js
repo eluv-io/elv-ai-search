@@ -1,6 +1,5 @@
 import {makeAutoObservable, flow} from "mobx";
 import {ToTitleCase} from "@/utils/helpers.js";
-import {CAPTION_KEYS} from "@/utils/data.js";
 import {summaryStore} from "@/stores/index.js";
 
 // Store for fetching search results
@@ -808,8 +807,7 @@ class SearchStore {
       const meta = yield this.client.ContentObjectMetadata({
         objectId,
         libraryId,
-        metadataSubtree: `${result._prefix}/display_metadata`,
-        select: CAPTION_KEYS.map(item => item.keyName)
+        metadataSubtree: `${result._prefix}/display_metadata`
       });
 
       this.UpdateSelectedSearchResult({

@@ -5,20 +5,19 @@ import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime, HandleDownload, SplitCamelCase} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
-import {CAPTION_KEYS} from "@/utils/data.js";
 import MediaSecondaryInfo from "@/pages/result-details/details-main/media-secondary-info/MediaSecondaryInfo.jsx";
 import {useClipboard} from "@mantine/hooks";
 import UrlJoin from "url-join";
 
-const ImageInfo = observer(({info}) => {
+const ImageInfo = observer(() => {
   return (
     <Box mt={20} mb={20}>
       <Stack gap={0}>
         {
-          CAPTION_KEYS.map(item => ({keyName: item.keyName, value: info[item.keyName]}))
+          Object.keys(searchStore.selectedSearchResult._info_image || {}).map(keyName => ({keyName, value: searchStore.selectedSearchResult._info_image[keyName]}))
             .filter(item => !!item.value)
             .map(item => (
-            <Group key={item.keyName}>
+            <Group key={item.keyName} style={{flexWrap: "nowrap"}} align="flex-start">
               <Text c="elv-gray.9">{ item.keyName }:</Text>
               <Text c="elv-gray.9">{ item.value }</Text>
             </Group>
