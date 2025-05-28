@@ -23,6 +23,7 @@ class SearchStore {
   searchTotal = null;
   startResult = 0; // Used for API payload
   endResult = null; // Used for API payload
+  totalResultsPerPage = null;
 
   resultsBySong = null;
   resultsVideo = null;
@@ -77,7 +78,6 @@ class SearchStore {
   get pagination() {
     const currentPage = this.endResult / this.pageSize;
     const searchTotal = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
-    const totalResultsPerPage = searchTotal;
     const totalPages = Math.ceil(this.searchTotal / this.pageSize);
 
     return {
@@ -87,7 +87,7 @@ class SearchStore {
       // Calculated values
       totalPages,
       currentPage,
-      totalResultsPerPage, // total for current page
+      totalResultsPerPage: this.totalResultsPerPage, // total for current page
       searchTotal,
       firstResult: this.startResult + 1,
       lastResult: Math.min(searchTotal, this.endResult)
@@ -750,6 +750,8 @@ class SearchStore {
       newResultsVideoPaginated = Object.assign({}, this.resultsVideoPaginated);
       newResultsVideoPaginated[page] = videoResults?.contents;
     }
+
+    this.totalResultsPerPage = videoResults ? videoResults?.pagination?.total : imageResults?.pagination?.total;
 
     if(cacheResults) {
       this.SetCurrentSearch({
