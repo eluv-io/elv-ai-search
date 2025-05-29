@@ -69,6 +69,7 @@ class SummaryStore {
         // All images
         queryParams["path"] = prefix.toString();
         requestRep = "image_summarize";
+        server = "ai-03";
 
         if(caption) {
           // Image Caption
@@ -76,7 +77,6 @@ class SummaryStore {
 
           queryParams["regenerate"] = regenerate;
           queryParams["engine"] = v2 ? "caption2" : "caption";
-          server = "ai-02";
 
           if(regenerate) {
             queryParams["cache"] = "none";
@@ -85,7 +85,6 @@ class SummaryStore {
           // Image Synopsis
           requestUrl = "ml/summary";
           queryParams["engine"] = "synopsis";
-          server = "ai-03";
         }
       } else {
         queryParams["start_time"] = startTime;
