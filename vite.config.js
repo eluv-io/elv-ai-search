@@ -3,10 +3,10 @@ import react from "@vitejs/plugin-react";
 import {viteStaticCopy} from "vite-plugin-static-copy";
 import {fileURLToPath, URL} from "url";
 
-let base = {}
+let base = {};
 
 if (process.env.ELV_AI_SEARCH_BASE) {
-  base["base"] = process.env.ELV_AI_SEARCH_BASE
+  base["base"] = process.env.ELV_AI_SEARCH_BASE;
 }
 
 export default defineConfig({
@@ -35,7 +35,9 @@ export default defineConfig({
       "@/assets": fileURLToPath(new URL("./src/assets", import.meta.url)),
       "@/pages": fileURLToPath(new URL("./src/pages", import.meta.url)),
       "@/stores": fileURLToPath(new URL("./src/stores", import.meta.url)),
-      "@/utils": fileURLToPath(new URL("./src/utils", import.meta.url))
+      "@/utils": fileURLToPath(new URL("./src/utils", import.meta.url)),
+      // /esm/icons/index.mjs only exports the icons statically, so no separate chunks are created
+      "@tabler/icons-react": "@tabler/icons-react/dist/esm/icons/index.mjs",
     }
   }
 });

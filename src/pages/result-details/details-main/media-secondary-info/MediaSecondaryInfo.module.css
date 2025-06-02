@@ -1,4 +1,4 @@
 .buttonRoot {
-  border-radius: 16px;
   border-color: var(--mantine-color-elv-gray-4);
+  border-radius: 16px;
 }
