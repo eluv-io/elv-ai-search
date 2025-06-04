@@ -37,7 +37,7 @@ const MediaItem = ({clip}) => {
       <Skeleton visible={searchStore.loadingSearchResult}>
         <ContainerElement>
           <AspectRatio ratio={aspectRatio}>
-            <Box w="100%" h="100%" maw={600}>
+            <Box w="100%" h="100%" maw={1000}>
               {
                 imageFailed ?
                   (
