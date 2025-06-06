@@ -42,9 +42,23 @@ class TenantStore {
       return Object.values(this.searchIndexes || {});
     }
 
-    const indexes = yield this.client.ContentObjectMetadata({
+    const indexContainer = yield this.client.ContentObjectMetadata({
       libraryId: this.tenantId.replace("iten", "ilib"),
       objectId: this.tenantId.replace("iten", "iq__"),
+      metadataSubtree: "public/ml_config"
+    });
+
+    let indexLibraryId = this.tenantId.replace("iten", "ilib");
+    let indexObjectId = this.tenantId.replace("iten", "iq__");
+
+    if(indexContainer) {
+      indexObjectId = indexContainer;
+      indexLibraryId = yield this.client.ContentObjectLibraryId({objectId: indexObjectId});
+    }
+
+    const indexes = yield this.client.ContentObjectMetadata({
+      libraryId: indexLibraryId,
+      objectId: indexObjectId,
       metadataSubtree: "public/search/indexes"
     });
 
