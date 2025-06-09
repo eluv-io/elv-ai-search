@@ -4,7 +4,7 @@ import {observer} from "mobx-react-lite";
 import {videoStore, overlayStore} from "@/stores/index.js";
 import {Flex} from "@mantine/core";
 
-const Overlay = observer(() => {
+const Overlay = observer(({aspectRatio}) => {
   // const [hoverEntries, setHoverEntries] = useState([]);
   const [dimensions, setDimensions] = useState({width: 0, height: 0});
 
@@ -23,11 +23,14 @@ const Overlay = observer(() => {
     const {width, height} = dimensions;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-    ctx.canvas.width = width;
+    ctx.canvas.width = height * aspectRatio;
     ctx.canvas.height = height;
 
     // Draw
     ctx.clearRect(0, 0, width, height);
+
+    if(!entry) { return; }
+
     ctx.globalAlpha = 1;
     ctx.lineWidth = 3;
 
@@ -143,8 +146,8 @@ const Overlay = observer(() => {
     if(boxRef.current) {
       const observer = new ResizeObserver((entries) => {
         for(let entry of entries) {
-          const {width, height} = entry.contentRect;
-          setDimensions({width, height});
+          const {height} = entry.contentRect;
+          setDimensions({height, width: height * aspectRatio});
         }
       });
 
@@ -152,22 +155,10 @@ const Overlay = observer(() => {
 
       return () => observer.disconnect();
     }
-  }, []);
+  }, [aspectRatio]);
 
   useEffect(() => {
-    if([null, undefined].includes(overlayStore.entry)) {
-      const {width, height} = dimensions;
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      ctx.canvas.width = width;
-      ctx.canvas.height = height;
-
-      // Draw
-      ctx.clearRect(0, 0, width, height);
-      return;
-    } else {
-      Draw({entry: overlayStore.entry});
-    }
+    Draw({entry: overlayStore.entry});
   }, [overlayStore.entry]);
 
   // const TooltipContent = () => {

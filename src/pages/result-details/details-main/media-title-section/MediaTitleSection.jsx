@@ -5,20 +5,19 @@ import {searchStore, rootStore} from "@/stores/index.js";
 import {observer} from "mobx-react-lite";
 import {FormatRuntime, HandleDownload, SplitCamelCase} from "@/utils/helpers.js";
 import {useEffect, useState} from "react";
-import {CAPTION_KEYS} from "@/utils/data.js";
 import MediaSecondaryInfo from "@/pages/result-details/details-main/media-secondary-info/MediaSecondaryInfo.jsx";
 import {useClipboard} from "@mantine/hooks";
 import UrlJoin from "url-join";
 
-const ImageInfo = observer(({info}) => {
+const ImageInfo = observer(() => {
   return (
     <Box mt={20} mb={20}>
       <Stack gap={0}>
         {
-          CAPTION_KEYS.map(item => ({keyName: item.keyName, value: info[item.keyName]}))
+          Object.keys(searchStore.selectedSearchResult._info_image || {}).map(keyName => ({keyName, value: searchStore.selectedSearchResult._info_image[keyName]}))
             .filter(item => !!item.value)
             .map(item => (
-            <Group key={item.keyName}>
+            <Group key={item.keyName} style={{flexWrap: "nowrap"}} align="flex-start">
               <Text c="elv-gray.9">{ item.keyName }:</Text>
               <Text c="elv-gray.9">{ item.value }</Text>
             </Group>
@@ -209,7 +208,7 @@ const MediaTitleSection = observer(({
         {
           title ?
             (
-              <Group wrap="nowrap" align="center" gap={6} flex="1 1 50%">
+              <Group wrap="nowrap" align="center" gap={6} flex="1 1 100%">
                 <Title order={2} c="elv-gray.8" lineClamp={1} style={{wordBreak: "break-all"}} >
                   { title }
                 </Title>
@@ -232,7 +231,7 @@ const MediaTitleSection = observer(({
         }
         {
           searchStore.selectedSearchResult._assetType &&
-          <Group gap={3} mr={40} wrap="nowrap" w="100%" flex="1 1 0%" miw={0}>
+          <Group gap={3} wrap="nowrap" w="100%" flex="1 1 100%" miw={0} justify="flex-start">
             <Text c="elv-gray.8" fw={400} size="sm" truncate="end">{ searchStore.selectedSearchResult.id }</Text>
             <Tooltip
               label={clipboard.copied ? "Copied" : "Copy ID"}

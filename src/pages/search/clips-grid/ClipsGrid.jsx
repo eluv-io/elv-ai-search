@@ -215,7 +215,7 @@ const ClipsGrid = observer(({
         <Group gap={24} mt={48}>
           <Text>
             {
-              `${searchStore.pagination.firstResult}-${searchStore.pagination.endResult} / ${searchStore.searchTotal}`
+              `${searchStore.pagination.firstResult} - ${searchStore.pagination.totalResultsPerPage} / ${searchStore.searchTotal}`
             }
           </Text>
           <Group ml="auto" align="center" gap={0}>

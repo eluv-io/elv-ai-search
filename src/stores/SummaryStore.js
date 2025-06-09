@@ -69,7 +69,7 @@ class SummaryStore {
         // All images
         queryParams["path"] = prefix.toString();
         requestRep = "image_summarize";
-        server = "ai-02";
+        server = "ai-03";
 
         if(caption) {
           // Image Caption
@@ -83,7 +83,7 @@ class SummaryStore {
           }
         } else {
           // Image Synopsis
-          requestUrl = "summary";
+          requestUrl = "ml/summary";
           queryParams["engine"] = "synopsis";
         }
       } else {

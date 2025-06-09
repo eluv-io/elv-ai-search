@@ -1,6 +1,5 @@
 import {makeAutoObservable, flow} from "mobx";
 import {ToTitleCase} from "@/utils/helpers.js";
-import {CAPTION_KEYS} from "@/utils/data.js";
 import {summaryStore} from "@/stores/index.js";
 
 // Store for fetching search results
@@ -24,6 +23,7 @@ class SearchStore {
   searchTotal = null;
   startResult = 0; // Used for API payload
   endResult = null; // Used for API payload
+  totalResultsPerPage = null;
 
   resultsBySong = null;
   resultsVideo = null;
@@ -78,7 +78,6 @@ class SearchStore {
   get pagination() {
     const currentPage = this.endResult / this.pageSize;
     const searchTotal = this.resultsViewType === "HIGH_SCORE" ? this.searchResults?.length : this.searchTotal;
-    const totalResultsPerPage = searchTotal;
     const totalPages = Math.ceil(this.searchTotal / this.pageSize);
 
     return {
@@ -88,7 +87,7 @@ class SearchStore {
       // Calculated values
       totalPages,
       currentPage,
-      totalResultsPerPage, // total for current page
+      totalResultsPerPage: this.totalResultsPerPage, // total for current page
       searchTotal,
       firstResult: this.startResult + 1,
       lastResult: Math.min(searchTotal, this.endResult)
@@ -752,6 +751,8 @@ class SearchStore {
       newResultsVideoPaginated[page] = videoResults?.contents;
     }
 
+    this.totalResultsPerPage = videoResults ? videoResults?.pagination?.total : imageResults?.pagination?.total;
+
     if(cacheResults) {
       this.SetCurrentSearch({
         videoResults: videoResults?.contents,
@@ -808,8 +809,7 @@ class SearchStore {
       const meta = yield this.client.ContentObjectMetadata({
         objectId,
         libraryId,
-        metadataSubtree: `${result._prefix}/display_metadata`,
-        select: CAPTION_KEYS.map(item => item.keyName)
+        metadataSubtree: `${result._prefix}/display_metadata`
       });
 
       this.UpdateSelectedSearchResult({

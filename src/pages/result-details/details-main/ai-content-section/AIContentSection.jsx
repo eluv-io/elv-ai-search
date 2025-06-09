@@ -15,13 +15,11 @@ import {
   Stack,
   Switch,
   Text,
-  Textarea,
   TextInput,
   Title, Tooltip
 } from "@mantine/core";
 import {IconPencil, IconReload} from "@tabler/icons-react";
 import {useForm} from "@mantine/form";
-import {CAPTION_KEYS} from "@/utils/data.js";
 import styles from "./AIContentSection.module.css";
 
 const CaptionEditView = observer(({
@@ -31,10 +29,8 @@ const CaptionEditView = observer(({
   const [saving, setSaving] = useState(false);
   const initialValues = {};
 
-  CAPTION_KEYS.forEach(item => {
-    initialValues[item.keyName] = item.path ?
-      searchStore.selectedSearchResult._caption?.[item.path]?.[item.keyName] :
-      searchStore.selectedSearchResult._caption?.[item.keyName];
+  Object.keys(searchStore.selectedSearchResult._info_image || {}).forEach(keyName => {
+    initialValues[keyName] = searchStore.selectedSearchResult._info_image[keyName];
   });
   const form = useForm({
     mode: "uncontrolled",
@@ -78,37 +74,23 @@ const CaptionEditView = observer(({
           {/* Form items */}
           <Box flex={4}>
             {
-              CAPTION_KEYS
-                .map(item => ({
-                  ...item,
-                  value: item.path ? searchStore.selectedSearchResult._caption?.[item.path]?.[item.keyName] : searchStore.selectedSearchResult._caption?.[item.keyName]}))
+              Object.keys(searchStore.selectedSearchResult._info_image || {})
+                .map(keyName => ({
+                  name: keyName,
+                  keyName,
+                  value: searchStore.selectedSearchResult._info_image[keyName]}))
                 .map(item => (
                   <Grid key={item.keyName} align="center" w="100%">
                     <Grid.Col span={4}>
                       <Text c="elv-gray.9" fz="sm" fw={700} lh={1.25}>{ item.name }:</Text>
                     </Grid.Col>
                     <Grid.Col span={8}>
-                      {
-                        item.inputType === "textarea" ?
-                          (
-                            <Textarea
-                              size="xs"
-                              autosize
-                              minRows={2}
-                              maxRows={4}
-                              key={item.keyName}
-                              {...form.getInputProps(item.keyName)}
-                            />
-                          ) :
-                          (
-                            <TextInput
-                              size="xs"
-                              lh={1.25}
-                              key={item.keyName}
-                              {...form.getInputProps(item.keyName)}
-                            />
-                          )
-                      }
+                      <TextInput
+                        size="xs"
+                        lh={1.25}
+                        key={item.keyName}
+                        {...form.getInputProps(item.keyName)}
+                      />
                     </Grid.Col>
                   </Grid>
                 ))
@@ -228,10 +210,10 @@ const CaptionDisplayView = observer(({
       </Group>
       <Stack gap={0} lh={1} mt={8}>
         {
-          CAPTION_KEYS.map(item => (
+          Object.keys(searchStore.selectedSearchResult._info_image || {}).map(keyName => (
             {
-              ...item,
-              value: item.path ? searchStore.selectedSearchResult._caption?.[item.path]?.[item.keyName] : searchStore.selectedSearchResult._caption?.[item.keyName]
+              name: keyName,
+              value: searchStore.selectedSearchResult._info_image[keyName]
             })
           )
             .filter(item => !!item.value)

@@ -9,6 +9,7 @@ import {searchStore, videoStore} from "@/stores/index.js";
 const MediaItem = ({clip}) => {
   const mediaRef = useRef(null);
   const [imageFailed, setImageFailed] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(16/9);
 
   const ContainerElement = ({children}) => {
     return (
@@ -24,7 +25,7 @@ const MediaItem = ({clip}) => {
       >
         {
           mediaRef?.current &&
-          <Overlay element={mediaRef.current} />
+          <Overlay aspectRatio={aspectRatio} />
         }
         { children }
       </Flex>
@@ -35,8 +36,8 @@ const MediaItem = ({clip}) => {
     return (
       <Skeleton visible={searchStore.loadingSearchResult}>
         <ContainerElement>
-          <AspectRatio ratio={16 / 9}>
-            <Box w="100%" h="100%">
+          <AspectRatio ratio={aspectRatio}>
+            <Box w="100%" h="100%" maw={1000}>
               {
                 imageFailed ?
                   (
@@ -54,6 +55,7 @@ const MediaItem = ({clip}) => {
                     w="100%"
                     // mah={900}
                     h="100%"
+                    onLoad={event => setAspectRatio(event.target.naturalWidth / event.target.naturalHeight)}
                     onError={() => setImageFailed(true)}
                   />
               }
