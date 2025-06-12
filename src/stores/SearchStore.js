@@ -215,7 +215,7 @@ class SearchStore {
       });
 
       const _pos = url.indexOf("/rep/");
-      const newUrl = `http://ml-001.eluvio/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
+      const newUrl = `https://ai.contentfabric.io/search/qlibs/${libraryId}/q/${objectId}`.concat(url.slice(_pos));
       return { url: newUrl, status: 0 };
     } catch(error) {
       // eslint-disable-next-line no-console
