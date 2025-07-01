@@ -8,7 +8,8 @@ class SearchStore {
     resultsBySong: null,
     index: "",
     terms: "",
-    searchFields: null
+    searchFields: null,
+    internalFields: [],
   };
 
   customIndex = "";
@@ -192,6 +193,10 @@ class SearchStore {
     this.currentSearch.searchFields = fields;
   };
 
+  SetInternalFields = ({internalFields}) => {
+    this.currentSearch.internalFields = internalFields || [];
+  };
+
   SetSearchContentType = ({type}) => {
     this.searchContentType = type;
   };
@@ -257,7 +262,8 @@ class SearchStore {
         .filter(field => {
           const isTextType = indexerFields[field].type === "text";
           const isNotExcluded = !excludedFields.some(exclusion => field.includes(exclusion));
-          return isTextType && isNotExcluded;
+          const isNotInternalField = !field.startsWith("zz_ui_");  // these should be type "string" but double check anyway
+          return isTextType && isNotExcluded && isNotInternalField
         })
         .forEach(field => {
           fuzzySearchFields[`f_${field}`] = {
@@ -265,6 +271,11 @@ class SearchStore {
             value: true
           };
         });
+
+      const internalFields = Object.keys(indexerFields || {})
+        .filter(field => indexerFields[field].type === "string" && field.startsWith("zz_ui_"))
+        .map(field => `f_${field}` )
+        .toSorted();
 
       // Fields for all tenants that are not configured in the meta
       ["movie_characters"].forEach(field => {
@@ -275,6 +286,7 @@ class SearchStore {
       });
 
       this.SetSearchFields({fields: fuzzySearchFields});
+      this.SetInternalFields({internalFields})
     } catch(error) {
       // eslint-disable-next-line no-console
       console.error("Unable to load search fields", error);
@@ -386,6 +398,7 @@ class SearchStore {
     versionHash,
     searchPhrase,
     searchFields,
+    internalFields,
     musicType,
     searchContentType
   }) {
@@ -434,14 +447,18 @@ class SearchStore {
           search_fields: searchFields.join(","),
           start: this.pagination.startResult,
           limit: upperLimit,
-          display_fields: "all",
+          display_fields: internalFields.join(",") || "none",
           clips: searchContentType === "IMAGES" ? false : true,
           clips_include_source_tags: true,
           debug: true,
           // clips_max_duration: 55,
           max_total: maxTotal,
-          select: "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
         };
+
+        // if index does not have ui internal name fields, we will need to request meta for the results
+        if (internalFields.find(field => field.startsWith("f_zz_ui_name_")) == null) {
+          queryParams.select = "/public/asset_metadata/title,/public/name,public/asset_metadata/display_title"
+        }
       }
 
       if(objectId) {
@@ -591,6 +608,15 @@ class SearchStore {
     return highScore ? (highScore * 100).toFixed(1) : "";
   };
 
+  GetTitle = (result) => {
+    // if clip, then look in first shot, otherwise it is the shot
+    const shot = result.sources?.[0] || result;
+
+    // look in the f_zz_ui_name_${n} fields; if we have those use them
+    const nameFromIndex = this.currentSearch.internalFields.filter(f => f.startsWith("f_zz_ui_name_")).map(f => shot.fields[f]?.[0]).find(v =>  v != null && v != "")
+    return nameFromIndex || result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
+  }
+
   ParseResults = flow(function * ({url, searchContentType, page}) {
     try {
       let videoResults, imageResults, resultsBySong;
@@ -636,7 +662,7 @@ class SearchStore {
             }
 
             result["_score"] = this.GetSearchScore({clip: result});
-            result["_title"] = result.meta?.public?.asset_metadata?.title || result.meta?.public?.name || result.id;
+            result["_title"] = this.GetTitle(result)
           }
 
           result["_index"] = i;
@@ -711,6 +737,7 @@ class SearchStore {
       versionHash,
       searchPhrase: fuzzySearchValue,
       searchFields: fuzzySearchFields,
+      internalFields: this.currentSearch.internalFields,
       musicType: musicType,
       searchContentType: "IMAGES"
     });
@@ -720,6 +747,7 @@ class SearchStore {
       versionHash,
       searchPhrase: fuzzySearchValue,
       searchFields: fuzzySearchFields,
+      internalFields: this.currentSearch.internalFields,
       musicType: musicType,
       searchContentType: "VIDEOS"
     });
