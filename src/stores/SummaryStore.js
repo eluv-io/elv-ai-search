@@ -57,7 +57,8 @@ class SummaryStore {
     cache=true,
     caption=false,
     regenerate=false,
-    v2=false
+    v2=false,
+    cacheOnly=false // return only if cached
   }) {
     try {
       let requestRep, requestUrl, server;
@@ -96,6 +97,10 @@ class SummaryStore {
 
       if(!cache) {
         queryParams["regenerate"] = true;
+      }
+
+      if(cacheOnly) {
+        queryParams["cache"] = "only";
       }
 
       const url = yield this.client.Rep({
@@ -300,7 +305,8 @@ class SummaryStore {
     endTime,
     prefix,
     assetType=false,
-    cache=true
+    cache=true,
+    cacheOnly=false
   }) {
     let url;
     try {
@@ -311,7 +317,8 @@ class SummaryStore {
         endTime,
         assetType,
         prefix,
-        cache
+        cache,
+        cacheOnly
       });
     } catch(error) {
       // eslint-disable-next-line no-console
@@ -321,6 +328,9 @@ class SummaryStore {
 
     try {
       const results = yield this.client.Request({url});
+      if(!results) {
+        return;
+      }
 
       searchStore.UpdateSelectedSearchResult({
         key: "_summary",

@@ -369,6 +369,27 @@ const CaptionSection = observer(({clip, v2=false}) => {
 const SummarySection = observer(({clip}) => {
   const [loadingSummary, setLoadingSummary] = useState(false);
 
+  useEffect(() => {
+    const LoadSummary = async() => {
+      try {
+        setLoadingSummary(true);
+
+        await summaryStore.GetSummaryResults({
+          objectId: clip.id,
+          startTime: clip.start_time,
+          endTime: clip.end_time,
+          prefix: clip.prefix,
+          assetType: clip._assetType,
+          cacheOnly: true
+        });
+      } finally {
+        setLoadingSummary(false);
+      }
+    };
+
+    LoadSummary();
+  }, []);
+
   return (
     <TextCard
       title={searchStore.selectedSearchResult?._summary ? searchStore.selectedSearchResult?._summary?.title || "Summary" : ""}
