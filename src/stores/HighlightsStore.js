@@ -13,7 +13,13 @@ class HighlightsStore {
     return this.rootStore.client;
   }
 
-  GetHighlightsUrl = flow(function * ({objectId, startTime, endTime, cache=true}) {
+  GetHighlightsUrl = flow(function * ({
+    objectId,
+    startTime,
+    endTime,
+    cache=true,
+    cacheOnly=false
+  }) {
     try {
       const queryParams = {
         start_time: startTime,
@@ -22,6 +28,10 @@ class HighlightsStore {
 
       if(!cache) {
         queryParams["regenerate"] = true;
+      }
+
+      if(cacheOnly) {
+        queryParams["cache"] = "only";
       }
 
       const url = yield this.client.Rep({
@@ -44,7 +54,13 @@ class HighlightsStore {
     }
   });
 
-  GetHighlightsResults = flow(function * ({objectId, startTime, endTime, cache=true}) {
+  GetHighlightsResults = flow(function * ({
+    objectId,
+    startTime,
+    endTime,
+    cache=true,
+    cacheOnly=false
+  }) {
     let url;
     let retries = 0;
     try {
@@ -52,7 +68,8 @@ class HighlightsStore {
         objectId,
         startTime,
         endTime,
-        cache
+        cache,
+        cacheOnly
       });
     } catch(error) {
       if(retries === 0) {

@@ -1,6 +1,6 @@
 import {observer} from "mobx-react-lite";
 import {Box, Button, Flex, Group, Image, Loader, Pill, Text, UnstyledButton} from "@mantine/core";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {highlightsStore, rootStore, searchStore, summaryStore, tagStore} from "@/stores/index.js";
 import ThumbnailCard from "@/components/thumbnail-card/ThumbnailCard.jsx";
 import AiIcon from "@/components/ai-icon/AiIcon.jsx";
@@ -131,6 +131,25 @@ const KeyFrameButton = observer(({keyFrame}) => {
 const HighlightsPanel = observer(() => {
   const [loading, setLoading] = useState(false);
   const clip = searchStore.selectedSearchResult;
+
+  useEffect(() => {
+    const LoadHighlights = async() => {
+      try {
+        setLoading(true);
+
+        await highlightsStore.GetHighlightsResults({
+          objectId: clip.id,
+          startTime: clip.start_time,
+          endTime: clip.end_time,
+          cacheOnly: true
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    LoadHighlights();
+  }, []);
 
   const HandleGenerate = async(cache=true) => {
     try {
