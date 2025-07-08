@@ -43,12 +43,11 @@ class RootStore {
       window.client = this.client;
 
       this.tenantId = yield this.tenantStore.GetTenantData();
+      this.networkInfo = yield this.client.NetworkInfo();
 
-      // eslint-disable-next-line no-undef
       if(EluvioConfiguration.imageTenants.includes(this.tenantId)) {
         searchStore.SetSearchSummaryType({type: "caption"});
       }
-      this.networkInfo = yield this.client.NetworkInfo();
     } catch(error) {
       /* eslint-disable no-console */
       console.error("Failed to initialize application");
