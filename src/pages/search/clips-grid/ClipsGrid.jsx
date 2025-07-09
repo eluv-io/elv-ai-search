@@ -211,7 +211,7 @@ const ClipsGrid = observer(({
       </SimpleGrid>
 
       {
-        !searchStore.loadingSearch &&
+        !searchStore.loadingSearch && !searchStore.musicSettingEnabled &&
         <Group gap={24} mt={48}>
           <Text>
             {
