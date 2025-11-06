@@ -80,7 +80,6 @@ const MediaItem = ({clip}) => {
           playoutParameters={{
             clipStart: clip.start_time / 1000,
             clipEnd: clip.end_time / 1000,
-            ignoreTrimming: true,
             permanentPoster: PlayerParameters.permanentPoster.ON
           }}
           Callback={({video, player}) => {

@@ -58,6 +58,10 @@ const Video = observer(({
               playoutParameters: {
                 versionHash,
                 objectId,
+                ignoreTrimming: true,
+                options: {
+                  ignore_trimming: true
+                },
                 ...playoutParameters
               }
             },
