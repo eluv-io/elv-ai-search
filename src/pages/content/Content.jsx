@@ -7,28 +7,18 @@ import {
   Stack,
   Text
 } from "@mantine/core";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {contentStore, rootStore} from "@/stores/index.js";
 import ListItems from "@/components/items-list/ListItems.jsx";
 import ActionsToolbar from "@/pages/content/actions-toolbar/ActionsToolbar.jsx";
 import GridItems from "@/components/items-grid/GridItems.jsx";
 import {IconChevronRight} from "@tabler/icons-react";
 import {ArrowBackIcon} from "@/assets/icons/index.js";
-import {useInViewport} from "@mantine/hooks";
 import useData from "@/hooks/useData.js";
 
 const Content = observer(({show}) => {
   const [viewType, setViewType] = useState("LIST");
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 20;
   const [pageVersion, setPageVersion] = useState(1);
-
-  const {ref, inViewport} = useInViewport();
-
-  // const {data: permissionData} = useData(
-  //   () => rootStore.userStore.GetLibraryPermissions({libraryId: rootStore.tenantStore.rootFolder?.libraryId}),
-  //   [rootStore.tenantStore.rootFolder]
-  // );
 
   useData(
     () => {
@@ -37,13 +27,11 @@ const Content = observer(({show}) => {
           types: ["mez"],
           group: contentStore.contentFolderId
         },
-        start: ((currentPage - 1) * pageSize),
-        limit: pageSize,
         cacheType: "content"
       });
     },
     true,
-    [contentStore.contentFolderId, currentPage, pageSize]
+    [contentStore.contentFolderId]
   );
 
   useData(
@@ -58,24 +46,6 @@ const Content = observer(({show}) => {
     !!contentStore.currentFolderId,
     [contentStore.currentFolderId]
   );
-
-  useEffect(() => {
-    if(!inViewport || contentStore.loading) { return; }
-
-    const timeout = setTimeout(() => {
-      if(
-        currentPage < contentStore.paging?.pages &&
-        contentStore.contentObjectRecords?.length > 0 &&
-        inViewport
-      ) {
-        setCurrentPage(prev => prev + 1);
-      }
-    }, 100);
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [inViewport, contentStore.loading, currentPage, contentStore.paging]);
 
   if(!show) { return null; }
 
@@ -147,12 +117,7 @@ const Content = observer(({show}) => {
         <GridItems
           clips={contentStore.contentObjectRecords}
           enablePagination={false}
-          enableInfiniteScroll
         />
-      }
-      {
-        !contentStore.loading &&
-        <Box ref={ref} h={20} mt={100} />
       }
     </Box>
   );
